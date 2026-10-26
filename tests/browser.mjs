@@ -2,7 +2,7 @@ import { chromium } from '@playwright/test';
 import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
 import assert from 'node:assert/strict';
-const server = spawn(process.execPath, ['scripts/serve.mjs', 'dist'], { stdio: ['ignore', 'pipe', 'pipe'] });
+const server = spawn(process.execPath, ['scripts/serve.mjs', 'dist'], { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, PORT: '4174' } });
 let browser;
 try {
   await new Promise((resolve, reject) => { server.stdout.once('data', resolve); server.once('error', reject); server.once('exit', code => reject(new Error(`Server exited ${code}`))); });
@@ -11,7 +11,7 @@ try {
   await page.addInitScript(() => { let seed = 123456; Math.random = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296); });
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   page.on('response', response => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
-  await page.goto('http://127.0.0.1:4173');
+  await page.goto('http://127.0.0.1:4174');
   await page.waitForFunction(() => document.querySelectorAll('.tile').length === 49);
   await page.locator('#hint').click();
   assert.equal(await page.locator('.hinted').count(), 2);
@@ -79,19 +79,19 @@ try {
   // Corrupt saves must not prevent booting.
   await page.evaluate(() => localStorage.setItem('amazing-grace-matchmaker-v1', '{broken'));
   await page.reload(); await page.waitForSelector('.tile'); assert.equal(await page.locator('#moves').textContent(), '20');
-  await page.goto('http://127.0.0.1:4173/src/game/star-matrix/index.html');
+  await page.goto('http://127.0.0.1:4174/src/game/star-matrix/index.html');
   await page.waitForSelector('.star-cell');
   assert.equal(await page.locator('.star-cell').count(), 49);
   await page.locator('#reset-btn').click();
   assert.equal(await page.locator('#score').textContent(), '0');
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-  await page.goto('http://127.0.0.1:4173/stories/');
+  await page.goto('http://127.0.0.1:4174/stories/');
   assert.equal(await page.locator('main li').count(), 2);
   for (const href of await page.locator('main li a').evaluateAll(a => a.map(x => x.href))) {
-    await page.goto(href); assert.equal(await page.locator('article section').count(), 6);
+    await page.goto(href); assert.equal(await page.locator('article section').count(), href.includes('the-matrix-of-conscience') ? 1 : 6);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   }
-  await page.goto('http://127.0.0.1:4173/audio-library/');
+  await page.goto('http://127.0.0.1:4174/audio-library/');
   assert.equal(await page.locator('audio').count(), 6);
   assert.equal(await page.locator('a[download]').count(), 20);
   for (const href of await page.locator('a[download]').evaluateAll(a => a.map(x => x.href))) {
@@ -102,6 +102,35 @@ try {
   await page.locator('a[download]').first().click(); const download = await downloadReady;
   assert.match(download.suggestedFilename(), /\.mp3$/); await download.cancel();
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  await page.goto('http://127.0.0.1:4174/listings/');
+  assert.equal(await page.locator('.listing').count(), 2);
+  const galleryPhotos = await (await page.request.get('http://127.0.0.1:4174/listings/tampa-gallery.json')).json();
+  assert.ok(galleryPhotos.length > 0);
+  assert.equal(await page.locator('#tampa .gallery-photo').count(), galleryPhotos.length);
+  assert.ok((await page.locator('#tampa .gallery-title').textContent()).includes(`${galleryPhotos.length} photos`));
+  const clearwaterPhotos = await (await page.request.get('http://127.0.0.1:4174/listings/clearwater-gallery.json')).json();
+  assert.equal(await page.locator('#clearwater .gallery-photo').count(), clearwaterPhotos.length);
+  assert.equal(await page.locator('#clearwater .price').innerText(), '$900\n/ month · all included');
+  assert.equal(await page.locator('#tampa .price').innerText(), '$850\n/ month · all utilities included');
+  assert.match(await page.locator('#clearwater a.button').getAttribute('href'), /pid=7b7967b3-c6b1-4a4c-9b4f-284c606eee99$/);
+  assert.match(await page.locator('#tampa a.button').getAttribute('href'), /pid=abd149d4-fc46-491d-85c0-ff322d56decb$/);
+  await page.locator('.gallery-photo').first().click();
+  assert.ok(await page.locator('#photo-viewer').evaluate(d => d.open));
+  await page.waitForFunction(() => document.querySelector('#full-photo').naturalWidth > 0);
+  await page.locator('#next-photo').click(); assert.equal(await page.locator('#photo-caption').textContent(), `Clearwater · 2 of ${clearwaterPhotos.length}`);
+  await page.keyboard.press('Escape'); assert.equal(await page.locator('#photo-viewer').evaluate(d => d.open), false);
+  await page.locator('#tampa .gallery-photo').last().click();
+  await page.locator('#next-photo').click();
+  assert.equal(await page.locator('#photo-caption').textContent(), `Tampa · 1 of ${galleryPhotos.length}`);
+  await page.keyboard.press('Escape');
+  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  await page.locator('.gallery img').evaluateAll(async images => { await Promise.all(images.map(async img => { img.loading = 'eager'; await img.decode(); })); });
+  await page.screenshot({ path: 'artifacts/listings-mobile.png', fullPage: true });
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.screenshot({ path: 'artifacts/listings-desktop.png', fullPage: true });
+  for (const href of await page.locator('.gallery-photo').evaluateAll(a => a.map(x => x.href))) {
+    const response = await page.request.get(href); assert.equal(response.status(), 200); assert.equal(response.headers()['content-type'], 'image/jpeg');
+  }
   assert.deepEqual(errors, []);
   console.log('Browser checks passed: render, hint, swap, cascade, invalid swap, save/reload, keyboard, level progression, mobile layout, swipes, restart, campaign completion, dead-board recovery, corrupt-save recovery; no console/network errors.');
 } catch (error) { if (browser) { for (const context of browser.contexts()) for (const page of context.pages()) console.error(await page.locator('body').innerText()); } throw error; } finally { await browser?.close(); server.kill(); }
