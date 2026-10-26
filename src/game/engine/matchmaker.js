@@ -259,38 +259,32 @@ function classifyComponent(comp) {
  */
 export function applyMatches(grid, matchResult, comboLevel = 1) {
   const { matches, specials } = matchResult;
-  const next = grid.map((row) => [...row]);
-  const toClear = new Set(matches.map((m) => `${m.row},${m.col}`));
-
-  // Capture pre-existing specials before clearing anything
-  const preExistingSpecials = matches
-    .filter((m) => next[m.row][m.col]?.special)
-    .map((m) => ({ row: m.row, col: m.col, type: next[m.row][m.col].special, targetType: next[m.row][m.col].type }));
-
-  // Place newly-created special gems (remove from clear list so they persist)
-  for (const s of specials) {
-    const key = `${s.row},${s.col}`;
-    if (toClear.has(key)) {
-      toClear.delete(key);
-      const cell = next[s.row][s.col];
-      next[s.row][s.col] = {
-        ...(cell || {}),
-        type: cell?.type || 'star',
-        special: s.specialType,
-        createdBy: 'shape',
-      };
-    }
+  const next = grid.map(row => [...row]);
+  const cleared = new Set();
+  const protectedCells = new Set(specials.filter(s => !grid[s.row][s.col]?.special).map(s => `${s.row},${s.col}`));
+  const queue = [...matches];
+  // Queue affected cells before clearing so every existing special chains once.
+  while (queue.length) {
+    const { row, col } = queue.shift();
+    const key = `${row},${col}`;
+    if (cleared.has(key) || protectedCells.has(key)) continue;
+    cleared.add(key);
+    const cell = grid[row]?.[col];
+    if (!cell?.special) continue;
+    const affected = grid.map(line => [...line]);
+    triggerSpecial(affected, row, col, cell.special, comboLevel, cell.type);
+    affected.forEach((line, r) => line.forEach((gem, c) => {
+      if (gem === null && grid[r][c]) queue.push({ row: r, col: c });
+    }));
   }
-
-  // Clear remaining matched cells
-  for (const key of toClear) {
+  for (const key of cleared) {
     const [r, c] = key.split(',').map(Number);
     next[r][c] = null;
   }
-
-  // Trigger ONLY pre-existing specials that were part of the match
-  for (const ps of preExistingSpecials) {
-    triggerSpecial(next, ps.row, ps.col, ps.type, comboLevel, ps.targetType);
+  for (const s of specials) {
+    if (protectedCells.has(`${s.row},${s.col}`)) {
+      next[s.row][s.col] = { ...grid[s.row][s.col], special: s.specialType, createdBy: 'shape' };
+    }
   }
 
   return next;
@@ -375,4 +369,36 @@ export function clearMatches(grid, matchCells, replacements = []) {
     next[repl.r][repl.c] = makeGem(repl.kind || randomGemType(), repl.special || null);
   });
   return next;
+}
+
+/** Legal moves on a settled board; the source board is never changed. */
+export function findLegalMoves(grid) {
+  const moves = [];
+  for (let r = 0; r < grid.length; r++) {
+    for (let c = 0; c < grid[r].length; c++) {
+      for (const [dr, dc] of [[0, 1], [1, 0]]) {
+        const r2 = r + dr, c2 = c + dc;
+        if (!canSwap(grid, r, c, r2, c2)) continue;
+        const result = findMatches(applySwap(grid, r, c, r2, c2));
+        if (result.matches.some(m => (m.row === r && m.col === c) || (m.row === r2 && m.col === c2))) {
+          moves.push({ from: { row: r, col: c }, to: { row: r2, col: c2 } });
+        }
+      }
+    }
+  }
+  return moves;
+}
+
+/** Generates a settled board with at least one legal move. */
+export function createPlayableGrid() {
+  for (let attempt = 0; attempt < 100; attempt++) {
+    const grid = createInitialGrid();
+    if (findLegalMoves(grid).length) return grid;
+  }
+  // Guaranteed move, even if an injected RNG repeatedly produces a dead board.
+  const grid = Array.from({ length: GRID_SIZE }, (_, r) =>
+    Array.from({ length: GRID_SIZE }, (_, c) => makeGem(GEM_TYPES[(r + c) % GEM_TYPES.length])));
+  grid[0][0] = makeGem('heart'); grid[0][1] = makeGem('star');
+  grid[0][2] = makeGem('heart'); grid[1][1] = makeGem('heart');
+  return grid;
 }
