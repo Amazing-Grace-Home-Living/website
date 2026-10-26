@@ -8,6 +8,7 @@ try {
   await new Promise((resolve, reject) => { server.stdout.once('data', resolve); server.once('error', reject); server.once('exit', code => reject(new Error(`Server exited ${code}`))); });
   browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1100 } });
+  await page.addInitScript(() => { let seed = 123456; Math.random = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296); });
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   page.on('response', response => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
   await page.goto('http://127.0.0.1:4173');
@@ -78,6 +79,29 @@ try {
   // Corrupt saves must not prevent booting.
   await page.evaluate(() => localStorage.setItem('amazing-grace-matchmaker-v1', '{broken'));
   await page.reload(); await page.waitForSelector('.tile'); assert.equal(await page.locator('#moves').textContent(), '20');
+  await page.goto('http://127.0.0.1:4173/src/game/star-matrix/index.html');
+  await page.waitForSelector('.star-cell');
+  assert.equal(await page.locator('.star-cell').count(), 49);
+  await page.locator('#reset-btn').click();
+  assert.equal(await page.locator('#score').textContent(), '0');
+  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  await page.goto('http://127.0.0.1:4173/stories/');
+  assert.equal(await page.locator('main li').count(), 2);
+  for (const href of await page.locator('main li a').evaluateAll(a => a.map(x => x.href))) {
+    await page.goto(href); assert.equal(await page.locator('article section').count(), 6);
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  }
+  await page.goto('http://127.0.0.1:4173/audio-library/');
+  assert.equal(await page.locator('audio').count(), 6);
+  assert.equal(await page.locator('a[download]').count(), 20);
+  for (const href of await page.locator('a[download]').evaluateAll(a => a.map(x => x.href))) {
+    const response = await page.request.get(href); assert.equal(response.status(), 200);
+    assert.ok(response.headers()['content-type'].startsWith('audio/'));
+  }
+  const downloadReady = page.waitForEvent('download');
+  await page.locator('a[download]').first().click(); const download = await downloadReady;
+  assert.match(download.suggestedFilename(), /\.mp3$/); await download.cancel();
+  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   assert.deepEqual(errors, []);
   console.log('Browser checks passed: render, hint, swap, cascade, invalid swap, save/reload, keyboard, level progression, mobile layout, swipes, restart, campaign completion, dead-board recovery, corrupt-save recovery; no console/network errors.');
-} finally { await browser?.close(); server.kill(); }
+} catch (error) { if (browser) { for (const context of browser.contexts()) for (const page of context.pages()) console.error(await page.locator('body').innerText()); } throw error; } finally { await browser?.close(); server.kill(); }

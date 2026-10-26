@@ -1,0 +1,29 @@
+{
+  "title": "Amazing Grace Stories",
+  "entries": [
+    {
+      "title": "The Matrix of Conscience: The Signal and the Sanctuary",
+      "author": "Amazing Grace Story Team \u2014 consolidated edition",
+      "slug": "the-matrix-of-conscience",
+      "path": "./the-matrix-of-conscience/",
+      "summary": "An engineer, a historian, and a frightened new intelligence discover that a city can be connected without being controlled.",
+      "genre": "Fiction",
+      "tags": [
+        "conscience",
+        "community"
+      ]
+    },
+    {
+      "title": "A Light in the Window: A Covenant of New Beginnings",
+      "author": "Amazing Grace Story Team \u2014 consolidated edition",
+      "slug": "a-light-in-the-window",
+      "path": "./a-light-in-the-window/",
+      "summary": "A woman looking for shelter discovers that a sanctuary is built through the ordinary work of welcoming one another.",
+      "genre": "Fiction",
+      "tags": [
+        "conscience",
+        "community"
+      ]
+    }
+  ]
+}

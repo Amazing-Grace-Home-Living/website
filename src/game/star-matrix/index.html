@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Star Matrix — match constellations on a 7×7 board. Swipe adjacent stars, chain combos, and reach 1000 points." />
+    <meta name="theme-color" content="#050610" />
+    <title>Star Matrix | Amazing Grace</title>
+    <style>
+      :root {
+        --bg: #050610;
+        --panel: rgba(16, 18, 30, 0.92);
+        --border: rgba(126, 255, 216, 0.18);
+        --accent: #7effd8;
+        --text: #e2e8f0;
+        --muted: #94a3b8;
+      }
+      *, *::before, *::after { box-sizing: border-box; }
+      body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: var(--bg); color: var(--text); min-height:100vh; }
+      .topbar { width:100%; padding:1rem 1.25rem; border-bottom:1px solid var(--border); background:rgba(5,6,16,0.75);  display:flex; align-items:center; justify-content:space-between; }
+      .topbar a { color:var(--accent); text-decoration:none; font-weight:700; }
+      .shell { width:min(100%,720px); margin:0 auto; padding:1.25rem; }
+      .header { display:flex; gap:1rem; margin:0.75rem 0 1rem; }
+      .header h1 { margin:0; font-size:clamp(1.5rem,4vw,2.1rem); }
+      .hud { display:flex; gap:0.75rem; flex-wrap:wrap; justify-content:flex-end; align-items:center; }
+      .hud-pill { background:var(--panel); border:1px solid var(--border); border-radius:999px; padding:0.5rem 0.75rem; font-size:0.85rem; color:var(--muted); min-width:10ch; text-align:center; }
+      .hud-pill strong { color:var(--text); }
+      .board-wrap { background:var(--panel); border:1px solid var(--border); border-radius:18px; padding:1rem; }
+      #board { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); grid-template-rows:repeat(7,1fr); gap:8px; max-width:540px; margin:0 auto; touch-action:none; }
+      .star-cell { min-width:0; padding:0; aspect-ratio:1/1; border-radius:14px; border:1px solid rgba(126,255,216,0.20); background:rgba(255,255,255,0.04); display:grid; place-items:center; font-size:clamp(1.2rem,5vw,2rem); cursor:pointer; transition:transform 120ms ease, border-color 120ms ease, background 120ms ease; }
+      .star-cell:focus-visible { outline:3px solid rgba(126,255,216,0.65); outline-offset:2px; }
+      .star-cell.selected { border-color:rgba(126,255,216,0.9); background:rgba(126,255,216,0.10); transform:translateY(-1px); }
+      .controls { display:flex; justify-content:center; gap:0.75rem; margin-top:1rem; flex-wrap:wrap; }
+      button { appearance:none; border:1px solid var(--border); background:rgba(126,255,216,0.10); color:var(--text); border-radius:12px; padding:0.75rem 1rem; font-weight:800; min-height:44px; cursor:pointer; }
+      button:hover { background:rgba(126,255,216,0.16); }
+      button:disabled { opacity:0.6; cursor:not-allowed; }
+      @media(max-width:600px){.header{flex-direction:column}.hud{justify-content:flex-start}#board{gap:4px}.board-wrap{padding:8px}.star-cell{font-size:clamp(14px,5vw,24px);min-height:0;border-radius:7px}}
+    </style>
+    <link rel="icon" href="data:,">
+  </head>
+  <body>
+    <header class="topbar"><a href="/">← Arcade</a><a href="/">amazinggracehl.org</a></header>
+    <main class="shell">
+      <div class="header"><div><h1>Star Matrix</h1><p>Swipe adjacent stars. Chain matches to reach <strong>1000</strong> points.</p></div>
+        <div class="hud" aria-label="Scoreboard"><div class="hud-pill">Score: <strong id="score">0</strong></div><div class="hud-pill">High: <strong id="high">0</strong></div></div>
+      </div>
+      <section class="board-wrap" aria-label="Star Matrix board"><div id="board" role="grid" aria-label="Star Matrix board grid"></div><p id="status" role="status" aria-live="polite"></p><div class="controls"><button id="reset-btn" type="button">Reset</button></div></section>
+    </main>
+    <script type="module" src="./star-matrix-ui.js"></script>
+  </body>
+</html>
