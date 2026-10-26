@@ -1,2 +1,3 @@
-# website
-Florida homes for rent, educational gaming, web design and blog.
+# Amazing Grace Home Living
+
+Website for Florida rental homes, educational gaming, web design, and a blog.
