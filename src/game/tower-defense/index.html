@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="Nexus Defense & Syndicate Siege — Unified Tactical Tower Defense from Amazing Grace Arcade." />
+    <meta name="theme-color" content="#050610" />
+    <title>Nexus Tower Defense | Amazing Grace Arcade</title>
+    <style>
+      :root {
+        --bg: #050610;
+        --panel: rgba(16, 20, 34, 0.94);
+        --border: rgba(126, 255, 216, 0.22);
+        --accent: #7effd8;
+        --accent-glow: rgba(126, 255, 216, 0.4);
+        --danger: #ef4444;
+        --text: #f1f5f9;
+        --muted: #94a3b8;
+      }
+      *, *::before, *::after { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: radial-gradient(circle at 50% 20%, #0d1224 0%, #050610 80%);
+        color: var(--text);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      .topbar {
+        width: 100%;
+        padding: 0.85rem 1.25rem;
+        border-bottom: 1px solid var(--border);
+        background: rgba(5, 6, 16, 0.85);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .topbar a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.95rem;
+      }
+      .shell {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 1rem;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: clamp(1.4rem, 4vw, 2rem);
+        letter-spacing: -0.02em;
+      }
+      .header p {
+        margin: 0.25rem 0 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      .hud-bar {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .hud-pill {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      .hud-pill strong {
+        color: var(--accent);
+        font-size: 1rem;
+      }
+      .hud-pill.health strong {
+        color: #f43f5e;
+      }
+      .hud-pill.credits strong {
+        color: #facc15;
+      }
+
+      /* Game Canvas Wrap */
+      .canvas-wrap {
+        position: relative;
+        background: #090c17;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      canvas {
+        display: block;
+        width: 100%;
+        max-width: 800px;
+        height: auto;
+        background: #070913;
+        touch-action: none;
+        cursor: crosshair;
+      }
+
+      /* Controls & Tower Selector */
+      .controls-bar {
+        margin-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .towers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        gap: 0.6rem;
+      }
+      .tower-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 0.6rem;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .tower-card:hover {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+      }
+      .tower-card.selected {
+        border-color: var(--accent);
+        background: rgba(126, 255, 216, 0.12);
+        box-shadow: 0 0 12px var(--accent-glow);
+      }
+      .tower-card .icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        margin-bottom: 0.35rem;
+        display: grid;
+        place-items: center;
+        font-weight: 900;
+        font-size: 0.85rem;
+        color: #000;
+      }
+      .tower-card .name {
+        font-weight: 700;
+        font-size: 0.8rem;
+      }
+      .tower-card .cost {
+        font-size: 0.75rem;
+        color: #facc15;
+        margin-top: 2px;
+      }
+
+      .actions-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+      button.btn {
+        appearance: none;
+        border: 1px solid var(--border);
+        background: rgba(126, 255, 216, 0.12);
+        color: var(--text);
+        border-radius: 10px;
+        padding: 0.65rem 1.25rem;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      button.btn:hover {
+        background: rgba(126, 255, 216, 0.22);
+        border-color: var(--accent);
+      }
+      button.btn.primary {
+        background: var(--accent);
+        color: #050610;
+        font-weight: 800;
+      }
+      button.btn.primary:hover {
+        background: #a3ffea;
+        box-shadow: 0 0 16px var(--accent-glow);
+      }
+      button.btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      /* Stage Selection Banner */
+      .stage-nav {
+        display: flex;
+        gap: 0.5rem;
+      }
+      .stage-tab {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--muted);
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+        cursor: pointer;
+      }
+      .stage-tab.active {
+        background: rgba(126, 255, 216, 0.15);
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+
+      /* Store & Terminal Modal Overlay */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(5, 6, 16, 0.85);
+        backdrop-filter: blur(6px);
+        place-items: center;
+        z-index: 100;
+        padding: 1rem;
+      }
+      .modal-overlay.open {
+        display: grid;
+      }
+      .modal-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        max-width: 500px;
+        width: 100%;
+        padding: 1.5rem;
+        box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7);
+      }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+      .modal-header h3 { margin: 0; }
+      .upgrade-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a href="/">← Return to Arcade</a>
+      <div class="stage-nav">
+        <button class="stage-tab active" id="tab-nexus" type="button">Stage 1: Nexus</button>
+        <button class="stage-tab" id="tab-syndicate" type="button">Stage 2: Syndicate</button>
+        <button class="stage-tab" id="tab-boss" type="button">Stage 3: Boss Emergence</button>
+      </div>
+      <a href="/src/game/star-matrix/index.html">Star Matrix ↗</a>
+    </header>
+
+    <main class="shell">
+      <div class="header">
+        <div>
+          <h1 id="stage-title">Nexus Defense</h1>
+          <p id="stage-desc">Place defensive turrets along the infiltration grid to protect the Core.</p>
+        </div>
+        <div class="hud-bar">
+          <div class="hud-pill credits">Credits: <strong id="credits">150</strong></div>
+          <div class="hud-pill health">Core: <strong id="health">20</strong></div>
+          <div class="hud-pill">Wave: <strong id="wave">1</strong></div>
+          <div class="hud-pill">Points: <strong id="arcade-points">0</strong></div>
+        </div>
+      </div>
+
+      <div class="canvas-wrap">
+        <canvas id="game-canvas" width="800" height="500"></canvas>
+      </div>
+
+      <div class="controls-bar">
+        <div class="towers-grid" id="tower-selector" role="radiogroup" aria-label="Select Tower">
+          <!-- Populated by JS -->
+        </div>
+
+        <div class="actions-bar">
+          <div>
+            <button class="btn primary" id="btn-wave" type="button">Start Next Wave ⚔</button>
+            <button class="btn" id="btn-auto-wave" type="button">Auto-Wave: OFF</button>
+          </div>
+          <div>
+            <button class="btn" id="btn-shop" type="button">✦ Arcade Upgrade Vault</button>
+            <button class="btn" id="btn-restart" type="button">Restart</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Upgrades Modal -->
+    <div class="modal-overlay" id="modal-shop">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Arcade Upgrade Vault</h3>
+          <button class="btn" id="btn-close-shop" type="button">✕ Close</button>
+        </div>
+        <p style="color:var(--muted); font-size:0.85rem;">
+          Spend arcade points earned in Star Matrix and Tower Defense on permanent core boosts!
+        </p>
+        <div class="upgrade-row">
+          <div>
+            <strong>Starting Energy (+50 Credits)</strong>
+            <div style="font-size:0.75rem; color:var(--muted)">Level: <span id="lvl-economy">0</span></div>
+          </div>
+          <button class="btn" id="buy-economy" type="button">100 Pts</button>
+        </div>
+        <div class="upgrade-row">
+          <div>
+            <strong>Core Integrity (+10 Max HP)</strong>
+            <div style="font-size:0.75rem; color:var(--muted)">Level: <span id="lvl-integrity">0</span></div>
+          </div>
+          <button class="btn" id="buy-integrity" type="button">120 Pts</button>
+        </div>
+        <div class="upgrade-row">
+          <div>
+            <strong>Targeting Overcharge (+15% Damage)</strong>
+            <div style="font-size:0.75rem; color:var(--muted)">Level: <span id="lvl-damage">0</span></div>
+          </div>
+          <button class="btn" id="buy-damage" type="button">150 Pts</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./tower-defense-engine.js"></script>
+  </body>
+</html>
