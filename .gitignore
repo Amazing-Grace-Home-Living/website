@@ -3,4 +3,5 @@ dist/
 .vercel/
 .env*
 assets/.env
+*.log
 artifacts/
