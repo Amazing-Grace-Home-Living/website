@@ -1,40 +1,28 @@
-# Amazing Grace Home Living — Match Maker
+# Amazing Grace Home Living
 
-A standalone, responsive match-three arcade game migrated from the original Amazing Grace engine.
+Static website for amazinggracehl.org: arcade games, Learn & Play, shared local progress, stories, music, and Tampa room listings.
 
-## Run locally
+## Develop and verify
 
-Requires Node.js 20 or newer.
+- `npm ci` installs the test tools.
+- `npm run build` generates `dist/`, including property galleries and public provider guides.
+- `npm run dev` or `npm run preview` serves that build at http://127.0.0.1:4173.
+- `npm test` runs game logic and local-companion tests.
+- `npm run test:browser` checks the website, puzzles, media and listings.
+- `npm run test:vim-defense:browser` checks keyboard, mouse, multi-touch and the complete defense campaign.
+- `node tests/release-browser.mjs` checks local-AI reset behavior and mobile navigation.
+- `npm run audit:links` checks local HTML links.
 
-```sh
-npm ci
-npm test
-npm run dev
-```
+Browser tests require installed Chrome or Edge. Individual test scripts support `CHROME_PATH` or `PLAYWRIGHT_CHANNEL`. Build before running browser tests.
 
-Open http://127.0.0.1:4173. Tap neighboring tiles, swipe, or use arrow keys to focus and Enter/Space to select. Match 3+, reach each target within the move limit, and complete five levels. Hints are free; invalid swaps cost no moves. Dead boards automatically regenerate without spending a move. Four-gem lines, five-gem lines, and T/L matches create specials, which activate when matched and chain through other specials.
+## Publish
 
-Progress and badges save locally after settled turns. Restart resets only the current level. Corrupt or incompatible saves start a fresh game; unavailable storage allows play without persistence. Saves are device/browser specific. No account, backend, or cloud leaderboard is required.
+The connected Vercel project is `amazing-grace-home-living`. It builds this repository with `npm run build` and serves only `dist/`. Production domains include https://amazinggracehl.org and https://www.amazinggracehl.org. Keep local credentials, host applications, temporary review copies and test screenshots outside the static output.
 
-## Build and deploy
+## Optional local companion
 
-```sh
-npm run build
-npm run preview
-```
+The separate Grace Remote companion is launched with `npm start` or `node bridge.mjs --cwd PATH`. It listens on loopback and requires its connection token. It is not a public backend for the website and is not included in the static output.
 
-The build produces a static site in `dist/`. For Vercel, import this repository, select Other as the framework, set the build command to `npm run build`, and output directory to `dist`. No environment variables are needed. The app uses root-relative asset URLs and expects hosting at the domain root. No production deployment is created by these commands.
+[Companion setup notes](docs/grace-remote.md) describe that separate application; references there to a hosted Site or companion downloads are not features deployed by this website build. [Mobile host access](MOBILE-ACCESS.md) covers the optional Windows launcher.
 
-## Verification
-
-`npm test` covers engine behavior, special chains, playable boards, and save validation. `npm run test:browser` starts its own local server and checks the rendered game in desktop Chrome and a mobile viewport. Browser checks require Google Chrome installed locally, or `CHROME_PATH` set to a Chromium executable.
-
-The older UI was rewritten around the exported engine to avoid missing imports and incompatible match formats. Two consolidated stories are available in `stories/`. The music section at `audio-library/` preserves six MP3s with playback/downloads and fourteen MIDI downloads. The rental, gallery, contact, and remaining website sections have not been migrated. Daily challenges and cloud leaderboards are not included in this arcade release.
-
-## Professional profile
-
-`/nicholai/` presents Nicholai Maro Madias's platform engineering and IAM experience, skills, education, and contact links. `/profile` redirects to this page on Vercel; `/profile/` also includes a static redirect fallback. The homepage navigation links to the profile. Content and styles live in `nicholai/`, alongside the corrected Word resume offered for download. Update the page and downloadable resume together when experience changes.
-
-## Rental listings
-
-`/listings/` includes 118 S San Remo Ave in Clearwater ($900/month) and 926 E Poinsettia Ave in Tampa ($850/month), their SmartScreen application links, and separate photo galleries. Listing text is maintained in `listings/index.html`; gallery files are in `assets/Tampa/` and `assets/Clearwater/`. Each gallery is synchronized from its own folder on every build. The static preview uses port 4173 by default; browser checks use 4174 to avoid interrupting an existing preview.
+[Defense controls and checkpoints](arcade/vim-defense/README.md) document Vim/Bash Defense. Site progress stays in the browser unless the user explicitly exports and restores a learning passport.

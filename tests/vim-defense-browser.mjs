@@ -39,6 +39,26 @@ try {
   await page.mouse.up(); await page.keyboard.up(' ');
   await page.keyboard.press('a'); assert.equal(await page.locator('#target-assist').getAttribute('aria-pressed'), 'true');
   const charges = (await state()).stock; await page.keyboard.press('d'); assert.equal((await state()).stock, charges - 1);
+  // Right-click must work alone and in either order with left-click firing.
+  await page.evaluate(() => { window.defenseForTest.game.stock = 8; window.defenseForTest.game.drones = []; });
+  await page.mouse.click(box.x + 50, box.y + 50, { button: 'right' });
+  assert.equal((await state()).stock, 7);
+  await page.mouse.down();
+  await page.mouse.down({ button: 'right' });
+  assert.equal((await state()).stock, 6);
+  assert.equal((await state()).mouse, true);
+  await page.mouse.up();
+  assert.equal((await state()).mouse, false);
+  await page.mouse.up({ button: 'right' });
+  await page.mouse.down({ button: 'right' });
+  await page.mouse.down();
+  assert.equal((await state()).stock, 5);
+  assert.equal((await state()).mouse, true);
+  await page.mouse.up({ button: 'right' });
+  assert.equal((await state()).mouse, true);
+  await page.mouse.up();
+  assert.equal((await state()).mouse, false);
+  await page.evaluate(() => { window.defenseForTest.game.drones = []; });
   await page.keyboard.press('Escape'); const paused = await state();
   await page.waitForTimeout(120); assert.equal((await state()).time, paused.time);
   await page.waitForFunction(() => window.defenseForTest.frameId === null);

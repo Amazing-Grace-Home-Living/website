@@ -11,6 +11,8 @@ campaign.restoreLegacyMatch();
 
 function render() {
   const state = campaign.read();
+  const bonusNav = [...document.querySelectorAll('header nav a')].find(link => link.getAttribute('href') === '/');
+  if (bonusNav) { bonusNav.href = '#practice'; bonusNav.textContent = 'Bonus practice'; }
   let bonus = document.getElementById('signal-bonus');
   if (!bonus) {
     bonus = document.createElement('aside');

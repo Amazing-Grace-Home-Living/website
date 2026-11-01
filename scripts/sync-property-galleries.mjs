@@ -1,14 +1,8 @@
 import { readdir, readFile, writeFile, stat } from 'node:fs/promises';
 const properties = [
-  { city: 'Clearwater', address: '118 S San Remo Ave' },
   { city: 'Tampa', address: '926 E Poinsettia Ave' },
 ];
 let html = await readFile('listings/index.html', 'utf8');
-html = html.replace('<p class="photo-note">Clearwater photos have not been added yet.</p>', '');
-if (!html.includes('<!-- CLEARWATER_SECTION_START -->')) {
-  html = html.replace('</aside></div></article>', '</aside></div><!-- CLEARWATER_SECTION_START --><!-- CLEARWATER_SECTION_END --></article>');
-  html = html.replace(/<section class="gallery-section" aria-label="Tampa property gallery">[\s\S]*?<\/section>/, '<!-- TAMPA_SECTION_START --><!-- TAMPA_SECTION_END -->');
-}
 for (const { city, address } of properties) {
   const candidates = (await readdir(`assets/${city}`)).filter(name => /\.(jpe?g|png|webp)$/i.test(name));
   const names = (await Promise.all(candidates.map(async name => (await stat(`assets/${city}/${name}`)).isFile() ? name : null))).filter(Boolean).sort();

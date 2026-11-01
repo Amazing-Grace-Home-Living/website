@@ -127,7 +127,7 @@ export class DefenseApp {
       if (target.matches('input,select,textarea') || target.isContentEditable || event.ctrlKey || event.metaKey || event.altKey) return;
       if (key === 'i' && target.closest('button')) { event.preventDefault(); if (!event.repeat) target.closest('button').click(); return; }
       if (target === this.canvas) {
-        if ((key in MOVE_KEYS && key !== 'k') || key === ' ') { event.preventDefault(); if (this.game.phase === 'running') this.input.keyboard.add(key); this.rebuildInputs(); }
+        if ((key in MOVE_KEYS && key !== 'k') || key === ' ') { event.preventDefault(); if (this.game.phase === 'running' && !event.repeat) this.input.keyboard.add(key); this.rebuildInputs(); }
         else if (['b', 'k', 'd'].includes(key)) { event.preventDefault(); if (!event.repeat) { this.game.deploy(); this.sync(); } }
         else if (key === 'a') { event.preventDefault(); if (!event.repeat) this.toggleAssist(); }
         else if (key === 'Escape') { event.preventDefault(); if (!event.repeat) this.togglePause(); }
@@ -160,21 +160,22 @@ export class DefenseApp {
       this.game.aim = { x: (event.clientX - rect.left) * WIDTH / rect.width, y: (event.clientY - rect.top) * HEIGHT / rect.height };
       this.invalidate();
     };
+    const updateMouse = event => {
+      // Chorded mouse presses/releases are pointermove events, not pointerdown/up.
+      this.input.update(event.pointerId, event.clientX, event.clientY, event.buttons & 1 ? 'aim' : null);
+      if (event.button === 2 && (event.buttons & 2)) { this.game.deploy(); this.sync(); }
+      this.rebuildInputs();
+    };
     this.canvas.addEventListener('pointermove', event => {
       aim(event);
-      if (event.pointerType === 'mouse' && this.input.activePointers.has(event.pointerId) && !(event.buttons & 1)) {
-        this.input.remove(event.pointerId); this.rebuildInputs();
-      }
+      if (event.pointerType === 'mouse' && this.input.activePointers.has(event.pointerId)) updateMouse(event);
     });
     this.canvas.addEventListener('contextmenu', event => event.preventDefault());
-    this.canvas.addEventListener('mousedown', event => {
-      if (event.button === 2) { event.preventDefault(); this.canvas.focus(); this.game.deploy(); this.sync(); }
-    });
     this.canvas.addEventListener('pointerdown', event => {
       if (event.pointerType !== 'touch' && ![0, 2].includes(event.button)) return; event.preventDefault(); this.canvas.focus(); aim(event);
       if (this.game.phase !== 'running') return;
-      if (event.button === 2) return;
-      this.input.update(event.pointerId, event.clientX, event.clientY, 'aim'); this.rebuildInputs();
+      if (event.pointerType === 'mouse') updateMouse(event);
+      else { this.input.update(event.pointerId, event.clientX, event.clientY, 'aim'); this.rebuildInputs(); }
       this.canvas.setPointerCapture(event.pointerId);
     });
     const releaseAim = event => { clearTouchPointer(event); if (this.canvas.hasPointerCapture(event.pointerId)) this.canvas.releasePointerCapture(event.pointerId); };
