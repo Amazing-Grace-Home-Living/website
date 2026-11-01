@@ -12,14 +12,17 @@ export function validSave(s) {
   const kinds = ['heart', 'star', 'cross', 'flame', 'drop'];
   const specials = [null, 'lineH', 'lineV', 'bomb', 'supernova'];
   return s?.version === 1 && Number.isInteger(s.level) && s.level >= 1 && s.level <= LEVELS.length &&
-    Number.isFinite(s.score) && s.score >= 0 && Number.isFinite(s.total) && s.total >= s.score &&
+    Number.isSafeInteger(s.score) && s.score >= 0 && Number.isSafeInteger(s.total) && s.total >= s.score &&
     Number.isInteger(s.moves) && s.moves >= 0 && s.moves <= LEVELS[s.level - 1].moves &&
     ['playing', 'won', 'lost', 'complete'].includes(s.status) &&
     Array.isArray(s.badges) && s.badges.every(b => ['First light', 'Cascade keeper', 'Star maker', 'Seven Stars champion'].includes(b)) &&
     Array.isArray(s.grid) && s.grid.length === 7 && s.grid.every(row => Array.isArray(row) && row.length === 7 &&
       row.every(g => g && kinds.includes(g.type) && g.kind === g.type && specials.includes(g.special))) &&
     findMatches(s.grid).matches.length === 0 &&
-    (s.status !== 'playing' || (s.moves > 0 && s.score < LEVELS[s.level - 1].target));
+    (s.status !== 'playing' || (s.moves > 0 && s.score < LEVELS[s.level - 1].target)) &&
+    (s.status !== 'lost' || (s.moves === 0 && s.score < LEVELS[s.level - 1].target)) &&
+    (s.status !== 'won' || (s.level < LEVELS.length && s.score >= LEVELS[s.level - 1].target)) &&
+    (s.status !== 'complete' || (s.level === LEVELS.length && s.score >= LEVELS[s.level - 1].target));
 }
 export function loadGame(storage) {
   try { const s = JSON.parse(storage.getItem(SAVE_KEY)); return validSave(s) ? s : null; } catch { return null; }

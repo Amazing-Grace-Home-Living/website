@@ -36,15 +36,9 @@
     <meta property="og:description" content="Test your knowledge of scripture with multiple-choice questions drawn from the Old and New Testament.">
     <meta property="og:url" content="https://amazinggracehl.org/arcade/bible-study">
 
-    <link rel="icon" type="image/png" href="../../assets/logo.png">
+    <link rel="icon" href="data:,">
     <title>Bible Study Quiz | Nexus Arcade — Amazing Grace</title>
 
-    <script src="../../assets/vendor/tailwindcss.js"></script>
-    <script src="../../assets/vendor/hosted-only.js"></script>
-    <link rel="stylesheet" href="../../assets/css/unified-nav.css">
-    <script>
-        window.AmazingGraceHostedOnly?.loadStylesheet("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Orbitron:wght@700;900&family=Playfair+Display:wght@700&display=swap");
-    </script>
     <style>
         :root {
             --bg:        #0f172a;
@@ -360,32 +354,30 @@
     <header class="site-header">
         <div class="nav-container">
             <a href="../../" class="logo" aria-label="Amazing Grace Home Living — Home">
-                <img src="../../assets/logo.png" alt="Amazing Grace Home Living">
+                <span aria-hidden="true">✦</span>
             </a>
             <nav id="main-nav" class="nav-links" aria-label="Main navigation">
-                <a href="../../#properties">Listings</a>
+                <a href="../../listings/">Listings</a>
                 <a href="../../stories/">Stories</a>
                 <a href="../" class="active" aria-current="page">Arcade</a>
-                <a href="../../ministry/">Ministry</a>
-                <a href="../../contact/">Contact</a>
+                <a href="../../lms/">Learn &amp; Play</a>
             </nav>
         </div>
     </header>
 
     <div class="portal-bar" role="navigation" aria-label="Portal navigation">
-        <a href="../../#properties" class="portal-link">🏠 Listings</a>
+        <a href="../../listings/" class="portal-link">🏠 Listings</a>
         <a href="../" class="portal-link active" aria-current="page">🎮 Arcade</a>
-        <a href="../../ministry/" class="portal-link">🕊️ Ministry</a>
-        <a href="../../contact/" class="portal-link">✉️ Contact</a>
+        <a href="../../lms/" class="portal-link">✦ Learn &amp; Play</a>
     </div>
 
     <main>
-        <a href=".." class="back-link" aria-label="Back to Arcade">← Back to Arcade</a>
+        <a href="../" class="back-link" aria-label="Back to Arcade">← Back to Arcade</a>
 
         <div class="game-header">
             <div class="game-header-icon">📖</div>
             <h1>Bible Study Quiz</h1>
-            <p>Test your knowledge of scripture — Old and New Testament. Each correct answer earns credits toward your Nexus Arcade progress.</p>
+            <p>Test your knowledge of scripture — Old and New Testament. Earn quiz credits for each correct answer; finish with at least 8 of 10 correct for an optional Learn &amp; Play milestone worth 50 XP.</p>
         </div>
 
         <div class="quiz-wrap">
@@ -465,7 +457,7 @@
                     </div>
                     <div>
                         <button class="restart-btn" onclick="startQuiz()">🔄 Play Again</button>
-                        <a href=".." class="arcade-btn">🎮 Back to Arcade</a>
+                        <a href="../" class="arcade-btn">🎮 Back to Arcade</a>
                     </div>
                 </div>
             </div>
@@ -729,6 +721,7 @@
 
     // ── Completion ─────────────────────────────────────────────────────
     function showCompletion() {
+        window.AmazingGraceBibleCampaign?.complete(correctCount, questions.length);
         document.getElementById('progress-fill').style.width = '100%';
         document.getElementById('final-score').textContent   = score;
         document.getElementById('final-correct').textContent = correctCount + ' / ' + questions.length;
@@ -746,5 +739,6 @@
     window.addEventListener('credits:updated', updateHUD);
     window.addEventListener('storage', updateHUD);
     </script>
+    <script type="module" src="./campaign.js"></script>
 </body>
 </html>

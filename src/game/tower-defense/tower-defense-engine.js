@@ -1,7 +1,14 @@
+import { DIRECTIVES, SOVEREIGN_ROUTES, WAVE_LESSONS, buildCost, damageType, applyDamage, beamTargets } from './sovereign.js';
+import { campaign } from '../learning/campaign-store.js';
+import { LEVELS } from '../learning/curriculum.js';
+import { levelUnlocked, missingRequirements } from '../learning/progression.js';
+import { claimBonus } from '../learning/bonus-store.js';
+const MISSIONS = Object.fromEntries(LEVELS.filter(level => level.stage).map(level => [level.stage, level]));
+
 /**
  * Unified Matrix Tower Defense Engine
- * Integrates Stage 1 (Nexus), Stage 2 (Syndicate Siege), and Stage 3 (Boss Emergence)
- * Features continuous wave placement, infinite wave loop, and cross-arcade points sync.
+ * Integrates Nexus, Syndicate Siege, Boss Emergence, and Act IV (Sovereign Conscience)
+ * Finite, learning-gated missions with continuous placement and local arcade points.
  */
 
 const CELL_SIZE = 40;
@@ -52,15 +59,21 @@ const TOWER_TYPES = {
   sniper: { name: 'Railgun', label: 'S', cost: 160, range: 240, damage: 95, cooldown: 85, color: '#bc13fe', desc: 'Extreme range & damage' },
   emp: { name: 'EMP Dampener', label: 'E', cost: 140, range: 120, damage: 5, cooldown: 35, color: '#38bdf8', effect: 'slow', desc: 'Slows down hostiles' },
   plasma: { name: 'Plasma Launcher', label: 'M', cost: 220, range: 140, damage: 28, cooldown: 55, color: '#fb923c', effect: 'splash', desc: 'Area splash damage' },
+  prism: { name: 'Phase Prism', label: 'Φ', cost: 280, range: 190, damage: 5, cooldown: 6, color: '#a7f3d0', effect: 'beam', desc: 'Sovereign: continuous piercing Laser beam' },
+  aegis: { name: 'Aegis Node', label: 'A', cost: 200, range: 65, damage: 0, cooldown: 60, color: '#93c5fd', effect: 'aura', desc: 'Sovereign: adjacent towers gain 15% damage and disable protection; does not stack' },
   tesla: { name: 'Tesla Coil', label: 'T', cost: 260, range: 115, damage: 32, cooldown: 40, color: '#e879f9', effect: 'chain', desc: 'Chain lightning attacks' }
 };
 
-class TowerDefenseGame {
+export class TowerDefenseGame {
   constructor() {
     this.canvas = document.getElementById('game-canvas');
     this.ctx = this.canvas.getContext('2d');
-    this.stage = 'nexus';
-    this.path = buildPath(STAGE_PATHS.nexus);
+    const requested = new URLSearchParams(window.location.search).get('stage');
+    this.stage = Object.hasOwn(MISSIONS, requested) ? requested : 'nexus';
+    this.configurePaths();
+    this.status = 'locked';
+    this.autoTimer = null;
+    this.keyboardCell = { col: 0, row: 0 };
 
     // Progression state
     this.credits = 160;
@@ -88,25 +101,47 @@ class TowerDefenseGame {
       economy: 0,
       integrity: 0,
       damage: 0,
-      points: Number(localStorage.getItem('amazing_grace_points') || 100)
+      points: 100
     };
 
+    campaign.restoreLegacyMatch();
     this.loadVault();
     this.setupUI();
     this.setupEvents();
-    this.applyVaultBonuses();
+    this.resetMission();
+    this.renderStage();
 
     // Start loop
     this.lastTime = performance.now();
     requestAnimationFrame((t) => this.loop(t));
   }
 
+  configurePaths() {
+    this.paths = (this.stage === 'sovereign' ? SOVEREIGN_ROUTES : [STAGE_PATHS[this.stage]]).map(buildPath);
+    this.path = this.paths[0];
+  }
+
+  displayedWave() { return this.stage === 'sovereign' ? this.wave + 9 : this.wave; }
+
+  chooseDirective(key) {
+    if (this.stage !== 'sovereign' || this.status !== 'ready' || this.directive || !Object.hasOwn(DIRECTIVES, key)) return;
+    this.directive = key;
+    if (key === 'diplomacy') this.health = Math.min(this.maxHealth, this.health + 15);
+    this.setupUI();
+    this.updateHUD();
+    this.announce(DIRECTIVES[key].title + '. ' + DIRECTIVES[key].reflection);
+  }
+
   loadVault() {
     try {
+      const points = Number(localStorage.getItem('amazing_grace_points') ?? 100);
+      if (Number.isSafeInteger(points) && points >= 0) this.vault.points = points;
       const saved = localStorage.getItem('aghl_td_vault');
       if (saved) {
         const parsed = JSON.parse(saved);
-        this.vault = { ...this.vault, ...parsed };
+        for (const key of ['economy', 'integrity', 'damage']) {
+          if (Number.isInteger(parsed?.[key]) && parsed[key] >= 0 && parsed[key] <= 20) this.vault[key] = parsed[key];
+        }
       }
     } catch (e) {}
   }
@@ -120,27 +155,74 @@ class TowerDefenseGame {
   }
 
   applyVaultBonuses() {
-    this.credits = 160 + (this.vault.economy * 50);
+    this.bonusCredits = claimBonus();
+    this.credits = 160 + (this.vault.economy * 50) + this.bonusCredits;
     this.maxHealth = 25 + (this.vault.integrity * 10);
     this.health = this.maxHealth;
+    if (this.stage === 'sovereign') { this.credits += 340; this.maxHealth += 75; this.health = this.maxHealth - 15; }
     this.updateHUD();
   }
 
+  announce(message) {
+    document.getElementById('mission-status').textContent = message;
+  }
+
+  resetMission() {
+    clearTimeout(this.autoTimer);
+    this.autoTimer = null;
+    this.autoWave = false;
+    this.waveActive = false;
+    this.enemiesToSpawn = 0;
+    this.spawnTimer = 0;
+    this.wave = 1;
+    this.score = 0;
+    this.directive = null;
+    this.surgeTick = 0;
+    this.surgeTiles = [];
+    this.freezeTicks = 0;
+    this.beams = [];
+    this.spawnedCount = 0;
+    this.towers = [];
+    this.enemies = [];
+    this.projectiles = [];
+    this.floatingTexts = [];
+    this.status = levelUnlocked(campaign.read(), MISSIONS[this.stage].id) ? 'ready' : 'locked';
+    this.applyVaultBonuses();
+    this.setupUI();
+    this.announce(this.status === 'locked'
+      ? `Locked: ${missingRequirements(campaign.read(), MISSIONS[this.stage].id).join(' • ')}. Visit Learn & Play to continue.`
+      : `Mission ready. ${this.bonusCredits ? `Signal bonus +${this.bonusCredits} credits. ` : ''}${this.stage === 'sovereign' ? 'Choose a directive before building. ' : ''}Clear ${MISSIONS[this.stage].waves} waves with core health left. Place towers off the path, then start a wave.`);
+  }
+
   setupUI() {
+    if (!document.getElementById('signal-operations-link')) {
+      const link = document.createElement('a');
+      link.id = 'signal-operations-link';
+      link.href = '/arcade/signal-operations/';
+      link.textContent = 'Open Signal Operations · VIM, Bash & PowerShell specialist training →';
+      link.style.cssText = 'display:block;margin-top:.65rem;color:var(--accent);font-weight:650;';
+      document.getElementById('mission-status')?.insertAdjacentElement('afterend', link);
+    }
     const sel = document.getElementById('tower-selector');
     sel.innerHTML = '';
+    if (this.stage !== 'sovereign' && ['prism', 'aegis'].includes(this.selectedTowerKey)) this.selectedTowerKey = 'pulse';
     for (const [key, t] of Object.entries(TOWER_TYPES)) {
-      const card = document.createElement('div');
+      if (this.stage !== 'sovereign' && ['prism', 'aegis'].includes(key)) continue;
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.setAttribute('aria-pressed', String(key === this.selectedTowerKey));
       card.className = `tower-card ${key === this.selectedTowerKey ? 'selected' : ''}`;
       card.dataset.tower = key;
+      card.title = `${t.desc}. Range ${t.range}; damage ${t.damage}; ${t.cooldown} simulation steps between shots.`;
       card.innerHTML = `
         <div class="icon" style="background:${t.color}">${t.label}</div>
         <div class="name">${t.name}</div>
-        <div class="cost">${t.cost} C</div>
+        <div class="cost">${buildCost(t.cost, this.directive)} C</div>
       `;
       card.addEventListener('click', () => {
-        document.querySelectorAll('.tower-card').forEach(c => c.classList.remove('selected'));
+        document.querySelectorAll('.tower-card').forEach(c => { c.classList.remove('selected'); c.setAttribute('aria-pressed', 'false'); });
         card.classList.add('selected');
+        card.setAttribute('aria-pressed', 'true');
         this.selectedTowerKey = key;
       });
       sel.appendChild(card);
@@ -160,33 +242,53 @@ class TowerDefenseGame {
       this.placeTower(Math.floor(x / CELL_SIZE), Math.floor(y / CELL_SIZE));
     };
 
-    this.canvas.addEventListener('click', handlePointer);
-    this.canvas.addEventListener('touchstart', (e) => {
+    this.canvas.addEventListener('pointerdown', e => {
+      if (!e.isPrimary || e.button !== 0) return;
       e.preventDefault();
+      this.canvas.focus();
       handlePointer(e);
-    }, { passive: false });
+    });
+    this.canvas.addEventListener('keydown', event => {
+      const delta = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[event.key];
+      if (delta) {
+        event.preventDefault();
+        this.keyboardCell.col = Math.max(0, Math.min(COLS - 1, this.keyboardCell.col + delta[0]));
+        this.keyboardCell.row = Math.max(0, Math.min(ROWS - 1, this.keyboardCell.row + delta[1]));
+        this.announce(`Placement cursor: column ${this.keyboardCell.col + 1}, row ${this.keyboardCell.row + 1}. Enter places or upgrades your selected tower.`);
+      } else if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        this.placeTower(this.keyboardCell.col, this.keyboardCell.row);
+      }
+    });
+    document.getElementById('placement-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const col = Number(document.getElementById('place-column').value) - 1;
+      const row = Number(document.getElementById('place-row').value) - 1;
+      if (Number.isInteger(col) && Number.isInteger(row)) this.placeTower(col, row);
+    });
 
     // Buttons
     document.getElementById('btn-wave').addEventListener('click', () => this.startWave());
     document.getElementById('btn-auto-wave').addEventListener('click', (e) => {
+      if (this.status !== 'ready') return;
       this.autoWave = !this.autoWave;
       e.target.textContent = `Auto-Wave: ${this.autoWave ? 'ON' : 'OFF'}`;
       if (this.autoWave && !this.waveActive) this.startWave();
     });
 
-    document.getElementById('btn-restart').addEventListener('click', () => {
-      this.towers = [];
-      this.enemies = [];
-      this.projectiles = [];
-      this.wave = 1;
-      this.waveActive = false;
-      this.applyVaultBonuses();
+    document.getElementById('btn-restart').addEventListener('click', () => this.resetMission());
+    window.addEventListener('storage', () => {
+      if (!levelUnlocked(campaign.read(), MISSIONS[this.stage].id) || this.status === 'locked') this.resetMission();
+      this.updateHUD();
     });
 
     // Stage Tabs
     document.getElementById('tab-nexus').addEventListener('click', () => this.switchStage('nexus'));
     document.getElementById('tab-syndicate').addEventListener('click', () => this.switchStage('syndicate'));
     document.getElementById('tab-boss').addEventListener('click', () => this.switchStage('boss'));
+
+    document.getElementById('tab-sovereign').addEventListener('click', () => this.switchStage('sovereign'));
+    document.querySelectorAll('[data-directive]').forEach(button => button.addEventListener('click', () => this.chooseDirective(button.dataset.directive)));
 
     // Shop modal
     const shop = document.getElementById('modal-shop');
@@ -202,8 +304,17 @@ class TowerDefenseGame {
   }
 
   switchStage(stageKey) {
+    if (!Object.hasOwn(MISSIONS, stageKey)) return;
+    const missing = missingRequirements(campaign.read(), MISSIONS[stageKey].id);
+    if (missing.length) { this.announce(`Locked: ${missing.join(' • ')}`); return; }
     this.stage = stageKey;
-    this.path = buildPath(STAGE_PATHS[stageKey]);
+    this.configurePaths();
+    this.resetMission();
+    this.renderStage();
+  }
+
+  renderStage() {
+    const stageKey = this.stage;
     document.querySelectorAll('.stage-tab').forEach(t => t.classList.remove('active'));
     document.getElementById(`tab-${stageKey}`).classList.add('active');
 
@@ -214,25 +325,27 @@ class TowerDefenseGame {
       descEl.textContent = 'Standard grid defense. Establish core turrets to hold off the rogue breach.';
     } else if (stageKey === 'syndicate') {
       titleEl.textContent = 'Syndicate Siege (Stage 2)';
-      descEl.textContent = 'Heavy armor hostiles with shield mechanics. Railguns and EMPs recommended!';
+      descEl.textContent = 'A longer route and tougher hostiles. Combine coverage and slowing across four waves.';
+    } else if (stageKey === 'sovereign') {
+      titleEl.textContent = 'Act IV · The Sovereign Conscience';
+      descEl.textContent = 'Global networks, industrial grids, and orbital satellites now answer the core. A fearful coalition lays siege. Defend the Dual Network through waves 10–12.';
     } else {
       titleEl.textContent = 'Boss Emergence (Stage 3)';
       descEl.textContent = 'High-density titan combat with cosmic aura attacks. Focus fire!';
     }
 
-    this.towers = [];
-    this.enemies = [];
-    this.projectiles = [];
-    this.waveActive = false;
     this.updateHUD();
   }
 
   placeTower(col, row) {
-    if (col < 0 || col >= COLS || row < 0 || row >= ROWS) return;
+    if (this.status !== 'ready' || !levelUnlocked(campaign.read(), MISSIONS[this.stage].id)) return;
+    if (!Number.isInteger(col) || !Number.isInteger(row) || col < 0 || col >= COLS || row < 0 || row >= ROWS) return;
 
+    if (this.stage === 'sovereign' && !this.directive) { this.announce('Choose a foundational directive before building.'); return; }
     // Check if on path
-    const isOnPath = this.path.some(p => p.x === col && p.y === row);
+    const isOnPath = (this.paths || [this.path]).some(route => route.some(p => p.x === col && p.y === row));
     if (isOnPath) {
+      this.announce('Choose a cell off the infiltration path. No credits spent.');
       this.addFloatingText('Cannot place on infiltration path!', col * CELL_SIZE + 20, row * CELL_SIZE, '#ef4444');
       return;
     }
@@ -248,19 +361,24 @@ class TowerDefenseGame {
         existing.range += 12;
         this.addFloatingText(`Level ${existing.level} ✦`, existing.x, existing.y - 10, '#7effd8');
         this.updateHUD();
+        this.announce(`Tower upgraded to level ${existing.level}. ${this.credits} credits remaining.`);
       } else {
+        this.announce(`Need ${upgradeCost} credits to upgrade this tower.`);
         this.addFloatingText(`Need ${upgradeCost} C to upgrade`, existing.x, existing.y - 10, '#facc15');
       }
       return;
     }
 
     const def = TOWER_TYPES[this.selectedTowerKey];
-    if (this.credits < def.cost) {
-      this.addFloatingText(`Need ${def.cost} Credits`, col * CELL_SIZE + 20, row * CELL_SIZE, '#facc15');
+    if (!def || (this.stage !== 'sovereign' && ['beam', 'aura'].includes(def.effect))) return;
+    const cost = buildCost(def.cost, this.directive);
+    if (this.credits < cost) {
+      this.announce(`Need ${cost} credits for ${def.name}.`);
+      this.addFloatingText(`Need ${cost} Credits`, col * CELL_SIZE + 20, row * CELL_SIZE, '#facc15');
       return;
     }
 
-    this.credits -= def.cost;
+    this.credits -= cost;
     const dmgMultiplier = 1 + (this.vault.damage * 0.15);
     this.towers.push({
       col, row,
@@ -268,7 +386,7 @@ class TowerDefenseGame {
       y: row * CELL_SIZE + CELL_SIZE / 2,
       def,
       damage: Math.floor(def.damage * dmgMultiplier),
-      range: def.range,
+      range: def.range * (this.directive === 'dominion' && def.effect !== 'aura' ? 1.25 : 1),
       cooldown: 0,
       level: 1,
       angle: 0
@@ -276,14 +394,20 @@ class TowerDefenseGame {
 
     this.addFloatingText(`+${def.name}`, col * CELL_SIZE + 20, row * CELL_SIZE, def.color);
     this.updateHUD();
+    this.announce(`${def.name} placed at column ${col + 1}, row ${row + 1}. ${this.credits} credits remaining.`);
   }
 
   startWave() {
-    if (this.waveActive) return;
+    if (this.waveActive || this.status !== 'ready' || !levelUnlocked(campaign.read(), MISSIONS[this.stage].id)) return;
+    if (this.stage === 'sovereign' && !this.directive) { this.announce('Choose a directive before Wave 10.'); return; }
+    clearTimeout(this.autoTimer);
+    this.autoTimer = null;
     this.waveActive = true;
-    this.enemiesToSpawn = 6 + Math.floor(this.wave * 2.2);
+    this.enemiesToSpawn = this.stage === 'sovereign' ? Math.ceil((14 + this.wave * 3) * (this.directive === 'dominion' ? 1.2 : 1)) : 6 + Math.floor(this.wave * 2.2);
+    this.spawnedCount = 0;
     this.spawnTimer = 0;
     this.updateHUD();
+    this.announce(this.stage === 'sovereign' ? WAVE_LESSONS[this.wave - 1] : `Wave ${this.wave} of ${MISSIONS[this.stage].waves} started.`);
   }
 
   spawnEnemy() {
@@ -292,6 +416,8 @@ class TowerDefenseGame {
     let color = '#ff0040';
     let type = 'drone';
     let reward = 15;
+    if (this.stage === 'syndicate') hp *= 1.25;
+    if (this.stage === 'boss') hp *= 1.5;
 
     // Special boss every 5 waves
     if (this.wave % 5 === 0 && this.enemiesToSpawn === 1) {
@@ -314,10 +440,19 @@ class TowerDefenseGame {
       reward = 30;
     }
 
+    if (this.stage === 'sovereign') {
+      hp *= 2.2;
+      type = this.wave === 3 && this.enemiesToSpawn === 1 ? 'vanguard' : this.spawnedCount % 5 === 0 ? 'siphon' : 'drone';
+      if (type === 'vanguard') { hp *= 12; speed *= 0.55; color = '#c084fc'; reward = 250; }
+      if (type === 'siphon') { hp *= 1.4; speed *= 0.7; color = '#fbbf24'; reward = 45; }
+    }
+    const route = this.paths ? this.paths[(this.spawnedCount || 0) % this.paths.length] : this.path;
+    this.spawnedCount = (this.spawnedCount || 0) + 1;
     this.enemies.push({
+      route, drainTicks: 0,
       pathIdx: 0,
-      x: this.path[0].x * CELL_SIZE + CELL_SIZE / 2,
-      y: this.path[0].y * CELL_SIZE + CELL_SIZE / 2,
+      x: route[0].x * CELL_SIZE + CELL_SIZE / 2,
+      y: route[0].y * CELL_SIZE + CELL_SIZE / 2,
       hp, maxHp: hp,
       speed,
       color,
@@ -328,6 +463,8 @@ class TowerDefenseGame {
   }
 
   update(dt) {
+    if (this.status !== 'ready') return;
+    if (this.stage === 'sovereign') this.updateSovereign();
     // Spawning
     if (this.waveActive && this.enemiesToSpawn > 0) {
       this.spawnTimer++;
@@ -347,11 +484,23 @@ class TowerDefenseGame {
       this.saveVault();
 
       this.addFloatingText(`WAVE ${this.wave} SECURED! +${waveReward} C`, CANVAS_WIDTH / 2, 80, '#7effd8');
+      if (this.wave >= MISSIONS[this.stage].waves) {
+        this.status = 'won';
+        this.autoWave = false;
+        clearTimeout(this.autoTimer);
+        this.autoTimer = null;
+        campaign.complete(MISSIONS[this.stage].id);
+        const nextStep = this.stage === 'sovereign' ? DIRECTIVES[this.directive].ending + ' Reflect: ' + DIRECTIVES[this.directive].reflection : 'Your next lesson is ready in Learn & Play.';
+        this.announce(`Mission secured! ${MISSIONS[this.stage].waves} waves cleared. ${nextStep} Completion XP is awarded once.${campaign.persistent ? '' : ' Saving unavailable: this result will not persist after leaving this page.'}`);
+        this.updateHUD();
+        return;
+      }
       this.wave++;
       this.updateHUD();
 
       if (this.autoWave) {
-        setTimeout(() => {
+        this.autoTimer = setTimeout(() => {
+          this.autoTimer = null;
           if (!this.waveActive && this.autoWave) this.startWave();
         }, 1500);
       }
@@ -360,23 +509,32 @@ class TowerDefenseGame {
     // Move enemies
     for (let i = this.enemies.length - 1; i >= 0; i--) {
       const e = this.enemies[i];
-      const curSpeed = e.slowDuration > 0 ? e.speed * 0.5 : e.speed;
+      if (this.freezeTicks > 0) continue;
+      const curSpeed = this.freezeTicks > 0 ? 0 : e.slowDuration > 0 ? e.speed * 0.5 : e.speed;
       if (e.slowDuration > 0) e.slowDuration--;
 
-      const target = this.path[e.pathIdx + 1];
+      const target = (e.route || this.path)[e.pathIdx + 1];
       if (!target) {
         // Reached Core
-        this.health--;
+        const coreDamage = e.type === 'siphon' ? 0 : this.stage === 'sovereign' ? (e.type === 'vanguard' ? 20 : 5) : 1;
+        this.health -= coreDamage;
+        if (this.directive === 'martyrdom' && this.health > 0 && this.health < 30 && campaign.useSovereignShield()) {
+          this.freezeTicks = 360;
+          this.announce('Guardian EMP: threats frozen for six seconds. The campaign shield is now spent.');
+        }
         this.enemies.splice(i, 1);
-        this.addFloatingText('-1 Core', CANVAS_WIDTH - 60, CANVAS_HEIGHT - 30, '#ef4444');
+        this.addFloatingText(`−${coreDamage} Core`, CANVAS_WIDTH - 60, CANVAS_HEIGHT - 30, '#ef4444');
         this.updateHUD();
         if (this.health <= 0) {
-          alert('Core breach detected! Rebuilding defenses...');
-          this.applyVaultBonuses();
-          this.towers = [];
-          this.enemies = [];
-          this.wave = 1;
+          this.status = 'lost';
           this.waveActive = false;
+          this.autoWave = false;
+          this.enemiesToSpawn = 0;
+          clearTimeout(this.autoTimer);
+          this.autoTimer = null;
+          this.announce('Core lost. Your learning progress is safe. Restart this mission to try a different plan.');
+          this.updateHUD();
+          return;
         }
         continue;
       }
@@ -399,7 +557,14 @@ class TowerDefenseGame {
 
     // Tower targeting & shooting
     for (const t of this.towers) {
-      if (t.cooldown > 0) t.cooldown--;
+      if (t.def.effect === 'aura') continue;
+      const protectedByAegis = this.towers.some(a => a !== t && a.def.effect === 'aura' && Math.hypot(a.x - t.x, a.y - t.y) <= a.range);
+      const surge = this.surgeTiles?.some(cell => cell.col === t.col && cell.row === t.row);
+      const blackout = surge && this.surgeTick % 900 >= 720;
+      const disabled = this.enemies.some(e => e.type === 'vanguard' && Math.hypot(e.x - t.x, e.y - t.y) <= 90) && this.surgeTick % 300 < 90;
+      if ((blackout || disabled) && !protectedByAegis) continue;
+      const rate = (this.directive === 'dominion' ? 1.1 : 1) * (surge && this.surgeTick % 900 < 720 ? 1.3 : 1);
+      if (t.cooldown > 0) t.cooldown -= rate;
 
       // Find closest enemy in range
       let target = null;
@@ -416,11 +581,18 @@ class TowerDefenseGame {
         t.angle = Math.atan2(target.y - t.y, target.x - t.x);
         if (t.cooldown <= 0) {
           t.cooldown = t.def.cooldown;
+          const damage = t.damage * (protectedByAegis ? 1.15 : 1) * (this.directive === 'diplomacy' && t.def.effect === 'splash' ? 0.9 : 1);
+          if (t.def.effect === 'beam') {
+            for (const enemy of beamTargets(t, target, this.enemies)) applyDamage(enemy, damage, 'Laser', this.enemies);
+            this.beams ||= [];
+            this.beams.push({ x: t.x, y: t.y, endX: t.x + Math.cos(t.angle) * t.range, endY: t.y + Math.sin(t.angle) * t.range, life: 7 });
+            continue;
+          }
           this.projectiles.push({
             x: t.x, y: t.y,
             target,
             speed: 9,
-            damage: t.damage,
+            damage, type: damageType(t.def),
             color: t.def.color,
             effect: t.def.effect
           });
@@ -437,26 +609,23 @@ class TowerDefenseGame {
 
       if (dist <= p.speed || !this.enemies.includes(p.target)) {
         if (this.enemies.includes(p.target)) {
-          p.target.hp -= p.damage;
+          applyDamage(p.target, p.damage, p.type || 'Laser', this.enemies);
           if (p.effect === 'slow') p.target.slowDuration = 60;
+          if (p.effect === 'chain') {
+            this.enemies.filter(other => other !== p.target && Math.hypot(other.x - p.target.x, other.y - p.target.y) < 100)
+              .slice(0, 2).forEach(other => { applyDamage(other, p.damage * 0.5, p.type || 'EMP', this.enemies); });
+          }
 
           // Splash
           if (p.effect === 'splash') {
             for (const other of this.enemies) {
               if (other !== p.target && Math.hypot(other.x - p.x, other.y - p.y) < 65) {
-                other.hp -= Math.floor(p.damage * 0.5);
+                applyDamage(other, p.damage * 0.5, p.type || 'Explosive', this.enemies);
               }
             }
           }
 
-          if (p.target.hp <= 0) {
-            const idx = this.enemies.indexOf(p.target);
-            if (idx !== -1) {
-              this.credits += p.target.reward;
-              this.enemies.splice(idx, 1);
-              this.updateHUD();
-            }
-          }
+          this.collectDefeated();
         }
         this.projectiles.splice(i, 1);
       } else {
@@ -465,12 +634,43 @@ class TowerDefenseGame {
       }
     }
 
+    this.collectDefeated();
     // Floating text decay
     for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
       const ft = this.floatingTexts[i];
       ft.y -= 0.6;
       ft.life -= 0.02;
       if (ft.life <= 0) this.floatingTexts.splice(i, 1);
+    }
+  }
+
+  collectDefeated() {
+    let changed = false;
+    for (let i = this.enemies.length - 1; i >= 0; i--) {
+      if (this.enemies[i].hp > 0) continue;
+      this.credits += Math.floor(this.enemies[i].reward * (this.directive === 'diplomacy' ? 1.15 : 1));
+      this.enemies.splice(i, 1); changed = true;
+    }
+    if (changed) this.updateHUD();
+  }
+
+  updateSovereign() {
+    if (this.freezeTicks > 0) this.freezeTicks--;
+    this.beams = (this.beams || []).filter(beam => --beam.life > 0);
+    if (!this.waveActive) return;
+    this.surgeTick++;
+    if (this.surgeTick % 900 === 360) {
+      const cells = [];
+      for (let col = 0; col < COLS; col++) for (let row = 0; row < ROWS; row++) {
+        if (!this.paths.some(route => route.some(p => p.x === col && p.y === row))) cells.push({ col, row });
+      }
+      this.surgeTiles = [];
+      for (let i = 0; i < 16; i++) this.surgeTiles.push(cells.splice(Math.floor(Math.random() * cells.length), 1)[0]);
+    }
+    if (this.surgeTick % 900 === 0) this.surgeTiles = [];
+    if (!this.freezeTicks) for (const enemy of this.enemies) {
+      if (enemy.type !== 'siphon' || enemy.hp <= 0) continue;
+      if (++enemy.drainTicks >= 60) { this.credits = Math.max(0, this.credits - 5); enemy.drainTicks = 0; this.updateHUD(); }
     }
   }
 
@@ -495,10 +695,20 @@ class TowerDefenseGame {
 
     // Draw Infiltration Path
     this.ctx.fillStyle = 'rgba(26, 32, 53, 0.7)';
-    for (const p of this.path) {
+    for (const p of (this.paths || [this.path]).flat()) {
       this.ctx.fillRect(p.x * CELL_SIZE + 2, p.y * CELL_SIZE + 2, CELL_SIZE - 4, CELL_SIZE - 4);
     }
 
+    for (const cell of this.surgeTiles || []) {
+      this.ctx.fillStyle = this.surgeTick % 900 >= 720 ? 'rgba(239,68,68,.4)' : 'rgba(251,191,36,.4)';
+      this.ctx.fillRect(cell.col * CELL_SIZE + 2, cell.row * CELL_SIZE + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+      this.ctx.fillStyle = '#fff'; this.ctx.font = '14px monospace';
+      this.ctx.fillText(this.surgeTick % 900 >= 720 ? '×' : '+', cell.col * CELL_SIZE + 15, cell.row * CELL_SIZE + 25);
+    }
+    for (const beam of this.beams || []) {
+      this.ctx.strokeStyle = '#a7f3d0'; this.ctx.lineWidth = 3;
+      this.ctx.beginPath(); this.ctx.moveTo(beam.x, beam.y); this.ctx.lineTo(beam.endX, beam.endY); this.ctx.stroke();
+    }
     // Draw Core Base
     const end = this.path[this.path.length - 1];
     this.ctx.fillStyle = '#00f2ff';
@@ -512,6 +722,10 @@ class TowerDefenseGame {
       this.ctx.fillStyle = '#1e293b';
       this.ctx.fillRect(t.col * CELL_SIZE + 4, t.row * CELL_SIZE + 4, CELL_SIZE - 8, CELL_SIZE - 8);
 
+      if (t.def.effect === 'aura') {
+        this.ctx.strokeStyle = '#93c5fd'; this.ctx.lineWidth = 1;
+        this.ctx.beginPath(); this.ctx.arc(t.x, t.y, t.range, 0, Math.PI * 2); this.ctx.stroke();
+      }
       // Gun turret barrel
       this.ctx.save();
       this.ctx.translate(t.x, t.y);
@@ -547,6 +761,12 @@ class TowerDefenseGame {
       this.ctx.fill();
       this.ctx.shadowBlur = 0;
 
+      if (e.type === 'siphon' || e.type === 'vanguard' || this.freezeTicks > 0) {
+        this.ctx.strokeStyle = this.freezeTicks > 0 ? '#38bdf8' : e.color;
+        this.ctx.beginPath(); this.ctx.arc(e.x, e.y, e.type === 'siphon' ? 85 : 20, 0, Math.PI * 2); this.ctx.stroke();
+        this.ctx.fillStyle = '#fff'; this.ctx.font = '11px monospace';
+        this.ctx.fillText(e.type === 'vanguard' ? 'Resists: ' + (e.resistance || 'none') : e.type === 'siphon' ? 'Siphon' : 'Frozen', e.x - 25, e.y - 22);
+      }
       // Health bar
       const pct = Math.max(0, e.hp / e.maxHp);
       this.ctx.fillStyle = '#ef4444';
@@ -571,10 +791,18 @@ class TowerDefenseGame {
       this.ctx.fillText(ft.text, ft.x - 15, ft.y);
     }
     this.ctx.globalAlpha = 1.0;
+    if (document.activeElement === this.canvas) {
+      this.ctx.strokeStyle = '#facc15'; this.ctx.lineWidth = 3;
+      this.ctx.strokeRect(this.keyboardCell.col * CELL_SIZE + 2, this.keyboardCell.row * CELL_SIZE + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+    }
   }
 
   loop(timestamp) {
-    this.update();
+    // Fixed simulation steps keep speed consistent across display refresh rates.
+    if (document.hidden) { this.lastTime = timestamp; this.accumulator = 0; }
+    this.accumulator = (this.accumulator || 0) + Math.min(100, timestamp - this.lastTime);
+    this.lastTime = timestamp;
+    while (this.accumulator >= 1000 / 60) { this.update(); this.accumulator -= 1000 / 60; }
     this.render();
     requestAnimationFrame((t) => this.loop(t));
   }
@@ -586,8 +814,26 @@ class TowerDefenseGame {
   updateHUD() {
     document.getElementById('credits').textContent = String(this.credits);
     document.getElementById('health').textContent = String(this.health);
-    document.getElementById('wave').textContent = String(this.wave);
+    document.getElementById('wave').textContent = this.stage === 'sovereign' ? `${this.displayedWave()} / 12` : `${this.wave} / ${MISSIONS[this.stage].waves}`;
     document.getElementById('arcade-points').textContent = String(this.vault.points);
+    document.getElementById('btn-wave').disabled = this.status !== 'ready' || this.waveActive;
+    document.getElementById('btn-auto-wave').disabled = this.status !== 'ready';
+    document.getElementById('btn-place').disabled = this.status !== 'ready';
+    document.getElementById('btn-auto-wave').textContent = `Auto-Wave: ${this.autoWave ? 'ON' : 'OFF'}`;
+    for (const mission of Object.values(MISSIONS)) {
+      const tab = document.getElementById(`tab-${mission.stage}`);
+      tab.disabled = !levelUnlocked(campaign.read(), mission.id);
+      tab.title = missingRequirements(campaign.read(), mission.id).join(' • ');
+    }
+    document.getElementById('sovereign-brief').hidden = this.stage !== 'sovereign';
+    document.querySelectorAll('[data-directive]').forEach(button => {
+      button.disabled = this.status !== 'ready' || !!this.directive;
+      button.setAttribute('aria-pressed', String(button.dataset.directive === this.directive));
+    });
+    document.getElementById('sovereign-readout').textContent = this.stage === 'sovereign'
+      ? (this.directive ? DIRECTIVES[this.directive].title + ' · ' : 'Choose a directive · ') + WAVE_LESSONS[this.wave - 1] + (campaign.read().sovereignShieldUsed ? ' Campaign EMP spent.' : ' Campaign EMP available to Martyrdom.') : '';
+    document.getElementById('campaign-save-status').textContent = campaign.persistent
+      ? 'Campaign progress saves in this browser.' : 'Saving unavailable. Enable browser storage to keep unlocks across games.';
   }
 
   updateVaultModal() {
@@ -597,18 +843,19 @@ class TowerDefenseGame {
   }
 
   buyUpgrade(type, cost) {
+    if (!Object.hasOwn(TOWER_TYPES, this.selectedTowerKey) || !['economy', 'integrity', 'damage'].includes(type) || this.vault[type] >= 20) return;
     if (this.vault.points >= cost) {
       this.vault.points -= cost;
       this.vault[type]++;
       this.saveVault();
       this.updateVaultModal();
-      this.applyVaultBonuses();
+      this.announce('Upgrade purchased. It applies when you restart or begin another mission.');
     } else {
       alert(`Need ${cost} arcade points! Play Star Matrix or win waves to earn more.`);
     }
   }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+if (typeof window !== 'undefined') window.addEventListener('DOMContentLoaded', () => {
   new TowerDefenseGame();
 });

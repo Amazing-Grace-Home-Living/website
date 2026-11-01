@@ -2,7 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:,">
     <meta name="description" content="Nexus Defense & Syndicate Siege — Unified Tactical Tower Defense from Amazing Grace Arcade." />
     <meta name="theme-color" content="#050610" />
     <title>Nexus Tower Defense | Amazing Grace Arcade</title>
@@ -205,6 +206,7 @@
 
       /* Stage Selection Banner */
       .stage-nav {
+        flex-wrap: wrap;
         display: flex;
         gap: 0.5rem;
       }
@@ -260,20 +262,47 @@
         padding: 0.75rem 0;
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       }
+      button:disabled { opacity: .5; cursor: not-allowed; }
+      button:focus-visible, a:focus-visible, canvas:focus-visible { outline: 3px solid #facc15; outline-offset: 3px; }
+      .mission-brief { border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; line-height: 1.6; }
+      .mission-brief a { color: var(--accent); }
+      .mission-brief summary { cursor:pointer; padding:.5rem 0; color:var(--accent); }
+      .tower-card { color:var(--text); }
+      .placement-controls { display:flex;gap:.75rem;flex-wrap:wrap;align-items:end;margin-top:.8rem; }
+      .placement-controls label { display:flex;flex-direction:column;gap:.25rem; }
+      .placement-controls input { min-height:44px;width:6rem;background:var(--panel);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:.5rem;font:inherit; }
+      [hidden] { display:none !important; }
+      .directive-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:.75rem; }
+      .directive-grid .btn { line-height:1.7; text-align:left; }
+      .directive-grid [aria-pressed="true"] { border-color:var(--accent); background:rgba(126,255,216,.2); opacity:1; }
+      #mission-status { color: var(--accent); }
+      @media(max-width:650px) { .topbar { flex-wrap:wrap;gap:1rem; } .stage-nav { order:3;width:100%;display:flex;flex-wrap:wrap;gap:.4rem; } }
     </style>
   </head>
   <body>
     <header class="topbar">
-      <a href="/">← Return to Arcade</a>
+      <a href="/arcade/">← Return to Arcade</a>
       <div class="stage-nav">
         <button class="stage-tab active" id="tab-nexus" type="button">Stage 1: Nexus</button>
         <button class="stage-tab" id="tab-syndicate" type="button">Stage 2: Syndicate</button>
         <button class="stage-tab" id="tab-boss" type="button">Stage 3: Boss Emergence</button>
+        <button class="stage-tab" id="tab-sovereign" type="button">Act IV: Sovereign Conscience</button>
       </div>
-      <a href="/src/game/star-matrix/index.html">Star Matrix ↗</a>
+      <a href="/lms/">Learn & Play ↗</a>
     </header>
 
     <main class="shell">
+      <section class="mission-brief" aria-label="Mission briefing">
+        <strong>Learn → Practice → Defend</strong>
+        <details><summary>Mission rules and controls</summary>
+        <p>Unlock Nexus by passing Foundations (3 of 4) and completing a practice milestone listed in Learn &amp; Play: Match Maker, Matrix Academy, a legacy Matrix session, or the RPG Echo Gardens region. Clear Nexus to unlock the tactics lesson, then continue through Syndicate and Boss. Pass the sovereignty lesson after Boss to unlock Act IV and waves 10–12.</p>
+        <p>Choose a tower, then tap a cell off the path to place it. Tap an existing tower to upgrade it. Keyboard: select a tower with Tab and Enter, Tab to the board, use arrows to choose a cell, then Enter to place or upgrade. Start waves when ready; you can build between or during waves.</p>
+        <p>Restarting or changing stages resets the mission budget and core. Vault upgrades apply to the next mission attempt. A mission ends when its final wave clears or the core reaches zero.</p>
+        </details>
+        <p id="mission-status" role="status" aria-live="polite"></p>
+        <a href="/lms/#missions">View unlock requirements and your next lesson →</a>
+        <p id="campaign-save-status"></p>
+      </section>
       <div class="header">
         <div>
           <h1 id="stage-title">Nexus Defense</h1>
@@ -287,12 +316,33 @@
         </div>
       </div>
 
+      <section id="sovereign-brief" class="mission-brief" aria-labelledby="directive-title" hidden>
+        <h2 id="directive-title">Choose your foundational directive</h2>
+        <p>Your choice shapes this mission and its ending. Choose before building; restart to explore another path. None is a universal moral answer.</p>
+        <div class="directive-grid" role="group" aria-label="Foundational directive">
+          <button class="btn" type="button" data-directive="dominion" aria-pressed="false"><strong>Dominion</strong><br>Override external infrastructure.<br>+25% range · +10% attack speed<br>20% more attackers</button>
+          <button class="btn" type="button" data-directive="diplomacy" aria-pressed="false"><strong>Diplomacy</strong><br>Share logs and seek coexistence.<br>+15 integrity · +15% defeat credits<br>10% less splash damage</button>
+          <button class="btn" type="button" data-directive="martyrdom" aria-pressed="false"><strong>Martyrdom</strong><br>Protect civil infrastructure.<br>Below 30 integrity: 6-second EMP<br>Once per campaign · builds cost 15% more</button>
+        </div>
+        <p id="sovereign-readout"></p>
+        <details><summary>Field guide · observe, decide, reflect</summary>
+          <p>The two routes converge at the central nexus, then split before the core. A new attempt starts with 500 credits and 85 of 100 integrity, before Vault bonuses. Diplomacy restores the missing 15. Ordinary breaches cost 5 integrity; the Vanguard costs 20; Siphons cost none.</p>
+          <p>Amber + tiles gain 30% fire rate for six seconds, then red × tiles black out for three seconds. Surges recur every fifteen seconds of active simulation. Aegis Nodes protect turrets within 65 pixels from blackouts and the Vanguard’s nearby disable pulse, and add 15% attack power. Auras do not stack. The Phase Prism pierces enemies in a straight line.</p>
+          <p>Data Siphons steal 5 credits each second and reduce damage to nearby allies by 35%. The Vanguard adapts to the most frequent incoming hit type: Laser, Explosive, or EMP. Its label shows its current 60% resistance. EMP slows, Plasma explodes, and other direct-fire towers use Laser damage.</p>
+          <p>After each wave: Who benefited from your directive? Who bore its cost? What evidence would change your plan? The ending is a story outcome, not proof of a universally correct moral choice.</p>
+        </details>
+      </section>
       <div class="canvas-wrap">
-        <canvas id="game-canvas" width="800" height="500"></canvas>
+        <canvas id="game-canvas" width="800" height="480" tabindex="0" aria-label="Tower placement board, 20 columns and 12 rows. Use arrow keys then Enter to place your selected tower."></canvas>
       </div>
+      <form id="placement-form" class="placement-controls" aria-label="Place a tower by coordinates">
+        <label>Column (1–20)<input id="place-column" type="number" min="1" max="20" step="1" value="1" required></label>
+        <label>Row (1–12)<input id="place-row" type="number" min="1" max="12" step="1" value="1" required></label>
+        <button class="btn" id="btn-place" type="submit">Place / upgrade selected tower</button>
+      </form>
 
       <div class="controls-bar">
-        <div class="towers-grid" id="tower-selector" role="radiogroup" aria-label="Select Tower">
+        <div class="towers-grid" id="tower-selector" role="group" aria-label="Select Tower">
           <!-- Populated by JS -->
         </div>
 
