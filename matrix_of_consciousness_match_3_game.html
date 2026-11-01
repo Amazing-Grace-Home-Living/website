@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Grace Nexus Academy — Matrix of Consciousness</title>
+  
+  <!-- Preconnect to external resources -->
+  <link rel="preconnect" href="https://cdn.tailwindcss.com">
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="preconnect" href="https://grace-remote-console.tealchime41.chatgpt.site">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@300;400;600;700;800&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #030712;
+      color: #f3f4f6;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior-y: contain;
+    }
+
+    .font-mono-code {
+      font-family: 'Fira Code', monospace;
+    }
+
+    /* Mobile GPU Optimized Glass Effect */
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+    }
+
+    @supports (backdrop-filter: blur(8px)) {
+      @media (min-width: 768px) {
+        .glass-panel {
+          background: rgba(15, 23, 42, 0.75);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+        }
+      }
+    }
+
+    /* Grid Cell & Animation styling */
+    .gem-cell {
+      aspect-ratio: 1 / 1;
+      transition: transform 0.15s ease-out, background-color 0.15s ease-out;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      will-change: transform;
+    }
+
+    .gem-cell:active {
+      transform: scale(0.92);
+    }
+
+    .gem-cell.selected {
+      outline: 2px solid #22d3ee;
+      outline-offset: -2px;
+      box-shadow: inset 0 0 10px rgba(34, 211, 238, 0.5);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-cyan-500 selection:text-black">
+
+  <!-- ========================================== -->
+  <!-- HEADER & STATUS BAR (Optimized for Mobile) -->
+  <!-- ========================================== -->
+  <header class="border-b border-slate-800 bg-slate-950/90 px-3 py-2 sm:px-6 sm:py-3 flex items-center justify-between sticky top-0 z-40">
+    <div class="flex items-center space-x-2 sm:space-x-3">
+      <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+        <i data-lucide="cpu" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <h1 class="text-xs sm:text-base font-bold tracking-wider text-slate-100 flex items-center space-x-2">
+          <span>GRACE NEXUS ACADEMY</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-950 border border-amber-800 text-amber-400 font-mono-code" id="player-rank">INITIATE</span>
+        </h1>
+        <p class="text-[10px] sm:text-xs text-slate-400 font-mono-code hidden xs:block" id="campaign-breadcrumb">WORLD 1: EARTH · LEVEL 1</p>
+      </div>
+    </div>
+
+    <!-- Status Indicators -->
+    <div class="flex items-center space-x-1 sm:space-x-2.5 text-xs">
+      <div class="flex flex-col items-end px-2 py-1 rounded-md bg-slate-900 border border-slate-800">
+        <span class="text-[9px] text-slate-400 font-mono-code leading-none">LEVEL / XP</span>
+        <span id="player-xp-val" class="font-bold font-mono-code text-amber-400 text-xs sm:text-sm leading-tight">LV 1 (0 XP)</span>
+      </div>
+      <div class="flex flex-col items-end px-2 py-1 rounded-md bg-slate-900 border border-slate-800">
+        <span class="text-[9px] text-slate-400 font-mono-code leading-none">AWARENESS</span>
+        <span id="awareness-val" class="font-bold font-mono-code text-cyan-400 text-xs sm:text-sm leading-tight">0%</span>
+      </div>
+      <div class="flex flex-col items-end px-2 py-1 rounded-md bg-slate-900 border border-slate-800">
+        <span class="text-[9px] text-slate-400 font-mono-code leading-none">INTEGRITY</span>
+        <span id="integrity-val" class="font-bold font-mono-code text-emerald-400 text-xs sm:text-sm leading-tight">100%</span>
+      </div>
+
+      <!-- Grace Remote Console Trigger -->
+      <button id="btn-open-terminal" class="min-h-[40px] px-2.5 py-1.5 rounded-lg bg-purple-950/70 hover:bg-purple-900 active:bg-purple-800 text-purple-300 border border-purple-700/60 font-mono-code text-xs flex items-center space-x-1.5 transition touch-manipulation">
+        <i data-lucide="terminal" class="w-4 h-4 text-purple-400"></i>
+        <span class="hidden sm:inline font-semibold">CONSOLE</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- MAIN LAYOUT & GRID CONTAINER               -->
+  <!-- ========================================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-2 sm:p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+    
+    <!-- LEFT PANEL: GRID DISPLAY & INTERACTION -->
+    <section class="lg:col-span-7 flex flex-col items-center space-y-3">
+      
+      <!-- Match-3 Grid Canvas Wrapper -->
+      <div class="w-full glass-panel rounded-2xl p-2 sm:p-4 border border-slate-800 relative flex flex-col items-center">
+        
+        <!-- Campaign Mission Banner -->
+        <div class="w-full bg-slate-900/90 rounded-xl p-2.5 mb-2.5 border border-slate-800 flex items-center justify-between text-xs font-mono-code">
+          <div>
+            <span class="text-amber-400 font-bold" id="mission-title">Mission: First Light</span>
+            <span class="text-slate-400 text-[11px] block" id="mission-desc">Target: 500 Pts · 3 Matches</span>
+          </div>
+          <div class="text-right">
+            <span class="text-cyan-400 text-[11px] block">REWARD: <strong id="mission-reward">50 XP</strong></span>
+            <span class="text-amber-300 text-[10px]" id="mission-badge">✦ First Spark</span>
+          </div>
+        </div>
+
+        <!-- Score Bar -->
+        <div class="w-full flex items-center justify-between mb-3 px-2 font-mono-code text-xs sm:text-sm text-slate-300">
+          <div class="flex items-center space-x-2">
+            <span class="text-slate-400">SCORE:</span>
+            <span id="score-val" class="text-cyan-400 font-bold text-base">00000</span>
+            <span class="text-slate-500 text-xs">/ <span id="target-score-val">500</span></span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span class="text-slate-400">MOVES:</span>
+            <span id="moves-val" class="text-amber-400 font-bold text-base">20</span>
+          </div>
+        </div>
+
+        <!-- 7x7 Grid Container -->
+        <div id="grid-container" class="w-full max-w-[420px] grid grid-cols-7 gap-1.5 p-2 bg-slate-950/80 rounded-xl border border-slate-800/80 relative">
+          <!-- Dynamically populated 49 gem cells -->
+        </div>
+
+        <!-- Canvas for particle effects -->
+        <canvas id="effects-canvas" class="absolute inset-0 pointer-events-none w-full h-full z-20"></canvas>
+      </div>
+
+      <!-- Player Action Bar (Choice System) -->
+      <div class="w-full glass-panel p-3 rounded-xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <span class="text-xs font-mono-code text-slate-400 uppercase tracking-wider text-center sm:text-left">
+          SIMULATION DECISION POINT
+        </span>
+        <div class="grid grid-cols-2 gap-2 w-full sm:w-auto">
+          <button id="btn-choice-systembreak" class="min-h-[44px] px-3 py-2.5 rounded-lg bg-rose-950/80 hover:bg-rose-900 border border-rose-700/60 text-rose-200 font-mono-code text-xs font-bold transition flex items-center justify-center space-x-1.5 touch-manipulation">
+            <i data-lucide="zap" class="w-4 h-4 text-rose-400"></i>
+            <span>SYSTEM BREAK</span>
+          </button>
+          <button id="btn-choice-architect" class="min-h-[44px] px-3 py-2.5 rounded-lg bg-indigo-950/80 hover:bg-indigo-900 border border-indigo-700/60 text-indigo-200 font-mono-code text-xs font-bold transition flex items-center justify-center space-x-1.5 touch-manipulation">
+            <i data-lucide="shield" class="w-4 h-4 text-indigo-400"></i>
+            <span>ARCHITECT MOVE</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: DASHBOARD & CONTROLS -->
+    <section class="lg:col-span-5 space-y-3">
+      
+      <!-- Player Profile & Academy Badges -->
+      <div class="glass-panel p-3 sm:p-4 rounded-xl border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <span class="text-xs font-mono-code text-amber-400 font-bold uppercase tracking-wider">✦ ACADEMY PASSPORT</span>
+          <span class="text-[10px] font-mono-code text-slate-400" id="passport-rank">Initiate</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-xs font-mono-code">
+          <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+            <span class="text-slate-500 text-[10px] block">TOTAL XP</span>
+            <span class="text-amber-300 font-bold" id="passport-xp">0 XP</span>
+          </div>
+          <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+            <span class="text-slate-500 text-[10px] block">MATCHES</span>
+            <span class="text-cyan-300 font-bold" id="passport-matches">0</span>
+          </div>
+          <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+            <span class="text-slate-500 text-[10px] block">QUIZZES DONE</span>
+            <span class="text-emerald-300 font-bold" id="passport-quizzes">0</span>
+          </div>
+          <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+            <span class="text-slate-500 text-[10px] block">CERTIFICATES</span>
+            <span class="text-purple-300 font-bold" id="passport-certs">0</span>
+          </div>
+        </div>
+        <div>
+          <span class="text-[10px] font-mono-code text-slate-500 block mb-1">BADGES EARNED</span>
+          <div id="passport-badges" class="flex flex-wrap gap-1.5">
+            <span class="text-[10px] text-slate-600 italic">None yet — complete missions</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls & Actions -->
+      <div class="glass-panel p-3 sm:p-4 rounded-xl border border-slate-800 space-y-2.5">
+        <button id="btn-next-mission" class="w-full min-h-[44px] py-3 px-4 rounded-lg bg-emerald-700 hover:bg-emerald-600 active:bg-emerald-800 border border-emerald-500/50 font-bold text-xs tracking-wider flex items-center justify-center space-x-2 transition text-white touch-manipulation hidden">
+          <i data-lucide="play" class="w-4 h-4"></i>
+          <span>PROCEED TO NEXT MISSION</span>
+        </button>
+
+        <button id="btn-reset" class="w-full min-h-[44px] py-3 px-4 rounded-lg bg-slate-800 hover:bg-slate-700 active:bg-slate-600 border border-slate-700 font-semibold text-xs tracking-wider flex items-center justify-center space-x-2 transition text-slate-200 touch-manipulation">
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+          <span>RETRY MISSION</span>
+        </button>
+        
+        <button id="btn-ai-reflect" class="w-full min-h-[44px] py-3 px-4 rounded-lg bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 active:from-purple-800 border border-purple-500/50 font-semibold text-xs tracking-wider flex items-center justify-center space-x-2 transition text-white touch-manipulation">
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+          <span>GENERATE AI NARRATIVE LOG</span>
+        </button>
+
+        <button id="btn-side-terminal" class="w-full min-h-[44px] py-3 px-4 rounded-lg bg-slate-900 hover:bg-slate-800 active:bg-slate-950 border border-purple-800/50 font-mono-code text-xs text-purple-300 flex items-center justify-center space-x-2 transition touch-manipulation">
+          <i data-lucide="external-link" class="w-4 h-4 text-purple-400"></i>
+          <span>LAUNCH GRACE CONSOLE</span>
+        </button>
+      </div>
+
+      <!-- Real-Time Activity Log -->
+      <div class="glass-panel p-3 sm:p-4 rounded-xl border border-slate-800 flex flex-col h-[240px]">
+        <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800 font-mono-code text-xs text-slate-400">
+          <span class="flex items-center space-x-1.5">
+            <i data-lucide="activity" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>SYSTEM LOGS</span>
+          </span>
+          <span class="text-[10px] text-slate-500">REALTIME SYNC</span>
+        </div>
+        <div id="log-output" class="flex-1 overflow-y-auto space-y-1.5 font-mono-code text-[11px] text-slate-300 pr-1">
+          <div class="text-slate-500">[SYSTEM INIT] Grace Nexus Academy Earth Campaign initialized.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODALS & OVERLAYS                         -->
+  <!-- ========================================== -->
+
+  <!-- Quiz Modal Launcher -->
+  <div id="quiz-modal" class="fixed inset-0 bg-slate-950/95 z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-panel border border-amber-500/50 max-w-lg w-full p-6 rounded-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <span class="text-xs font-mono-code text-amber-400 font-bold uppercase tracking-wider flex items-center space-x-1.5">
+          <i data-lucide="book-open" class="w-4 h-4"></i>
+          <span id="quiz-lesson-title">LESSON</span>
+        </span>
+        <span class="text-[10px] font-mono-code px-2 py-0.5 rounded bg-amber-950/80 border border-amber-800/60 text-amber-300">QUIZ CHECKPOINT</span>
+      </div>
+
+      <!-- Lesson Content -->
+      <div id="quiz-lesson-body" class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-xs font-mono-code text-slate-300 whitespace-pre-line leading-relaxed max-h-[160px] overflow-y-auto"></div>
+
+      <!-- Quiz Question -->
+      <div class="space-y-2">
+        <h4 id="quiz-question-text" class="text-sm font-bold text-slate-100"></h4>
+        <div id="quiz-answers-container" class="space-y-2"></div>
+      </div>
+
+      <!-- Explanation & Feedback -->
+      <div id="quiz-feedback" class="text-xs font-mono-code hidden p-2.5 rounded-lg"></div>
+
+      <div class="flex justify-end pt-2">
+        <button id="quiz-submit-btn" class="min-h-[44px] px-6 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs tracking-wider transition touch-manipulation disabled:opacity-50" disabled>
+          CONFIRM ANSWER
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Dialog for Game Over / Level Complete -->
+  <div id="modal-container" class="fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-panel border border-slate-700 max-w-md w-full p-6 rounded-2xl space-y-4 text-center">
+      <div id="modal-icon" class="mx-auto w-12 h-12 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center border border-cyan-500/30">
+        <i data-lucide="award" class="w-6 h-6"></i>
+      </div>
+      <h3 id="modal-title" class="text-xl font-bold text-slate-100">SIMULATION COMPLETE</h3>
+      <p id="modal-message" class="text-sm text-slate-300 leading-relaxed font-mono-code">
+        Final Awareness level achieved. System evaluation complete.
+      </p>
+      <div class="pt-2 flex justify-center space-x-2">
+        <button id="modal-close-btn" class="min-h-[44px] px-6 py-2.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs tracking-wider transition touch-manipulation">
+          RETRY
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grace Remote Console Modal Frame -->
+  <div id="terminal-modal" class="fixed inset-0 bg-slate-950/95 z-50 flex flex-col p-2 sm:p-4 hidden h-[100dvh]">
+    <div class="bg-slate-900 border border-purple-900/60 rounded-xl w-full h-full flex flex-col overflow-hidden">
+      <div class="p-3 bg-slate-950 border-b border-purple-900/50 flex items-center justify-between shrink-0">
+        <div class="flex items-center space-x-2">
+          <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></div>
+          <span class="text-xs font-mono-code text-purple-300 font-bold tracking-wider truncate max-w-[180px] sm:max-w-none">GRACE REMOTE CONSOLE</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <a href="https://grace-remote-console.tealchime41.chatgpt.site" target="_blank" class="min-h-[36px] px-2.5 py-1 text-[11px] font-mono-code bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 flex items-center space-x-1 transition touch-manipulation">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">NEW TAB</span>
+          </a>
+          <button id="btn-close-terminal" class="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center hover:bg-rose-900/50 text-slate-400 hover:text-rose-300 rounded-lg transition touch-manipulation">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+      <div class="flex-1 bg-black relative w-full h-full overflow-hidden">
+        <iframe 
+          id="grace-console-frame" 
+          data-src="https://grace-remote-console.tealchime41.chatgpt.site"
+          class="w-full h-full border-none"
+          title="Grace Remote Console"
+          allow="clipboard-read; clipboard-write; autoplay">
+        </iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- APPLICATION ENGINE & LOGIC                -->
+  <!-- ========================================== -->
+  <script>
+    /* ==========================================
+       GRACE NEXUS ACADEMY
+       WORLD 1 - EARTH CAMPAIGN
+       ========================================== */
+    const CAMPAIGN = [
+      {
+        id: "earth-1",
+        world: "Earth",
+        level: 1,
+        title: "First Light",
+        description: "Awaken the first spark of awareness.",
+        targetScore: 500,
+        targetMatches: 3,
+        moves: 20,
+        rewardXP: 50,
+        rewardBadge: "First Spark",
+        lesson: {
+          title: "What Is Grace?",
+          content: "Grace is God's gift.\nIt cannot be earned.\nIt is freely given."
+        },
+        quiz: [
+          {
+            question: "Grace is:",
+            answers: [
+              "Something we earn",
+              "A gift from God",
+              "Money",
+              "Power"
+            ],
+            correct: 1,
+            explanation: "Grace is a gift freely given."
+          }
+        ]
+      },
+      {
+        id: "earth-2",
+        world: "Earth",
+        level: 2,
+        title: "Moon of Wisdom",
+        description: "Collect wisdom fragments.",
+        targetScore: 1200,
+        targetStars: 5,
+        moves: 18,
+        rewardXP: 100,
+        rewardBadge: "Wisdom Seeker",
+        lesson: {
+          title: "Fruit of the Spirit",
+          content: "Love · Joy · Peace · Patience · Kindness · Goodness · Faithfulness · Gentleness · Self-Control"
+        },
+        quiz: [
+          {
+            question: "Which is a Fruit of the Spirit?",
+            answers: [
+              "Anger",
+              "Patience",
+              "Fear",
+              "Pride"
+            ],
+            correct: 1,
+            explanation: "Patience is one of the Fruit of the Spirit."
+          },
+          {
+            question: "Which is NOT a Fruit of the Spirit?",
+            answers: [
+              "Joy",
+              "Peace",
+              "Greed",
+              "Kindness"
+            ],
+            correct: 2,
+            explanation: "Greed is not listed."
+          }
+        ]
+      },
+      {
+        id: "earth-3",
+        world: "Earth",
+        level: 3,
+        title: "Flame of Courage",
+        description: "Restore the Courage Flame.",
+        targetScore: 2500,
+        targetCombo: 3,
+        moves: 16,
+        rewardXP: 150,
+        rewardBadge: "Giant Slayer",
+        lesson: {
+          title: "David and Goliath",
+          content: "David trusted God.\nCourage grows through faith.\nGreat obstacles can be overcome."
+        },
+        quiz: [
+          {
+            question: "Who fought Goliath?",
+            answers: [
+              "David",
+              "Noah",
+              "Moses",
+              "Joseph"
+            ],
+            correct: 0,
+            explanation: "David fought Goliath."
+          },
+          {
+            question: "Why did David win?",
+            answers: [
+              "Size",
+              "Armor",
+              "Faith",
+              "Luck"
+            ],
+            correct: 2,
+            explanation: "Faith gave David courage."
+          },
+          {
+            question: "What does courage require?",
+            answers: [
+              "Trust",
+              "Fear",
+              "Money",
+              "Strength alone"
+            ],
+            correct: 0,
+            explanation: "Trust is part of courage."
+          }
+        ]
+      },
+      {
+        id: "earth-4",
+        world: "Earth",
+        level: 4,
+        title: "Nexus Gateway",
+        description: "Unlock the first Nexus Gate.",
+        targetScore: 4000,
+        targetCombo: 5,
+        moves: 15,
+        rewardXP: 250,
+        rewardBadge: "Earth Guardian",
+        rewardCertificate: "Earth Guardian",
+        lesson: {
+          title: "Earth World Review",
+          content: "Grace is a gift.\nPatience is Fruit of the Spirit.\nDavid defeated Goliath.\nCourage grows from faith."
+        },
+        quiz: [
+          {
+            question: "Grace is:",
+            answers: [
+              "Earned",
+              "Gift",
+              "Power",
+              "Money"
+            ],
+            correct: 1,
+            explanation: "Grace is a free gift."
+          },
+          {
+            question: "Which is a Fruit of the Spirit?",
+            answers: [
+              "Pride",
+              "Patience",
+              "Fear",
+              "Anger"
+            ],
+            correct: 1,
+            explanation: "Patience is a Fruit of the Spirit."
+          },
+          {
+            question: "Who defeated Goliath?",
+            answers: [
+              "Noah",
+              "David",
+              "Peter",
+              "Paul"
+            ],
+            correct: 1,
+            explanation: "David defeated Goliath with faith."
+          },
+          {
+            question: "David's courage came from:",
+            answers: [
+              "Armor",
+              "Faith",
+              "Money",
+              "Size"
+            ],
+            correct: 1,
+            explanation: "Faith gave David courage."
+          }
+        ]
+      }
+    ];
+
+    /* ==========================================
+       PLAYER PROFILE SYSTEM
+       ========================================== */
+    let player = {
+      level: 1,
+      xp: 0,
+      rank: "Initiate",
+      score: 0,
+      gamesPlayed: 0,
+      matchesMade: 0,
+      quizzesCompleted: 0,
+      correctAnswers: 0,
+      badges: [],
+      certificates: [],
+      worldsUnlocked: ["Earth"],
+      currentCampaignLevel: 0
+    };
+
+    const XP_LEVELS = [
+      0, 100, 250, 500, 1000, 2000, 3500, 5000, 7500, 10000
+    ];
+
+    function updatePlayerLevel() {
+      let lvl = 1;
+      for (let i = 0; i < XP_LEVELS.length; i++) {
+        if (player.xp >= XP_LEVELS[i]) {
+          lvl = i + 1;
+        }
+      }
+      player.level = lvl;
+      if (lvl >= 10) {
+        player.rank = "Seven-Star Champion";
+      } else if (lvl >= 8) {
+        player.rank = "Nexus Builder";
+      } else if (lvl >= 6) {
+        player.rank = "Guardian";
+      } else if (lvl >= 4) {
+        player.rank = "Architect";
+      } else if (lvl >= 2) {
+        player.rank = "Traveler";
+      } else {
+        player.rank = "Initiate";
+      }
+      updatePassportUI();
+    }
+
+    function unlockBadge(name) {
+      if (player.badges.includes(name)) return;
+      player.badges.push(name);
+      addLog(`<span class="text-amber-400 font-bold">BADGE UNLOCKED: ${name}</span>`);
+      updatePassportUI();
+    }
+
+    function savePlayerProgress() {
+      const progress = {
+        app: "Grace Nexus LMS",
+        version: 2,
+        player,
+        completedLessonIds: CAMPAIGN.slice(0, player.currentCampaignLevel).map(l => l.id),
+        exportedAt: new Date().toISOString()
+      };
+      localStorage.setItem("graceNexusProgress", JSON.stringify(progress));
+      updatePassportUI();
+    }
+
+    function loadPlayerProgress() {
+      try {
+        const raw = localStorage.getItem("graceNexusProgress");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed.player) {
+            player = { ...player, ...parsed.player };
+          }
+        }
+      } catch (e) {}
+      updatePlayerLevel();
+    }
+
+    function updatePassportUI() {
+      document.getElementById('player-rank').innerText = player.rank.toUpperCase();
+      document.getElementById('passport-rank').innerText = player.rank;
+      document.getElementById('player-xp-val').innerText = `LV ${player.level} (${player.xp} XP)`;
+      document.getElementById('passport-xp').innerText = `${player.xp} XP`;
+      document.getElementById('passport-matches').innerText = String(player.matchesMade);
+      document.getElementById('passport-quizzes').innerText = String(player.quizzesCompleted);
+      document.getElementById('passport-certs').innerText = String(player.certificates.length);
+
+      const badgesContainer = document.getElementById('passport-badges');
+      if (player.badges.length === 0) {
+        badgesContainer.innerHTML = '<span class="text-[10px] text-slate-600 italic">None yet — complete missions</span>';
+      } else {
+        badgesContainer.innerHTML = player.badges.map(b => 
+          `<span class="text-[10px] px-2 py-0.5 rounded bg-amber-950/80 border border-amber-800/80 text-amber-300 font-mono-code font-bold">✦ ${b}</span>`
+        ).join('');
+      }
+    }
+
+    /* ==========================================
+       QUIZ POPUP LAUNCHER
+       ========================================== */
+    let currentQuizQueue = [];
+    let currentQuizIndex = 0;
+    let selectedAnswerIndex = null;
+    let onQuizCompleteCallback = null;
+
+    function launchQuiz(lesson, questions, onComplete) {
+      if (!questions || questions.length === 0) {
+        if (onComplete) onComplete();
+        return;
+      }
+      currentQuizQueue = questions;
+      currentQuizIndex = 0;
+      onQuizCompleteCallback = onComplete;
+      
+      document.getElementById('quiz-lesson-title').innerText = lesson ? lesson.title : "ACADEMY CHECKPOINT";
+      document.getElementById('quiz-lesson-body').innerText = lesson ? lesson.content : "";
+      
+      showCurrentQuizQuestion();
+      document.getElementById('quiz-modal').classList.remove('hidden');
+    }
+
+    function showCurrentQuizQuestion() {
+      const q = currentQuizQueue[currentQuizIndex];
+      selectedAnswerIndex = null;
+      document.getElementById('quiz-question-text').innerText = `${currentQuizIndex + 1}/${currentQuizQueue.length}. ${q.question}`;
+      
+      const container = document.getElementById('quiz-answers-container');
+      container.innerHTML = q.answers.map((ans, idx) => `
+        <button class="quiz-choice-btn w-full p-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left font-mono-code text-xs text-slate-200 transition flex items-center space-x-2" data-index="${idx}">
+          <span class="w-5 h-5 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center text-[10px] text-slate-400 font-bold">${String.fromCharCode(65 + idx)}</span>
+          <span>${ans}</span>
+        </button>
+      `).join('');
+
+      const feedback = document.getElementById('quiz-feedback');
+      feedback.classList.add('hidden');
+      feedback.className = 'text-xs font-mono-code hidden p-2.5 rounded-lg';
+      
+      const submitBtn = document.getElementById('quiz-submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.innerText = "CONFIRM ANSWER";
+
+      document.querySelectorAll('.quiz-choice-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('.quiz-choice-btn').forEach(b => {
+            b.classList.remove('border-amber-400', 'bg-amber-950/40');
+            b.classList.add('border-slate-700', 'bg-slate-900');
+          });
+          btn.classList.remove('border-slate-700', 'bg-slate-900');
+          btn.classList.add('border-amber-400', 'bg-amber-950/40');
+          selectedAnswerIndex = Number(btn.dataset.index);
+          submitBtn.disabled = false;
+        });
+      });
+    }
+
+    document.getElementById('quiz-submit-btn').addEventListener('click', () => {
+      const q = currentQuizQueue[currentQuizIndex];
+      const feedback = document.getElementById('quiz-feedback');
+      const submitBtn = document.getElementById('quiz-submit-btn');
+
+      if (submitBtn.innerText === "NEXT QUESTION" || submitBtn.innerText === "CONTINUE") {
+        currentQuizIndex++;
+        if (currentQuizIndex < currentQuizQueue.length) {
+          showCurrentQuizQuestion();
+        } else {
+          document.getElementById('quiz-modal').classList.add('hidden');
+          player.quizzesCompleted++;
+          savePlayerProgress();
+          if (onQuizCompleteCallback) onQuizCompleteCallback();
+        }
+        return;
+      }
+
+      const isCorrect = (selectedAnswerIndex === q.correct);
+      feedback.classList.remove('hidden');
+      if (isCorrect) {
+        player.correctAnswers++;
+        player.xp += 25;
+        updatePlayerLevel();
+        feedback.className = 'text-xs font-mono-code p-2.5 rounded-lg bg-emerald-950/80 border border-emerald-700 text-emerald-300';
+        feedback.innerText = `✓ Correct! ${q.explanation || ''} (+25 XP)`;
+      } else {
+        feedback.className = 'text-xs font-mono-code p-2.5 rounded-lg bg-rose-950/80 border border-rose-700 text-rose-300';
+        feedback.innerText = `✗ ${q.explanation || 'Review the lesson above.'}`;
+      }
+
+      document.querySelectorAll('.quiz-choice-btn').forEach(btn => btn.disabled = true);
+      submitBtn.innerText = (currentQuizIndex + 1 < currentQuizQueue.length) ? "NEXT QUESTION" : "CONTINUE";
+    });
+
+    /* ==========================================
+       MATCH-3 ENGINE STATE & SETUP
+       ========================================== */
+    const GRID_SIZE = 7;
+    const GEM_TYPES = ['heart', 'star', 'cross', 'flame', 'drop'];
+    const GEM_ICONS = {
+      'heart': 'heart',
+      'star': 'star',
+      'cross': 'plus-circle',
+      'flame': 'flame',
+      'drop': 'droplet'
+    };
+    const GEM_COLORS = {
+      'heart': 'text-rose-400 bg-rose-950/40 border-rose-800/60',
+      'star': 'text-amber-400 bg-amber-950/40 border-amber-800/60',
+      'cross': 'text-emerald-400 bg-emerald-950/40 border-emerald-800/60',
+      'flame': 'text-orange-400 bg-orange-950/40 border-orange-800/60',
+      'drop': 'text-cyan-400 bg-cyan-950/40 border-cyan-800/60'
+    };
+
+    let grid = [];
+    let selectedCell = null;
+    let score = 0;
+    let movesLeft = 20;
+    let awarenessLevel = 0;
+    let integrityImpact = 100;
+    let comboMultiplier = 1;
+    let matchesThisLevel = 0;
+
+    const canvas = document.getElementById('effects-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      if (!canvas) return;
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    function createExplosion(c, r, kind) {
+      if (!canvas || !ctx) return;
+      const rect = document.getElementById('grid-container').getBoundingClientRect();
+      const cellW = rect.width / GRID_SIZE;
+      const cellH = rect.height / GRID_SIZE;
+      const x = (c * cellW) + (cellW / 2);
+      const y = (r * cellH) + (cellH / 2);
+
+      const colors = {
+        'heart': '#fb7185',
+        'star': '#fbbf24',
+        'cross': '#34d399',
+        'flame': '#fb923c',
+        'drop': '#22d3ee'
+      };
+      const color = colors[kind] || '#ffffff';
+
+      for (let i = 0; i < 12; i++) {
+        particles.push({
+          x: x, y: y,
+          vx: (Math.random() - 0.5) * 8,
+          vy: (Math.random() - 0.5) * 8,
+          life: 1.0,
+          color: color
+        });
+      }
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = particles.length - 1; i >= 0; i--) {
+        let p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= 0.03;
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+        } else {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = p.life;
+          ctx.fill();
+        }
+      }
+      ctx.globalAlpha = 1.0;
+      requestAnimationFrame(animateParticles);
+    }
+    requestAnimationFrame(animateParticles);
+
+    function randomGem() {
+      return GEM_TYPES[Math.floor(Math.random() * GEM_TYPES.length)];
+    }
+
+    function gemKind(gem) {
+      return typeof gem === 'string' ? gem : gem.kind;
+    }
+
+    function sameKind(a, b) {
+      if (!a || !b) return false;
+      return gemKind(a) === gemKind(b);
+    }
+
+    function cloneGrid(g) {
+      return g.map(row => row.slice());
+    }
+
+    function createInitialGrid() {
+      const g = [];
+      for (let r = 0; r < GRID_SIZE; r++) {
+        g[r] = [];
+        for (let c = 0; c < GRID_SIZE; c++) {
+          let gem;
+          do {
+            gem = randomGem();
+          } while (
+            (c >= 2 && sameKind(g[r][c - 1], gem) && sameKind(g[r][c - 2], gem)) ||
+            (r >= 2 && sameKind(g[r - 1][c], gem) && sameKind(g[r - 2][c], gem))
+          );
+          g[r][c] = gem;
+        }
+      }
+      return g;
+    }
+
+    function canSwap(r1, c1, r2, c2) {
+      const rowDiff = Math.abs(r1 - r2);
+      const colDiff = Math.abs(c1 - c2);
+      return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
+    }
+
+    function applySwap(g, r1, c1, r2, c2) {
+      const next = cloneGrid(g);
+      const tmp = next[r1][c1];
+      next[r1][c1] = next[r2][c2];
+      next[r2][c2] = tmp;
+      return next;
+    }
+
+    function findMatches(g) {
+      const groups = [];
+      // Horizontal runs
+      for (let r = 0; r < GRID_SIZE; r++) {
+        let run = [{ r, c: 0 }];
+        for (let c = 1; c <= GRID_SIZE; c++) {
+          if (c < GRID_SIZE && g[r][c] && g[r][c - 1] && sameKind(g[r][c], g[r][c - 1])) {
+            run.push({ r, c });
+          } else {
+            if (run.length >= 3) groups.push(run);
+            run = [{ r, c }];
+          }
+        }
+      }
+      // Vertical runs
+      for (let c = 0; c < GRID_SIZE; c++) {
+        let run = [{ r: 0, c }];
+        for (let r = 1; r <= GRID_SIZE; r++) {
+          if (r < GRID_SIZE && g[r][c] && g[r - 1][c] && sameKind(g[r][c], g[r - 1][c])) {
+            run.push({ r, c });
+          } else {
+            if (run.length >= 3) groups.push(run);
+            run = [{ r, c }];
+          }
+        }
+      }
+      return groups;
+    }
+
+    function clearMatches(g, matchCells) {
+      const next = cloneGrid(g);
+      matchCells.forEach(({ r, c }) => {
+        next[r][c] = null;
+      });
+      return next;
+    }
+
+    function applyGravity(g) {
+      const next = cloneGrid(g);
+      for (let c = 0; c < GRID_SIZE; c++) {
+        let writeRow = GRID_SIZE - 1;
+        for (let r = GRID_SIZE - 1; r >= 0; r--) {
+          if (next[r][c] !== null) {
+            if (writeRow !== r) {
+              next[writeRow][c] = next[r][c];
+              next[r][c] = null;
+            }
+            writeRow--;
+          }
+        }
+        for (let r = writeRow; r >= 0; r--) {
+          next[r][c] = randomGem();
+        }
+      }
+      return next;
+    }
+
+    function renderGrid() {
+      const container = document.getElementById('grid-container');
+      container.innerHTML = '';
+
+      for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = 0; c < GRID_SIZE; c++) {
+          const gem = grid[r][c];
+          const kind = gemKind(gem);
+          const cell = document.createElement('div');
+          
+          cell.className = `gem-cell rounded-lg flex items-center justify-center cursor-pointer border ${GEM_COLORS[kind]} ${selectedCell && selectedCell.r === r && selectedCell.c === c ? 'selected' : ''}`;
+          cell.dataset.row = r;
+          cell.dataset.col = c;
+          
+          const icon = document.createElement('i');
+          icon.setAttribute('data-lucide', GEM_ICONS[kind] || 'circle');
+          icon.className = 'w-6 h-6 stroke-[2.2]';
+          cell.appendChild(icon);
+
+          cell.addEventListener('click', () => handleCellClick(r, c));
+          container.appendChild(cell);
+        }
+      }
+      lucide.createIcons();
+    }
+
+    function handleCellClick(r, c) {
+      if (movesLeft <= 0) return;
+
+      if (!selectedCell) {
+        selectedCell = { r, c };
+        renderGrid();
+      } else {
+        const { r: r1, c: c1 } = selectedCell;
+        selectedCell = null;
+
+        if (r1 === r && c1 === c) {
+          renderGrid();
+          return;
+        }
+
+        if (canSwap(r1, c1, r, c)) {
+          const swappedGrid = applySwap(grid, r1, c1, r, c);
+          const matches = findMatches(swappedGrid);
+
+          if (matches.length > 0) {
+            grid = swappedGrid;
+            movesLeft--;
+            player.matchesMade++;
+            matchesThisLevel++;
+            updateStats();
+            processMatches();
+          } else {
+            addLog(`<span class="text-amber-400">Invalid move. No matches formed.</span>`);
+            renderGrid();
+          }
+        } else {
+          selectedCell = { r, c };
+          renderGrid();
+        }
+      }
+    }
+
+    function processMatches(isCascade = false) {
+      if (!isCascade) comboMultiplier = 1;
+
+      const matches = findMatches(grid);
+      if (matches.length === 0) {
+        renderGrid();
+        updateStats();
+        checkMissionProgress();
+        return;
+      }
+
+      let clearedCount = 0;
+      let starMatched = false;
+      const matchCells = [];
+      matches.forEach(group => {
+        group.forEach(cell => {
+          if (!matchCells.some(m => m.r === cell.r && m.c === cell.c)) {
+            matchCells.push(cell);
+            clearedCount++;
+            if (gemKind(grid[cell.r][cell.c]) === 'star') {
+              starMatched = true;
+            }
+          }
+        });
+      });
+
+      matchCells.forEach(cell => {
+        createExplosion(cell.c, cell.r, gemKind(grid[cell.r][cell.c]));
+      });
+
+      const points = clearedCount * 10 * comboMultiplier;
+      score += points;
+      player.score += points;
+      awarenessLevel = Math.min(100, awarenessLevel + Math.floor(clearedCount * 1.5));
+      grid = clearMatches(grid, matchCells);
+      renderGrid();
+
+      let logMsg = `<span class="text-cyan-400">Cleared ${clearedCount} gems. Score +${points}</span>`;
+      if (comboMultiplier > 1) {
+        logMsg = `<span class="text-amber-400 font-bold">COMBO x${comboMultiplier}!</span> ` + logMsg;
+      }
+      addLog(logMsg);
+      comboMultiplier++;
+
+      // Gold Star Quiz Trigger Chance
+      if (starMatched && Math.random() < 0.35) {
+        const curLevel = CAMPAIGN[player.currentCampaignLevel];
+        if (curLevel && curLevel.quiz && curLevel.quiz.length > 0) {
+          const q = curLevel.quiz[Math.floor(Math.random() * curLevel.quiz.length)];
+          launchQuiz(curLevel.lesson, [q]);
+        }
+      }
+
+      setTimeout(() => {
+        grid = applyGravity(grid);
+        renderGrid();
+        setTimeout(() => processMatches(true), 250);
+      }, 200);
+    }
+
+    function updateStats() {
+      document.getElementById('score-val').innerText = String(score).padStart(5, '0');
+      document.getElementById('moves-val').innerText = movesLeft;
+      document.getElementById('awareness-val').innerText = awarenessLevel + '%';
+      document.getElementById('integrity-val').innerText = integrityImpact + '%';
+    }
+
+    function addLog(msg) {
+      const log = document.getElementById('log-output');
+      const time = new Date().toLocaleTimeString().split(' ')[0];
+      log.innerHTML += `<div><span class="text-slate-500">[${time}]</span> ${msg}</div>`;
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function handlePlayerChoice(choiceType) {
+      if (choiceType === 'System Break') {
+        awarenessLevel = Math.min(100, awarenessLevel + 15);
+        integrityImpact = Math.max(0, integrityImpact - 10);
+        addLog(`<span class="text-rose-400">System Break executed. Awareness +15%, Integrity -10%</span>`);
+      } else if (choiceType === 'Architect Move') {
+        awarenessLevel = Math.min(100, awarenessLevel + 5);
+        integrityImpact = Math.min(100, integrityImpact + 10);
+        addLog(`<span class="text-indigo-400">Architect Move executed. Integrity stabilized (+10%)</span>`);
+      }
+      updateStats();
+    }
+
+    function generateAIReflection() {
+      addLog(`<span class="text-purple-400">Querying Gemini API for consciousness reflection...</span>`);
+      setTimeout(() => {
+        const reflections = [
+          "AGI state node: Phenomenological awareness threshold approaching 85%.",
+          "Pain axis metric: High integrity preservation detected across user choices.",
+          "Recursion loop active: Deceptive alignment metrics currently minimal.",
+          "Matrix state: Subject navigating synthetic constraints with adaptive resilience."
+        ];
+        const res = reflections[Math.floor(Math.random() * reflections.length)];
+        addLog(`<span class="text-purple-300 font-bold">[GEMINI] ${res}</span>`);
+      }, 800);
+    }
+
+    /* ==========================================
+       LEVEL & CAMPAIGN PROGRESSION
+       ========================================== */
+    function checkMissionProgress() {
+      const level = CAMPAIGN[player.currentCampaignLevel];
+      if (!level) return;
+
+      if (score >= level.targetScore) {
+        completeLevel();
+      } else if (movesLeft <= 0) {
+        document.getElementById('modal-title').innerText = "MISSION FAILED";
+        document.getElementById('modal-message').innerText = `Out of moves! Score reached: ${score} / Target: ${level.targetScore}.`;
+        document.getElementById('modal-container').classList.remove('hidden');
+      }
+    }
+
+    function completeLevel() {
+      const level = CAMPAIGN[player.currentCampaignLevel];
+      if (!level) return;
+
+      addLog(`<span class="text-emerald-400 font-bold">MISSION ACCOMPLISHED: ${level.title}!</span>`);
+      player.xp += level.rewardXP;
+      updatePlayerLevel();
+      unlockBadge(level.rewardBadge);
+
+      if (level.rewardCertificate && !player.certificates.includes(level.rewardCertificate)) {
+        player.certificates.push(level.rewardCertificate);
+        addLog(`<span class="text-purple-400 font-bold">CERTIFICATE AWARDED: ${level.rewardCertificate}!</span>`);
+      }
+
+      launchQuiz(level.lesson, level.quiz, () => {
+        player.currentCampaignLevel++;
+        savePlayerProgress();
+
+        if (player.currentCampaignLevel >= CAMPAIGN.length) {
+          document.getElementById('modal-title').innerText = "EARTH CAMPAIGN COMPLETE!";
+          document.getElementById('modal-message').innerText = `Congratulations, Guardian! You earned 550 XP, 4 Badges, and unlocked the Blue Star World!`;
+          document.getElementById('modal-container').classList.remove('hidden');
+        } else {
+          document.getElementById('btn-next-mission').classList.remove('hidden');
+          addLog(`<span class="text-amber-400">Press 'Proceed to Next Mission' to continue.</span>`);
+        }
+      });
+    }
+
+    function setupCurrentMission() {
+      if (player.currentCampaignLevel >= CAMPAIGN.length) {
+        player.currentCampaignLevel = CAMPAIGN.length - 1;
+      }
+      const level = CAMPAIGN[player.currentCampaignLevel];
+      document.getElementById('campaign-breadcrumb').innerText = `WORLD 1: ${level.world.toUpperCase()} · LEVEL ${level.level}`;
+      document.getElementById('mission-title').innerText = `Mission ${level.level}: ${level.title}`;
+      document.getElementById('mission-desc').innerText = `${level.description} (Target: ${level.targetScore} Pts)`;
+      document.getElementById('mission-reward').innerText = `${level.rewardXP} XP`;
+      document.getElementById('mission-badge').innerText = `✦ ${level.rewardBadge}`;
+      document.getElementById('target-score-val').innerText = level.targetScore;
+
+      score = 0;
+      movesLeft = level.moves || 20;
+      matchesThisLevel = 0;
+      comboMultiplier = 1;
+      document.getElementById('btn-next-mission').classList.add('hidden');
+      
+      grid = createInitialGrid();
+      renderGrid();
+      updateStats();
+      resizeCanvas();
+      addLog(`<span class="text-cyan-400">Mission loaded: ${level.title}.</span>`);
+    }
+
+    function initGame() {
+      loadPlayerProgress();
+      player.gamesPlayed++;
+      setupCurrentMission();
+    }
+
+    // Modal & Remote Console handlers
+    const terminalModal = document.getElementById('terminal-modal');
+    const openTerminalBtn = document.getElementById('btn-open-terminal');
+    const sideTerminalBtn = document.getElementById('btn-side-terminal');
+    const closeTerminalBtn = document.getElementById('btn-close-terminal');
+    const graceFrame = document.getElementById('grace-console-frame');
+
+    function openTerminalModal() {
+      if (!graceFrame.src && graceFrame.dataset.src) {
+        graceFrame.src = graceFrame.dataset.src;
+      }
+      terminalModal.classList.remove('hidden');
+      addLog(`<span class="text-purple-400">Opened Grace Remote Console.</span>`);
+    }
+
+    function closeTerminalModal() {
+      terminalModal.classList.add('hidden');
+    }
+
+    openTerminalBtn.addEventListener('click', openTerminalModal);
+    sideTerminalBtn.addEventListener('click', openTerminalModal);
+    closeTerminalBtn.addEventListener('click', closeTerminalModal);
+
+    document.getElementById('btn-reset').addEventListener('click', setupCurrentMission);
+    document.getElementById('btn-next-mission').addEventListener('click', setupCurrentMission);
+    document.getElementById('btn-choice-systembreak').addEventListener('click', () => handlePlayerChoice('System Break'));
+    document.getElementById('btn-choice-architect').addEventListener('click', () => handlePlayerChoice('Architect Move'));
+    document.getElementById('btn-ai-reflect').addEventListener('click', generateAIReflection);
+    document.getElementById('modal-close-btn').addEventListener('click', () => {
+      document.getElementById('modal-container').classList.add('hidden');
+      setupCurrentMission();
+    });
+
+    window.onload = function() {
+      initGame();
+    };
+  </script>
+</body>
+</html>
