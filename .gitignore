@@ -5,3 +5,13 @@ dist/
 assets/.env
 *.log
 artifacts/
+
+# Per-user host credentials must never be checked in.
+**/.grace-remote/
+
+# Local review copies and operating-system metadata are not release sources.
+services/scoring/.integration-check/
+services/scoring/.integration-staging/
+desktop.ini
+academy-defense-mobile.png
+academy-profile-mobile.png

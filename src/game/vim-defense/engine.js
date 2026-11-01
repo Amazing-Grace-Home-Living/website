@@ -14,7 +14,7 @@ export class DefenseGame {
     this.stock = 2; this.drones = []; this.enemies = []; this.shots = []; this.effects = [];
     this.primaryCooldown = 0; this.mouseCooldown = 0; this.time = 0;
     this.remaining = 0; this.spawnClock = 0; this.quizIndex = 0; this.quizResults = [];
-    this.message = 'Ready. Move with h j k l or arrows. Hold Space to fire. Press d for a drone.';
+    this.message = 'Ready. Move with H/L, J or arrows. Hold Space to fire. Press B/K/D for a drone.';
     this.quizPlan = validateQuizPlan(options.quizPlan) ? options.quizPlan.map(pair => [...pair]) : createQuizPlan(random, options.review);
     this.assist = options.assist === true; this.assistedTarget = null;
   }

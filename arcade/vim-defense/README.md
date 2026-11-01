@@ -10,10 +10,10 @@ tower-defense game; its files and hub entry are preserved.
 | --- | --- |
 | `h` / left arrow | Move left; face left |
 | `j` / down arrow | Move down; face down |
-| `k` / up arrow | Move up; face up |
+| Up arrow | Move up; face up |
 | `l` / right arrow | Move right; face right |
 | Hold Space | Fire the primary weapon along the last movement direction |
-| `d` | Deploy one auto-targeting drone |
+| `b` / `k` / `d` or right-click | Deploy one auto-targeting drone |
 | `a` | Toggle keyboard target assist for the support stream |
 | `i` / Enter | Start/select/resume; activate a focused briefing button |
 | Mouse move, then hold left button | Aim and fire an independent second stream |
