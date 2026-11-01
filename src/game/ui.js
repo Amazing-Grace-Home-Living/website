@@ -1,12 +1,15 @@
 import { canSwap, applySwap, findMatches, applyMatches, applyGravity, findLegalMoves, createPlayableGrid } from './engine/matchmaker.js';
-import { LEVELS, newGame, loadGame, saveGame } from './progress.js';
+import { LEVELS, SAVE_KEY, newGame, loadGame, saveGame } from './progress.js';
+import { campaign } from './learning/campaign-store.js';
 const $ = id => document.getElementById(id);
 const gems = { heart: ['♥', '#ef9aaa', 'Heart'], star: ['★', '#e6c477', 'Star'], cross: ['✚', '#baace9', 'Cross'], flame: ['🔥', '#eba77f', 'Flame'], drop: ['♦', '#8cc9d8', 'Drop'] };
 const badgeNames = ['First light', 'Cascade keeper', 'Star maker', 'Seven Stars champion'];
 let storage;
 try { storage = window.localStorage; } catch { storage = null; }
 let state = loadGame(storage) || newGame();
+campaign.restoreLegacyMatch();
 let selected = null, locked = false, hint = [], pointer = null, suppressClick = false;
+let stateGeneration = 0;
 const wait = ms => new Promise(resolve => setTimeout(resolve, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : ms));
 function announce(message) { $('message').textContent = message; }
 function persist() { $('save-status').textContent = saveGame(storage, state) ? '✓ Progress saved on this device' : 'Saving unavailable — keep this tab open to continue'; }
@@ -56,6 +59,7 @@ async function move(from, to) {
   const swapped = applySwap(state.grid, from.row, from.col, to.row, to.col);
   if (!findMatches(swapped).matches.length) { selected = null; hint = []; render(); announce('Try another connection. That swap makes no match; no move used.'); return; }
   locked = true; selected = null; hint = []; state.grid = swapped; state.moves--;
+  const generation = stateGeneration;
   try {
     let chain = 0;
     while (true) {
@@ -63,6 +67,7 @@ async function move(from, to) {
       chain++; render();
       for (const p of result.matches) $('board').children[p.row * 7 + p.col].classList.add('matched');
       await wait(240);
+      if (generation !== stateGeneration) return;
       const cleared = applyMatches(state.grid, result, chain);
       const count = cleared.flat().filter(g => g === null).length;
       const points = count * 50 * chain; state.score += points; state.total += points;
@@ -72,13 +77,15 @@ async function move(from, to) {
       // Bound pathological random cascades without leaving an unsettled save.
       if (chain >= 100) { state.grid = createPlayableGrid(); break; }
       render(); await wait(140);
+      if (generation !== stateGeneration) return;
     }
     if (state.score >= LEVELS[state.level - 1].target) {
       state.status = state.level === LEVELS.length ? 'complete' : 'won';
+      campaign.complete(`match-${state.level}`);
       if (state.status === 'complete') award('Seven Stars champion'); statusMessage();
     } else if (state.moves === 0) { state.status = 'lost'; statusMessage(); }
     ensureMoves(); persist();
-  } finally { locked = false; render(); }
+  } finally { if (generation === stateGeneration) { locked = false; render(); } }
 }
 function choose(index) {
   if (locked || state.status !== 'playing') return;
@@ -120,3 +127,10 @@ $('restart').addEventListener('click', () => {
 });
 $('next').addEventListener('click', () => { if (state.status !== 'won') return; state = newGame(state.level + 1, state.total, state.badges); selected = null; hint = []; render(); persist(); statusMessage(); });
 statusMessage(); ensureMoves(); render(); persist();
+window.addEventListener('storage', event => {
+  if (event.key !== SAVE_KEY && event.key !== null) return;
+  stateGeneration++; state = loadGame(storage) || newGame();
+  selected = null; hint = []; pointer = null; locked = false;
+  ensureMoves(); render();
+  announce('Saved progress changed in another tab. The latest checkpoint is loaded; any old cascade was canceled.');
+});

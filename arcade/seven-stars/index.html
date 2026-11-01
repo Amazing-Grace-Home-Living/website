@@ -92,7 +92,13 @@
             { name: 'Laodicea', message: 'Laodicea was called lukewarm—neither hot nor cold—and was warned against complacency.', question: 'How was Laodicea described?', options: ['Faithful', 'Bold', 'Lukewarm', 'Joyful'], answer: 'Lukewarm' }
         ];
 
-        let completed = JSON.parse(localStorage.getItem('aghl_sevenStarsCompleted') || '[]');
+        function loadCompleted() {
+            try {
+                const saved = JSON.parse(localStorage.getItem('aghl_sevenStarsCompleted') || '[]');
+                return churches.filter(church => Array.isArray(saved) && saved.includes(church.name)).map(church => church.name);
+            } catch { return null; }
+        }
+        let completed = loadCompleted() || [];
 
         function playMusic() {
             const bgm = document.getElementById('bg-music');
@@ -126,7 +132,7 @@
                             </div>
                         `).join('')}
                     </div>
-                    ${completed.length === 7 ? `<button class="game-btn" style="margin-top:2rem" onclick="window.sevenStarsFinish()">Claim Your Certificate</button>` : ''}
+                    ${completed.length === 7 ? `<button class="game-btn" style="margin-top:2rem" onclick="window.sevenStarsFinish()">View completed journey</button>` : ''}
                 </div>`;
         }
 
@@ -147,10 +153,13 @@
 
         window.sevenStarsCheckAnswer = function(name, selected, correct) {
             if (selected === correct) {
+                const latest = loadCompleted();
+                if (latest) completed = [...new Set([...completed, ...latest])];
                 if (!completed.includes(name)) {
                     completed.push(name);
-                    localStorage.setItem('aghl_sevenStarsCompleted', JSON.stringify(completed));
+                    try { localStorage.setItem('aghl_sevenStarsCompleted', JSON.stringify(completed)); } catch { /* Current-tab play remains available. */ }
                 }
+                window.AmazingGraceStars?.recordCompleted(completed);
                 alert("Correct! You have collected a star.");
                 window.sevenStarsRenderMap();
             } else {
@@ -159,16 +168,23 @@
         }
 
         window.sevenStarsFinish = function() {
+            if (completed.length !== churches.length) return window.sevenStarsRenderMap();
             root.innerHTML = `
                 <div class="game-header-bar">JOURNEY COMPLETE</div>
                 <div class="game-content">
-                    <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.6rem,4vw,2.3rem);color:#FFD700;margin:0">Alignment Verified</h2>
+                    <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.6rem,4vw,2.3rem);color:#FFD700;margin:0">Seven Stars Collected</h2>
                     <p style="color:#94a3b8;line-height:1.7;margin-top:1rem">You have successfully navigated the seven churches and collected all stars.</p>
-                    <a class="game-btn" href="../certificates/" target="_top" style="margin-top:2rem;text-decoration:none;display:inline-block">View Certificates</a>
+                    <a class="game-btn" href="/lms/" target="_top" style="margin-top:2rem;text-decoration:none;display:inline-block">View learning milestones</a>
                 </div>`;
         }
 
         renderTitle();
+        window.addEventListener('storage', event => {
+            if (event.key !== 'aghl_sevenStarsCompleted' && event.key !== null) return;
+            const latest = loadCompleted(); if (latest) completed = latest;
+            if (root.querySelector('.map-grid')) window.sevenStarsRenderMap();
+        });
     </script>
+    <script type="module" src="./campaign.js"></script>
 </body>
 </html>
