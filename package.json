@@ -24,6 +24,9 @@
     "test:vim-defense:browser": "node tests/vim-defense-browser.mjs",
     "test:matrix-academy": "node --test tests/match3.test.mjs",
     "test:matrix-academy:browser": "node tests/matrix-academy-browser.mjs",
+    "test:code-matrix": "node --test tests/match3.test.mjs tests/matchmaker.test.mjs tests/bonus.test.mjs",
+    "test:code-matrix:browser": "node tests/matrix-academy-browser.mjs",
+    "test:tools:browser": "node tests/ai-setup-browser.mjs",
     "balance:matrix": "node scripts/simulate-matrix.mjs",
     "test:progress": "node --test tests/transfer.test.mjs",
     "test:progress:browser": "node tests/transfer-browser.mjs"

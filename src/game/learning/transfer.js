@@ -10,6 +10,7 @@ import { ACADEMY_KEY, normalizeAcademy } from '../academy/state.js';
 export const PASSPORT_FORMAT = 'amazing-grace-learning-passport';
 export const MAX_PASSPORT_SIZE = 1024 * 1024;
 const MATRIX_KEY = 'graceNexusProgress', STARS_KEY = 'aghl_sevenStarsCompleted';
+const BONUS_KEY = 'amazing-grace-signal-bonus-v1';
 const EARTH = ['earth-1', 'earth-2', 'earth-3', 'earth-4'];
 const EARTH_BADGES = ['First Spark', 'Wisdom Seeker', 'Giant Slayer', 'Earth Guardian'];
 const QUESTION_IDS = EARTH.flatMap((id, i) => Array.from({ length: i + 1 }, (_, q) => `${id}:${q}`));
@@ -46,15 +47,21 @@ function matrixRecord(raw) {
 function campaignRecord(raw) { requireVersion(raw, 1, 'learning campaign'); return normalizeProgress(raw); }
 function storyRecord(raw) { requireVersion(raw, 1, 'RPG'); return normalizeAdventure(raw); }
 function academyRecord(raw) { requireVersion(raw, 1, 'PowerShell Academy'); return normalizeAcademy(raw); }
+function bonusRecord(raw) {
+  if (!object(raw) || (raw.version !== undefined && raw.version !== 1)) throw Error('Unsupported Signal Bonus save format.');
+  if (!Number.isSafeInteger(raw.credits) || raw.credits < 0 || raw.credits > 5000 || !Array.isArray(raw.awards)) throw Error('Invalid Signal Bonus balance.');
+  return { version: 1, credits: raw.credits, awards: [...new Set(raw.awards.filter(id => typeof id === 'string' && id.length <= 100))] };
+}
 function starsRecord(raw) { if (!Array.isArray(raw)) throw Error('Invalid Seven Stars save.'); return CHURCHES.filter(name => raw.includes(name)); }
 
 export const PASSPORT_RECORDS = [
   { key: CAMPAIGN_KEY, label: 'Learning campaign: lessons, milestones, badges', normalize: campaignRecord },
   { key: RPG_KEY, label: 'Signalkeepers RPG: role, quests, journal choices', normalize: storyRecord },
-  { key: MATCH_KEY, label: 'Match Maker: settled board and level', normalize: matchRecord },
+  { key: MATCH_KEY, label: 'Code Matrix: settled board and level', normalize: matchRecord },
   { key: DEFENSE_KEY, label: 'VIM / Bash Defense: checkpoint, cards, best score', normalize: defenseRecord },
   { key: ACADEMY_KEY, label: 'PowerShell Academy: learning profile and achievements', normalize: academyRecord },
   { key: MATRIX_KEY, label: 'Matrix Academy: Earth mission passport', normalize: matrixRecord },
+  { key: BONUS_KEY, label: 'Signal Bonus: earned Matrix Defense credits', normalize: bonusRecord },
   { key: STARS_KEY, label: 'Seven Stars: completed locations', normalize: starsRecord },
 ];
 const registry = new Map(PASSPORT_RECORDS.map(record => [record.key, record]));
@@ -122,7 +129,8 @@ function mergeMatrix(a, b) {
   player.xp = Math.max(player.xp, earnedMissionXP + player.answeredQuestionIds.length * 25);
   return matrixRecord({ version: 2, player });
 }
-const mergers = new Map([[CAMPAIGN_KEY, mergeCampaign], [RPG_KEY, mergeStory], [MATCH_KEY, mergeMatch], [DEFENSE_KEY, mergeDefense], [ACADEMY_KEY, mergeAcademy], [MATRIX_KEY, mergeMatrix], [STARS_KEY, (a, b) => starsRecord(union(a, b))]]);
+function mergeBonus(a, b) { return bonusRecord({ version: 1, credits: Math.max(a.credits, b.credits), awards: union(a.awards, b.awards) }); }
+const mergers = new Map([[CAMPAIGN_KEY, mergeCampaign], [RPG_KEY, mergeStory], [MATCH_KEY, mergeMatch], [DEFENSE_KEY, mergeDefense], [ACADEMY_KEY, mergeAcademy], [MATRIX_KEY, mergeMatrix], [BONUS_KEY, mergeBonus], [STARS_KEY, (a, b) => starsRecord(union(a, b))]]);
 
 function reconcile(records, storage) {
   const get = key => records[key] || (() => {

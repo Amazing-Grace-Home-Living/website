@@ -2,7 +2,7 @@ import { chromium } from '@playwright/test';
 import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
 import assert from 'node:assert/strict';
-const server = spawn(process.execPath, ['scripts/serve.mjs', 'dist'], { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, PORT: '4174' } });
+const server = spawn(process.execPath, ['scripts/serve.mjs', process.env.SITE_ROOT || 'dist'], { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, PORT: '4174' } });
 let browser;
 try {
   await new Promise((resolve, reject) => { server.stdout.once('data', resolve); server.once('error', reject); server.once('exit', code => reject(new Error(`Server exited ${code}`))); });
@@ -11,7 +11,19 @@ try {
   await page.addInitScript(() => { let seed = 123456; Math.random = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296); });
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   page.on('response', response => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
-  await page.goto('http://127.0.0.1:4174');
+  await page.goto('http://127.0.0.1:4174/');
+  assert.match(await page.title(), /Amazing Grace Home Living/);
+  assert.equal(await page.locator('.site-header .logo img').getAttribute('src'), '/assets/AmazingGraceHomeLivingLogo.png');
+  assert.ok(await page.locator('.site-header .logo img').evaluate(image => image.complete && image.naturalWidth > 0));
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  await page.setViewportSize({ width: 320, height: 740 });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await page.goto('http://127.0.0.1:4174/toolbox/');
+  assert.equal(await page.locator('.toolbox-header .toolbox-link').getAttribute('href'), 'https://grace-remote-console.tealchime41.chatgpt.site/');
+  assert.equal(await page.locator('.toolbox-note .primary').getAttribute('href'), 'https://grace-remote-console.tealchime41.chatgpt.site/companion.zip');
+  // The campaign puzzle now has its own route; the home page is Home Living.
+  await page.goto('http://127.0.0.1:4174/arcade/code-matrix/');
   await page.waitForFunction(() => document.querySelectorAll('.tile').length === 49);
   await page.locator('#hint').click();
   assert.equal(await page.locator('.hinted').count(), 2);
@@ -34,7 +46,7 @@ try {
   await page.locator('[data-index="0"]').focus(); await page.keyboard.press('ArrowRight');
   assert.equal(await page.evaluate(() => document.activeElement.dataset.index), '1');
   // Seed a valid nearly-complete save, then finish through real user input.
-  await page.evaluate(() => { const k = 'amazing-grace-matchmaker-v1', s = JSON.parse(localStorage.getItem(k)); s.score = 950; s.total = 950; localStorage.setItem(k, JSON.stringify(s)); });
+  await page.evaluate(async () => { const { LEVELS } = await import('/src/game/progress.js'); const k = 'amazing-grace-matchmaker-v1', s = JSON.parse(localStorage.getItem(k)); s.score = LEVELS[s.level - 1].target - 50; s.total = s.score; localStorage.setItem(k, JSON.stringify(s)); });
   await page.reload(); await page.locator('#hint').click();
   const winning = await page.locator('.hinted').evaluateAll(tiles => tiles.map(t => t.dataset.index));
   await page.locator(`[data-index="${winning[0]}"]`).click(); await page.locator(`[data-index="${winning[1]}"]`).click();
@@ -57,11 +69,11 @@ try {
   await page.waitForFunction(() => document.querySelector('#moves').textContent === '0' && !document.querySelector('#restart').disabled);
   assert.match(await page.locator('#message').textContent(), /Out of moves|Level complete/);
   await page.locator('#restart').click(); assert.equal(await page.locator('#moves').textContent(), '22');
-  await page.evaluate(() => { const k = 'amazing-grace-matchmaker-v1', s = JSON.parse(localStorage.getItem(k)); s.level = 5; s.moves = 28; s.score = 4950; s.total = 4950; s.status = 'playing'; localStorage.setItem(k, JSON.stringify(s)); });
+  await page.evaluate(async () => { const { LEVELS } = await import('/src/game/progress.js'); const k = 'amazing-grace-matchmaker-v1', s = JSON.parse(localStorage.getItem(k)); s.level = 5; s.moves = LEVELS[4].moves; s.score = LEVELS[4].target - 50; s.total = s.score; s.status = 'playing'; localStorage.setItem(k, JSON.stringify(s)); });
   await page.reload(); await page.locator('#hint').click();
   pair = await page.locator('.hinted').evaluateAll(t => t.map(x => x.dataset.index));
   await page.locator(`[data-index="${pair[0]}"]`).click(); await page.locator(`[data-index="${pair[1]}"]`).click();
-  await page.waitForFunction(() => document.querySelector('#message').textContent.includes('All five levels complete'));
+  await page.waitForFunction(() => document.querySelector('#message').textContent.includes('All five Code Matrix levels complete'));
   assert.match(await page.locator('#badges').textContent(), /Seven Stars champion · earned/);
   // Restore a known dead board and verify automatic recovery without a penalty.
   await page.evaluate(async () => {

@@ -6,7 +6,7 @@ import { QUESTS, CHAPTERS } from '../src/game/matrix-rpg/content.js';
 import { RPG_KEY } from '../src/game/matrix-rpg/engine.js';
 import { LESSONS } from '../src/game/learning/curriculum.js';
 const port = 4182;
-const server = spawn(process.execPath, ['scripts/serve.mjs', 'dist'], { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, PORT: String(port) } });
+const server = spawn(process.execPath, ['scripts/serve.mjs', process.env.SITE_ROOT || 'dist'], { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, PORT: String(port) } });
 let browser;
 try {
   await new Promise((resolve, reject) => { server.stdout.once('data', resolve); server.once('error', reject); server.once('exit', code => reject(Error(`Server exited ${code}`))); });
@@ -16,8 +16,7 @@ try {
   page.on('pageerror', error => errors.push(error.message));
   page.on('response', response => { if (response.status() >= 400 && new URL(response.url()).port === String(port)) errors.push(`${response.status()} ${response.url()}`); });
   const visit = path => page.goto(`http://127.0.0.1:${port}${path}`);
-  await visit('/arcade/');
-  await page.locator('a[href="/arcade/matrix-of-conscience/"]').click();
+  await visit('/arcade/matrix-of-conscience/');
   await page.waitForSelector('[data-role="navigator"]');
   await page.locator('[data-role="navigator"]').focus(); await page.keyboard.press('Enter');
   assert.equal(await page.locator('[data-chapter="commons"]').isDisabled(), true);

@@ -1,8 +1,10 @@
 import { canSwap, applySwap, findMatches, applyMatches, applyGravity, findLegalMoves, createPlayableGrid } from './engine/matchmaker.js';
 import { LEVELS, SAVE_KEY, newGame, loadGame, saveGame } from './progress.js';
 import { campaign } from './learning/campaign-store.js';
+import { awardBonus, readBonus } from './learning/bonus-store.js';
 const $ = id => document.getElementById(id);
-const gems = { heart: ['♥', '#ef9aaa', 'Heart'], star: ['★', '#e6c477', 'Star'], cross: ['✚', '#baace9', 'Cross'], flame: ['🔥', '#eba77f', 'Flame'], drop: ['♦', '#8cc9d8', 'Drop'] };
+// Preserve the legacy save IDs while presenting the puzzle as Code Matrix.
+const gems = { heart: ['x', '#ef9aaa', 'Variable'], star: ['*', '#e6c477', 'Wildcard'], cross: ['{}', '#baace9', 'Code block'], flame: ['fn', '#eba77f', 'Function'], drop: ['<>', '#8cc9d8', 'Markup'] };
 const badgeNames = ['First light', 'Cascade keeper', 'Star maker', 'Seven Stars champion'];
 let storage;
 try { storage = window.localStorage; } catch { storage = null; }
@@ -44,10 +46,10 @@ function render() {
   }));
 }
 function statusMessage() {
-  if (state.status === 'complete') announce('All five levels complete. You are a Seven Stars champion!');
-  else if (state.status === 'won') announce('Beautiful connections! Level complete. Continue to the next level.');
+  if (state.status === 'complete') announce('All five Code Matrix levels complete. Your bonus credits are ready for Matrix Defense.');
+  else if (state.status === 'won') announce('Build complete! Level secured. Continue to the next Code Matrix level.');
   else if (state.status === 'lost') announce('Out of moves. Restart this level and try a fresh board.');
-  else announce('Select two neighboring gems to make a match.');
+  else announce('Match two neighboring code symbols to build your score.');
 }
 function ensureMoves() {
   if (state.status === 'playing' && !findLegalMoves(state.grid).length) {
@@ -82,7 +84,13 @@ async function move(from, to) {
     if (state.score >= LEVELS[state.level - 1].target) {
       state.status = state.level === LEVELS.length ? 'complete' : 'won';
       campaign.complete(`match-${state.level}`);
+      const bonusId = `code-matrix-level-${state.level}`;
+      const previousBonus = readBonus();
+      const bonusWasEarned = previousBonus.awards.includes(bonusId);
+      const bonus = awardBonus(bonusId, 50);
       if (state.status === 'complete') award('Seven Stars champion'); statusMessage();
+      const rewardNote = bonusWasEarned ? 'This level’s bonus was already earned.' : bonus.awards.includes(bonusId) ? '+50 Signal Bonus credits.' : 'Signal Bonus could not be saved in this browser.';
+      announce(`${state.status === 'complete' ? 'All five Code Matrix levels complete!' : 'Code Matrix level complete.'} ${rewardNote} Bonus balance: ${bonus.credits} credits. Spend them on Matrix Defense towers and drones.`);
     } else if (state.moves === 0) { state.status = 'lost'; statusMessage(); }
     ensureMoves(); persist();
   } finally { if (generation === stateGeneration) { locked = false; render(); } }
