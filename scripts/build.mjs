@@ -6,10 +6,11 @@ const output = resolve('dist');
 if (dirname(output) !== process.cwd()) throw new Error('Build output must remain inside the project');
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
-for (const path of ['index.html', 'src', 'arcade', 'lms', 'stories', 'audio-library', 'assets', 'listings', 'nicholai', 'profile']) {
+for (const path of ['index.html', 'src', 'arcade', 'lms', 'stories', 'audio-library', 'assets', 'listings', 'nicholai', 'profile', 'toolbox', 'privacy']) {
   await cp(path, `dist/${path}`, {
     recursive: true,
     filter: source => !basename(source).startsWith('.') && basename(source).toLowerCase() !== 'desktop.ini',
   });
 }
+for (const path of ['style.css', 'app.js', 'nexus-infinity.jpg', 'sidebar-extension.zip']) await cp(`public/${path}`, `dist/${path}`);
 console.log('Built static site in dist/');
