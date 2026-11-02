@@ -6,10 +6,10 @@ Open `/arcade/` for the game catalog and `/lms/` for lessons and unlocks. Run
 
 ## Progression
 
-1. Pass Foundations with at least 3 of 4 correct, and complete Match Maker
-   level 1, Matrix Academy First Light plus its quiz, a legacy Matrix session of
-   20 moves and at least 600 points, or the RPG’s
-   Echo Gardens region at `/arcade/matrix-of-conscience/`.
+1. Pass Foundations with at least 3 of 4 correct, and complete Code Matrix
+   level 1 or restore the RPG’s Echo Gardens region at
+   `/arcade/matrix-of-conscience/`. Previously earned Matrix Academy and legacy
+   Matrix session milestones remain valid.
 2. Clear the three-wave Nexus mission to open Tactics.
 3. Pass Tactics to open the four-wave Syndicate mission.
 4. Clear Syndicate to open Adaptation, then pass its quiz to open the five-wave
@@ -23,12 +23,11 @@ learning XP; purchases cannot unlock quizzes or stages.
 
 ## Design review and expansion
 
-Matrix Academy now enforces every mission objective and requires its knowledge
-checkpoint before mission rewards. First Light earns the shared `matrix-academy`
-milestone (50 XP); the full Earth campaign earns `matrix-earth` (150 additional XP)
-and an Earth Academy guardian badge. Existing standalone Matrix session progress
-remains valid. See `arcade/matrix-academy-improvements.md` for balance evidence,
-accessibility and rendering changes, migration behavior, and browser verification.
+Code Matrix is the single optional matching puzzle. Its five levels award 50
+one-time Signal Bonus credits each for Matrix Defense towers and drones. The older
+Matrix Academy match-three route now hands off to Code Matrix; existing validated
+Matrix Academy and standalone session milestones remain valid. Legacy Matrix
+passport data remains exportable for progress continuity.
 
 VIM / Bash Defense at `/arcade/vim-defense/` adds an optional five-wave arena
 challenge with Vim-style movement, independent keyboard/mouse weapons, and drones.
@@ -79,9 +78,10 @@ needed for this campaign.
 ## Verification
 
 The LMS offers a Learning Passport download and previewed merge restore at
-`/lms/#progress-tools`. Files contain only seven allowlisted records: the learning
-campaign, Matrix RPG, Match Maker, VIM Defense, PowerShell Academy, Matrix Academy,
-and Seven Stars. A chosen Academy player name may be included. Unrelated browser
+`/lms/#progress-tools`. Files contain only allowlisted records: the learning
+campaign, Matrix RPG, Code Matrix board, VIM Defense checkpoint and review history,
+PowerShell Academy, legacy Matrix Academy passport, Signal Bonus rewards, and Seven
+Stars. A chosen Academy player name may be included. Unrelated browser
 storage, credentials, active combat frames, tower loadouts, and currencies are
 excluded. Files stay in the browser; there is no upload endpoint.
 

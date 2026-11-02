@@ -12,7 +12,7 @@ campaign.restoreLegacyMatch();
 function render() {
   const state = campaign.read();
   const bonusNav = [...document.querySelectorAll('header nav a')].find(link => link.getAttribute('href') === '/');
-  if (bonusNav) { bonusNav.href = '#practice'; bonusNav.textContent = 'Bonus practice'; }
+  if (bonusNav) { bonusNav.href = '#practice'; bonusNav.textContent = 'Code Matrix bonus'; }
   let bonus = document.getElementById('signal-bonus');
   if (!bonus) {
     bonus = document.createElement('aside');
@@ -25,7 +25,7 @@ function render() {
   if (practice) {
     const heading = practice.querySelector('.section-heading h2');
     const intro = practice.querySelector('.section-heading>p');
-    const matchCard = [...practice.querySelectorAll('article')].find(card => card.querySelector('h3')?.textContent.includes('Match'));
+    const matchCard = practice.querySelector('#match-status')?.closest('article');
     if (heading) heading.textContent = 'Choose a bonus route.';
     if (intro) intro.innerHTML = 'Optional activities build resources and confidence.<br>They never block the main campaign.';
     if (matchCard) {
@@ -33,7 +33,7 @@ function render() {
       const copy = [...matchCard.querySelectorAll('p')].find(p => p !== eyebrow && p.id !== 'match-status');
       const link = matchCard.querySelector('a');
       if (eyebrow) eyebrow.textContent = 'CODE MATRIX / BONUS CREDITS';
-      if (copy) copy.textContent = 'Spot patterns, debug a board, and reach 1,000 points within 20 moves. This optional coding-themed route awards bonus arcade points without blocking the main campaign.';
+      if (copy) copy.textContent = 'Spot patterns, debug a board, and reach 7,500 points within 20 moves. The five levels grow steadily harder. This optional coding-themed route awards 50 Signal Bonus credits per level for Matrix Defense towers and drones.';
       if (link) link.textContent = 'Play Code Matrix →';
     }
   }
@@ -60,9 +60,7 @@ function render() {
     button.textContent = passed ? 'Review lesson →' : 'Read and take quiz →';
     button.onclick = () => showLesson(lesson.id); card.append(button); return card;
   }));
-  $('match-status').textContent = state.completedLevels.includes('match-1') ? '✓ Milestone complete' : 'Ready to play';
-  $('matrix-status').textContent = state.completedLevels.includes('matrix-earth') ? '✓ Milestone complete · Earth campaign finished · 200 shared campaign XP earned once'
-    : state.completedLevels.includes('matrix-academy') || state.completedLevels.includes('matrix-session') ? '✓ Milestone complete' : 'Ready to play';
+  $('match-status').textContent = state.completedLevels.includes('match-1') ? '✓ Nexus practice milestone complete · level bonuses remain available once each' : 'Ready to play · earn 50 Signal Bonus credits per level';
   $('mission-cards').replaceChildren(...LEVELS.filter(l => l.stage).map((level, i) => {
     const missing = missingRequirements(state, level.id), done = state.completedLevels.includes(level.id);
     const card = document.createElement('article'); card.className = done ? 'completed' : '';

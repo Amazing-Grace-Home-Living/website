@@ -168,6 +168,8 @@ export class TowerDefenseGame {
   }
 
   resetMission() {
+    const intermission = typeof document === 'undefined' ? null : document.getElementById('mission-intermission');
+    if (intermission) intermission.hidden = true;
     clearTimeout(this.autoTimer);
     this.autoTimer = null;
     this.autoWave = false;
@@ -490,6 +492,8 @@ export class TowerDefenseGame {
         clearTimeout(this.autoTimer);
         this.autoTimer = null;
         campaign.complete(MISSIONS[this.stage].id);
+        const intermission = typeof document === 'undefined' ? null : document.getElementById('mission-intermission');
+        if (intermission) intermission.hidden = false;
         const nextStep = this.stage === 'sovereign' ? DIRECTIVES[this.directive].ending + ' Reflect: ' + DIRECTIVES[this.directive].reflection : 'Your next lesson is ready in Learn & Play.';
         this.announce(`Mission secured! ${MISSIONS[this.stage].waves} waves cleared. ${nextStep} Completion XP is awarded once.${campaign.persistent ? '' : ' Saving unavailable: this result will not persist after leaving this page.'}`);
         this.updateHUD();

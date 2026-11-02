@@ -69,7 +69,7 @@ try {
   const arena = await target.newPage(); monitor(arena); await visit(arena, '/arcade/vim-defense/'); await arena.locator('#start-wave').click();
   const match = await target.newPage(); monitor(match);
   await match.addInitScript(() => { const original = window.setTimeout; window.setTimeout = (callback, delay, ...args) => original(callback, delay === 240 || delay === 140 ? 5000 : delay, ...args); });
-  await visit(match, '/'); await match.locator('#hint').click();
+  await visit(match, '/arcade/code-matrix/'); await match.locator('#hint').click();
   const pair = await match.locator('.hinted').evaluateAll(tiles => tiles.map(t => t.dataset.index));
   for (const index of pair) await match.locator(`[data-index="${index}"]`).click();
   assert.equal(await match.locator('#hint').isDisabled(), true);

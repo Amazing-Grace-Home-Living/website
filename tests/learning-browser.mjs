@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { LESSONS } from '../src/game/learning/curriculum.js';
-const server = spawn(process.execPath, ['scripts/serve.mjs', 'dist'], { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, PORT: '4176' } });
+const server = spawn(process.execPath, ['scripts/serve.mjs', process.env.SITE_ROOT || 'dist'], { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, PORT: '4176' } });
 let browser;
 try {
   await new Promise((resolve, reject) => { server.stdout.once('data', resolve); server.once('error', reject); server.once('exit', code => reject(Error(`Server exited ${code}`))); });
@@ -16,7 +16,7 @@ try {
   const visit = path => page.goto(`http://127.0.0.1:4176${path}`);
   await visit('/arcade/');
   console.log('Arcade:', await page.title(), await page.locator('h1').textContent());
-  await page.locator('a.primary[href="/lms/"]').click();
+  await page.locator('a.primary[href="/lms/"]').first().click();
   await page.waitForSelector('[data-lesson="foundations"]');
   assert.equal(await page.locator('[data-lesson="tactics"]').isDisabled(), true);
   await visit('/src/game/tower-defense/index.html?stage=boss');
@@ -35,18 +35,20 @@ try {
   assert.equal(await page.locator('#xp').textContent(), '0');
   await quiz('foundations');
   assert.equal(await page.locator('#xp').textContent(), '50');
-  assert.match(await page.locator('#mission-cards').first().textContent(), /Complete Match Maker/);
+  assert.match(await page.locator('#mission-cards').first().textContent(), /Complete Code Matrix/);
   // Fixture a nearly completed puzzle, then earn the milestone through normal inputs.
-  await visit('/');
+  await visit('/arcade/code-matrix/');
   await page.waitForSelector('.tile');
-  await page.evaluate(() => {
+  await page.evaluate(async () => {
     const key = 'amazing-grace-matchmaker-v1', state = JSON.parse(localStorage.getItem(key));
-    state.score = 950; state.total = 950; localStorage.setItem(key, JSON.stringify(state));
+    const { LEVELS } = await import('/src/game/progress.js');
+    state.score = LEVELS[state.level - 1].target - 50; state.total = state.score; localStorage.setItem(key, JSON.stringify(state));
   });
   await page.reload(); await page.locator('#hint').click();
   const pair = await page.locator('.hinted').evaluateAll(tiles => tiles.map(t => t.dataset.index));
   for (const index of pair) await page.locator(`[data-index="${index}"]`).click();
   await page.waitForSelector('#next:not([hidden])');
+  assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem('amazing-grace-signal-bonus-v1'))), { credits: 50, awards: ['code-matrix-level-1'] });
   await visit('/lms/');
   assert.equal(await page.locator('#xp').textContent(), '100');
   assert.match(await page.locator('#mission-cards').first().textContent(), /Unlocked/);
@@ -54,6 +56,11 @@ try {
   async function defend(stage) {
     await visit(`/src/game/tower-defense/index.html?stage=${stage}`);
     await page.waitForFunction(() => document.getElementById('mission-status').textContent.includes('Mission ready'));
+    if (stage === 'nexus') {
+      assert.match(await page.locator('#mission-status').textContent(), /Signal bonus \+50 credits/);
+      assert.equal(await page.locator('#credits').textContent(), '210');
+      assert.equal(JSON.parse(await page.evaluate(() => localStorage.getItem('amazing-grace-signal-bonus-v1'))).credits, 0);
+    }
     // Capture the running instance via a test-only prototype wrapper, without changing production globals.
     await page.evaluate(async () => {
       const { TowerDefenseGame } = await import('/src/game/tower-defense/tower-defense-engine.js');
@@ -66,6 +73,7 @@ try {
     await page.locator('#place-column').fill('4'); await page.locator('#place-row').fill('5');
     await page.locator('#btn-place').click();
     assert.match(await page.locator('#mission-status').textContent(), /placed at column 4, row 5/);
+    if (stage === 'nexus') assert.equal(await page.locator('#credits').textContent(), '90');
     const result = await page.evaluate(() => {
       const g = window.testGame;
       // Choose affordable coverage, then simulate actual enemies, shots, damage, and rewards.
@@ -94,8 +102,11 @@ try {
       return { status: g.status, health: g.health, wave: g.wave, frames, towers: g.towers.length };
     });
     assert.equal(result.status, 'won', `${stage}: ${JSON.stringify(result)}`);
+    assert.equal(await page.locator('#mission-intermission').isVisible(), true);
+    assert.equal(await page.locator('#mission-intermission a').count(), 7);
     console.log(`PASS ${stage}: ${result.wave} waves, ${result.health} core health remaining`);
     await page.locator('#btn-restart').click();
+    assert.equal(await page.locator('#mission-intermission').isVisible(), false);
     assert.equal(await page.locator('#wave').textContent(), `1 / ${stage === 'nexus' ? 3 : stage === 'syndicate' ? 4 : 5}`);
   }
   await defend('nexus'); await quiz('tactics'); await defend('syndicate'); await quiz('adaptation'); await defend('boss');
@@ -120,13 +131,10 @@ try {
     await page.locator('#next-btn').click();
   }
   await visit('/lms/'); assert.equal(await page.locator('#xp').textContent(), '700');
-  // The Matrix completion hook requires a finished session and the score threshold.
-  await page.route('https://**/*', route => route.abort());
   await visit('/arcade/matrix_of_consciousness_match_3_game.html');
-  await page.waitForFunction(() => !!window.AmazingGraceCampaign);
-  await page.evaluate(() => { window.AmazingGraceCampaign.recordMatrixSession(900, 1); window.AmazingGraceCampaign.recordMatrixSession(590, 0); });
-  await page.evaluate(() => window.AmazingGraceCampaign.recordMatrixSession(600, 0));
-  await visit('/lms/'); assert.equal(await page.locator('#xp').textContent(), '750');
+  assert.match(await page.locator('#moved-title').textContent(), /joined Code Matrix/);
+  assert.equal(await page.locator('a[href="/arcade/code-matrix/"]').count(), 1);
+  await visit('/lms/'); assert.equal(await page.locator('#xp').textContent(), '700');
   assert.deepEqual(errors, []);
 
   const blocked = await browser.newContext();

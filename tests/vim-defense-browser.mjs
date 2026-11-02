@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 const port = 4183;
-const server = spawn(process.execPath, ['scripts/serve.mjs', 'dist'], { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, PORT: String(port) } });
+const server = spawn(process.execPath, ['scripts/serve.mjs', process.env.SITE_ROOT || 'dist'], { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, PORT: String(port) } });
 let browser;
 try {
   await new Promise((resolve, reject) => { server.stdout.once('data', resolve); server.once('error', reject); server.once('exit', code => reject(Error(`Server exited ${code}`))); });
@@ -16,7 +16,7 @@ try {
   async function state() {
     return page.evaluate(async () => { const { app } = await import('/src/game/vim-defense/ui.js'); const g = app.game; return { phase: g.phase, wave: g.wave, x: g.player.x, y: g.player.y, stock: g.stock, score: g.score, time: g.time, keys: [...g.keys], mouse: g.mouseFiring, shots: g.shots.map(s => ({ source: s.source, vx: s.vx, vy: s.vy })) }; });
   }
-  await visit('/arcade/');
+  await visit('/lms/');
   assert.equal(await page.locator('a[href="/arcade/powershell-defense/"]').count(), 1);
   await page.locator('a[href="/arcade/vim-defense/"]').click();
   await page.evaluate(async () => { window.defenseForTest = (await import('/src/game/vim-defense/ui.js')).app; });

@@ -267,6 +267,9 @@
       .mission-brief { border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; line-height: 1.6; }
       .mission-brief a { color: var(--accent); }
       .mission-brief summary { cursor:pointer; padding:.5rem 0; color:var(--accent); }
+      .intermission { border:1px solid var(--accent); border-radius:12px; padding:1rem; margin:1rem 0; background:rgba(126,255,216,.06); }
+      .intermission-choices { display:flex; flex-wrap:wrap; gap:.6rem; }
+      .intermission-choices a { display:inline-flex; align-items:center; min-height:44px; padding:.55rem .8rem; border:1px solid var(--border); border-radius:8px; color:var(--accent); text-decoration:none; }
       .tower-card { color:var(--text); }
       .placement-controls { display:flex;gap:.75rem;flex-wrap:wrap;align-items:end;margin-top:.8rem; }
       .placement-controls label { display:flex;flex-direction:column;gap:.25rem; }
@@ -295,11 +298,24 @@
       <section class="mission-brief" aria-label="Mission briefing">
         <strong>Learn → Practice → Defend</strong>
         <details><summary>Mission rules and controls</summary>
-        <p>Unlock Nexus by passing Foundations (3 of 4) and completing a practice milestone listed in Learn &amp; Play: Match Maker, Matrix Academy, a legacy Matrix session, or the RPG Echo Gardens region. Clear Nexus to unlock the tactics lesson, then continue through Syndicate and Boss. Pass the sovereignty lesson after Boss to unlock Act IV and waves 10–12.</p>
+        <p>Unlock Nexus by passing Foundations (3 of 4) and completing Code Matrix level 1, or by using an already-earned legacy Matrix or RPG practice milestone. Clear Nexus to unlock the tactics lesson, then continue through Syndicate and Boss. Act IV and waves 10–12 follow the Boss mission.</p>
         <p>Choose a tower, then tap a cell off the path to place it. Tap an existing tower to upgrade it. Keyboard: select a tower with Tab and Enter, Tab to the board, use arrows to choose a cell, then Enter to place or upgrade. Start waves when ready; you can build between or during waves.</p>
         <p>Restarting or changing stages resets the mission budget and core. Vault upgrades apply to the next mission attempt. A mission ends when its final wave clears or the core reaches zero.</p>
         </details>
         <p id="mission-status" role="status" aria-live="polite"></p>
+        <section id="mission-intermission" class="intermission" aria-labelledby="intermission-title" hidden>
+          <h2 id="intermission-title">Mission secured. Choose what comes next.</h2>
+          <p>Take an optional bonus activity, or continue the required campaign path. Side activities never block your next mission.</p>
+          <div class="intermission-choices">
+            <a href="/arcade/code-matrix/">Code Matrix · earn Signal Bonus credits</a>
+            <a href="/arcade/vim-defense/">VIM / Bash Defense · +125 on completion</a>
+            <a href="/arcade/powershell-defense/">PowerShell Defense · +175 on completion</a>
+            <a href="/lms/#learning">Take an optional lesson quiz</a>
+            <a href="/arcade/bible-study/">Play the Bible Study quiz</a>
+            <a href="/arcade/matrix-of-conscience/">Memory &amp; story quests</a>
+            <a href="/lms/#missions">Continue the campaign →</a>
+          </div>
+        </section>
         <a href="/lms/#missions">View unlock requirements and your next lesson →</a>
         <p id="campaign-save-status"></p>
       </section>

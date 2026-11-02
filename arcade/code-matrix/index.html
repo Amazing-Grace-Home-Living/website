@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101a24">
+  <meta name="description" content="Solve five coding-themed pattern puzzles to earn one-time Matrix campaign bonuses.">
+  <title>Code Matrix · Matrix of Conscience</title>
+  <link rel="stylesheet" href="/src/game/learning/learning.css">
+  <link rel="stylesheet" href="/arcade/code-matrix/code-matrix.css">
+</head>
+<body class="code-matrix-page">
+  <header class="code-matrix-header">
+    <a class="brand" href="/lms/">MATRIX OF CONSCIENCE<small>CODE MATRIX MISSION</small></a>
+    <nav aria-label="Campaign navigation">
+      <a href="/lms/#practice">Campaign modes</a>
+      <a href="/lms/#missions">Defense levels</a>
+    </nav>
+  </header>
+  <main class="code-matrix-layout">
+    <section class="code-matrix-intro" aria-labelledby="game-title">
+      <p class="eyebrow">OPTIONAL CODING PUZZLE / FIVE LEVELS</p>
+      <h1 id="game-title">Code Matrix</h1>
+      <p>Connect matching code symbols, plan your moves, and build a cascade. Each level awards its Signal Bonus once for Matrix Defense resources.</p>
+    </section>
+    <section class="code-matrix-panel" aria-label="Code Matrix puzzle">
+      <div class="code-matrix-stats">
+        <div><span>Level</span><strong id="level-title">Level 1 of 5</strong></div>
+        <div><span>Score</span><strong id="score">0</strong></div>
+        <div><span>Moves</span><strong id="moves">20</strong></div>
+        <div><span>Target</span><strong id="target">7,500</strong></div>
+      </div>
+      <progress id="progress" max="7500" value="0" aria-label="Level score progress"></progress>
+      <div id="board" class="matrix-board" role="group" aria-label="Code Matrix board"></div>
+      <div class="code-matrix-actions">
+        <button id="hint" type="button">Show a match</button>
+        <button id="restart" type="button">Restart level</button>
+        <button id="next" type="button" class="primary" hidden>Next level</button>
+      </div>
+      <p id="message" class="matrix-message" role="status" aria-live="polite"></p>
+      <p id="save-status" class="matrix-save-status" role="status"></p>
+    </section>
+    <section class="code-matrix-badges" aria-labelledby="badge-title">
+      <h2 id="badge-title">Campaign badges</h2>
+      <div id="badges" class="matrix-badge-grid"></div>
+    </section>
+    <p class="code-matrix-help">Swap neighboring tiles with a tap or swipe. You can also focus a tile and use the arrow keys to choose a neighbor. A hint outlines a valid pair.</p>
+  </main>
+  <footer class="code-matrix-footer"><a href="/lms/">Return to Matrix of Conscience</a><span>Progress saves on this device.</span></footer>
+  <script type="module" src="/src/game/ui.js"></script>
+</body>
+</html>

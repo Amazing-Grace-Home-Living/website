@@ -1,7 +1,7 @@
 import { createPlayableGrid, findMatches } from './engine/matchmaker.js';
 export const LEVELS = [
-  { target: 1000, moves: 20 }, { target: 1800, moves: 22 },
-  { target: 2600, moves: 24 }, { target: 3600, moves: 26 }, { target: 5000, moves: 28 },
+  { target: 7500, moves: 20 }, { target: 9000, moves: 22 },
+  { target: 10000, moves: 24 }, { target: 10500, moves: 26 }, { target: 11500, moves: 28 },
 ];
 export const SAVE_KEY = 'amazing-grace-matchmaker-v1';
 export function newGame(level = 1, total = 0, badges = []) {

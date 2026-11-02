@@ -17,6 +17,7 @@ function storage() {
   return { data, reads, getItem(key) { reads.push(key); return data.get(key) ?? null; }, setItem: (key, value) => data.set(key, value), removeItem: key => data.delete(key) };
 }
 const pass = (state, id) => recordQuiz(state, id, LESSONS.find(l => l.id === id).questions.map(q => q.answer)).state;
+const BONUS_KEY = 'amazing-grace-signal-bonus-v1';
 function story(role = 'navigator', choice = 0) {
   return QUESTS.slice(0, 4).reduce((state, q) => finishQuest(state, q.id,
     q.type === 'memory' ? { sequence: q.sequence } : q.type === 'choice' ? { choice: q.choices[choice].id } : { answers: q.questions.map(question => question.answer) }), newAdventure(role));
@@ -32,29 +33,45 @@ function fixture() {
   s.setItem(ACADEMY_KEY, JSON.stringify({ ...academy, player: 'Learner A', privateToken: 'excluded-test-sentinel' }));
   s.setItem('graceNexusProgress', JSON.stringify({ version: 2, player: { currentCampaignLevel: 1, xp: 75, answeredQuestionIds: ['earth-1:0'], privateToken: 'excluded-test-sentinel' } }));
   s.setItem('aghl_sevenStarsCompleted', JSON.stringify(['Ephesus', 'Smyrna', 'Pergamum', 'Thyatira', 'Sardis', 'Philadelphia', 'Laodicea']));
+  s.setItem(BONUS_KEY, JSON.stringify({ credits: 350, awards: ['code-matrix-level-1', 'vim-defense'] }));
   s.setItem('bridge-token', 'excluded-test-sentinel');
   return s;
 }
 
 test('export reads only named game records and strips unrelated nested data', () => {
   const s = fixture(), result = exportPassport(s, new Date('2026-11-01T00:00:00Z'));
-  assert.equal(Object.keys(result.passport.records).length, 7);
+  assert.equal(Object.keys(result.passport.records).length, 8);
   assert.deepEqual(new Set(s.reads), new Set(PASSPORT_RECORDS.map(r => r.key)));
   assert.equal(JSON.stringify(result.passport).includes('excluded-test-sentinel'), false);
   assert.equal(result.passport.records[ACADEMY_KEY].player, 'Learner A');
+  assert.deepEqual(result.passport.records[BONUS_KEY], { version: 1, credits: 350, awards: ['code-matrix-level-1', 'vim-defense'] });
   assert.deepEqual(result.warnings, []);
 });
 
 test('preview is read-only; a fresh restore reconciles real game checkpoints into learning milestones', () => {
   const file = exportPassport(fixture()).passport, target = storage(), parsed = parsePassport(JSON.stringify(file));
   const plan = planRestore(target, parsed.passport);
-  assert.equal(target.data.size, 0); assert.equal(plan.changes.length, 7);
+  assert.equal(target.data.size, 0); assert.equal(plan.changes.length, 8);
   assert.equal(plan.summary.xp, 425);
   const applied = restorePassport(target, parsed.passport);
-  assert.equal(applied.summary.xp, 425); assert.equal(target.data.size, 7);
+  assert.equal(applied.summary.xp, 425); assert.equal(target.data.size, 8);
   const shared = JSON.parse(target.getItem(CAMPAIGN_KEY));
   assert.ok(['match-1', 'rpg-garden', 'vim-defense', 'matrix-academy', 'seven-stars'].every(id => shared.completedLevels.includes(id)));
   assert.equal(restorePassport(target, parsed.passport).changes.length, 0);
+});
+
+test('Signal Bonus passport validates legacy records and merges without duplicating credits', () => {
+  const source = storage(), target = storage();
+  source.setItem(BONUS_KEY, JSON.stringify({ credits: 350, awards: ['code-matrix-level-1', 'vim-defense'] }));
+  target.setItem(BONUS_KEY, JSON.stringify({ credits: 200, awards: ['vim-defense', 'local-award'] }));
+  const passport = exportPassport(source).passport;
+  assert.deepEqual(passport.records[BONUS_KEY], { version: 1, credits: 350, awards: ['code-matrix-level-1', 'vim-defense'] });
+  const plan = planRestore(target, passport);
+  assert.deepEqual(plan.records[BONUS_KEY], { version: 1, credits: 350, awards: ['vim-defense', 'local-award', 'code-matrix-level-1'] });
+  restorePassport(target, passport);
+  assert.equal(JSON.parse(target.getItem(BONUS_KEY)).credits, 350);
+  assert.equal(restorePassport(target, passport).changes.length, 0);
+  assert.throws(() => parsePassport(JSON.stringify({ format: PASSPORT_FORMAT, version: 1, records: { [BONUS_KEY]: { credits: 5001, awards: [] } } })), /Invalid Signal Bonus/);
 });
 
 test('merge preserves best lesson results, consumed shield, current story choice, and VIM checkpoint', () => {
@@ -108,7 +125,7 @@ test('invalid or future files fail before writing and unknown record names canno
 test('unreadable local records are reported; blocked storage is never exported as an empty success', () => {
   const s = fixture(); s.setItem(RPG_KEY, '{broken');
   const exported = exportPassport(s);
-  assert.equal(exported.warnings.length, 1); assert.equal(Object.keys(exported.passport.records).length, 6);
+  assert.equal(exported.warnings.length, 1); assert.equal(Object.keys(exported.passport.records).length, 7);
   assert.throws(() => exportPassport({ getItem() { throw Error('blocked'); } }), /blocked/);
 });
 

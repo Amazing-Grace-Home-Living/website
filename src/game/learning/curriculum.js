@@ -6,7 +6,7 @@ export const LESSONS = [
     paragraphs: [
       'A strategy is a plan for using limited resources. Before placing a tower, compare its cost, range, and the part of the path it can cover. A tower near a bend can often cover more than one section of the path.',
       'Keep some credits for the next challenge. Spending everything on the most expensive option can leave a gap elsewhere. Start with affordable coverage and observe one wave before expanding.',
-      'Match Maker practices spotting patterns and planning ahead. Match three neighboring symbols, reach the level target, and use a hint when you need one. A failed attempt is feedback, not lost learning progress.',
+      'Code Matrix is optional pattern practice. Match neighboring code symbols, reach the level target, and use a hint when you need one. Each finished level pays a one-time Signal Bonus for towers and drones. A failed attempt is feedback, not lost learning progress.',
     ],
     questions: [
       { prompt: 'What should you compare before buying a tower?', choices: ['Only its color', 'Cost, range, and path coverage', 'Only the biggest price'], answer: 1, explanation: 'A useful tower fits both your budget and the section of path you need to defend.' },
@@ -66,9 +66,9 @@ export const LESSONS = [
 ];
 
 export const LEVELS = [
-  ...Array.from({ length: 5 }, (_, i) => ({ id: `match-${i + 1}`, title: `Match Maker ${i + 1}`, xp: 50, requires: [] })),
+  ...Array.from({ length: 5 }, (_, i) => ({ id: `match-${i + 1}`, title: `Code Matrix ${i + 1}`, xp: 50, requires: [] })),
   { id: 'matrix-session', title: 'Matrix: complete 20 moves with 600 points', xp: 50, requires: [] },
-  { id: 'matrix-academy', title: 'Matrix Academy · Complete First Light and its quiz', xp: 50, requires: [] },
+  { id: 'matrix-academy', title: 'Legacy Matrix Academy · First Light checkpoint', xp: 50, requires: [] },
   { id: 'matrix-earth', title: 'Matrix Academy · Complete all four Earth missions', xp: 150, requires: [{ level: 'matrix-academy' }] },
   { id: 'bible-quiz', title: 'Bible Study: at least 8 of 10 correct', xp: 50, requires: [] },
   { id: 'seven-stars', title: 'Seven Stars · Complete all seven locations', xp: 100, requires: [] },
@@ -77,7 +77,7 @@ export const LEVELS = [
   { id: 'rpg-commons', title: 'RPG · Restore the Lantern Commons', xp: 100, requires: [{ level: 'rpg-garden' }] },
   { id: 'rpg-archive', title: 'RPG · Restore the Living Archive', xp: 150, requires: [{ level: 'rpg-commons' }] },
   { id: 'tower-nexus', stage: 'nexus', title: 'Nexus Defense', waves: 3, xp: 100, requires: [
-    { quiz: 'foundations' }, { anyLevel: ['match-1', 'matrix-session', 'matrix-academy', 'rpg-garden'], label: 'Complete Match Maker level 1, First Light in Matrix Academy, a legacy Matrix session (20 moves, 600+ points), OR the RPG’s Echo Gardens region' },
+    { quiz: 'foundations' }, { anyLevel: ['match-1', 'matrix-session', 'matrix-academy', 'rpg-garden'], label: 'Complete Code Matrix level 1, or use an already earned legacy Matrix or RPG practice milestone' },
   ] },
   { id: 'tower-syndicate', stage: 'syndicate', title: 'Syndicate Siege', waves: 4, xp: 150, requires: [{ level: 'tower-nexus' }, { quiz: 'tactics' }] },
   { id: 'tower-boss', stage: 'boss', title: 'Boss Emergence', waves: 5, xp: 200, requires: [{ level: 'tower-syndicate' }, { quiz: 'adaptation' }] },
