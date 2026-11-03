@@ -1,0 +1,4 @@
+.brand-horizontal{display:block;width:280px;height:68px;max-width:100%}
+.brand-compact{display:none;width:54px;height:54px}
+.site-header .logo,.lms-brand{flex-shrink:0;display:flex;align-items:center}
+@media(max-width:900px){.brand-horizontal{display:none}.brand-compact{display:block}}
