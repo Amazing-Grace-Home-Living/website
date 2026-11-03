@@ -150,7 +150,7 @@ export const BOSS_QUESTIONS=['processes-0','services-0','pipeline-0'];
             document.querySelectorAll('.tower-btn').forEach(b => {b.classList.remove('selected');b.setAttribute('aria-pressed','false');});
             btn.classList.add('selected');btn.setAttribute('aria-pressed','true');
             this.selectedTowerKey = key;
-            this.log(`Selected command unit: ${t.cmd}`);
+            this.placementFeedback(`${t.name} selected · ${t.cost} credits. Tap an empty tile off the path to build.`);
           });
           container.appendChild(btn);
         }
@@ -170,9 +170,13 @@ export const BOSS_QUESTIONS=['processes-0','services-0','pipeline-0'];
         this.canvas.addEventListener('blur',()=>this.refreshFrame());
         this.canvas.addEventListener('pointerdown',event=>{
           if(!event.isPrimary||event.button!==0)return;
-          event.preventDefault();this.canvas.focus();
+          event.preventDefault();
           const box=this.canvas.getBoundingClientRect();
-          this.placeTower(Math.floor((event.clientX-box.left)*COLS/box.width),Math.floor((event.clientY-box.top)*ROWS/box.height));
+          const col=Math.floor((event.clientX-box.left)*COLS/box.width),row=Math.floor((event.clientY-box.top)*ROWS/box.height);
+          this.canvas.focus({preventScroll:true});
+          this.keyboardCell={col:Math.max(0,Math.min(COLS-1,col)),row:Math.max(0,Math.min(ROWS-1,row))};
+          this.placeTower(col,row);
+          this.refreshFrame();
         });
         this.canvas.addEventListener('keydown',event=>{
           const delta={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[event.key];
@@ -204,11 +208,22 @@ export const BOSS_QUESTIONS=['processes-0','services-0','pipeline-0'];
         if(changed)this.updateHUD();
       }
 
+      placementFeedback(message) {
+        this.log(message);
+        if(typeof document!=='undefined'){
+          const feedback=document.getElementById('placement-feedback');
+          if(feedback)feedback.textContent=message;
+        }
+      }
+
       placeTower(col, row) {
-        if(this.status!=='ready'||this.paused||!Number.isInteger(col)||!Number.isInteger(row)||col<0||col>=COLS||row<0||row>=ROWS)return;
+        if(this.status!=='ready'){this.placementFeedback('This defense has ended. Reset defense to build again.');return;}
+        if(this.paused){this.placementFeedback('Defense is paused. Resume defense or close the question panel before building.');return;}
+        if(!Number.isInteger(col)||!Number.isInteger(row)||col<0||col>=COLS||row<0||row>=ROWS){this.placementFeedback('Choose a tile inside the defense grid.');return;}
 
         // Path collision check
         if (this.path.some(p => p.x === col && p.y === row)) {
+          this.placementFeedback('That tile is on the hostile path. Choose an empty tile beside the path.');
           this.addFloatingText('Cannot bind to pathway!', col * CELL_SIZE + 20, row * CELL_SIZE, '#f87171');
           return;
         }
@@ -223,9 +238,10 @@ export const BOSS_QUESTIONS=['processes-0','services-0','pipeline-0'];
             existing.damage = Math.floor(existing.damage * 1.4);
             existing.range += 14;
             this.addFloatingText(`Upgrade: L${existing.level} ✦`, existing.x, existing.y - 10, '#3b82f6');
-            this.log(`Upgraded ${existing.def.name} to Level ${existing.level} (-${upgradeCost} C)`);
+            this.placementFeedback(`Upgraded ${existing.def.name} to Level ${existing.level} (-${upgradeCost} C)`);
             this.updateHUD();
           } else {
+            this.placementFeedback(`Upgrade needs ${upgradeCost} credits; you have ${this.credits}.`);
             this.addFloatingText(`Need ${upgradeCost} Credits`, existing.x, existing.y - 10, '#facc15');
           }
           return;
@@ -234,6 +250,7 @@ export const BOSS_QUESTIONS=['processes-0','services-0','pipeline-0'];
         const def = TOWER_TYPES[this.selectedTowerKey];
         if(!def||(this.selectedTowerKey==='sentinel'&&!this.profile().unlocks.scriptSentinel))return;
         if (this.credits < def.cost) {
+          this.placementFeedback(`${def.name} needs ${def.cost} credits; you have ${this.credits}. Select a cheaper turret or earn more credits.`);
           this.addFloatingText(`Need ${def.cost} Credits`, col * CELL_SIZE + 20, row * CELL_SIZE, '#facc15');
           return;
         }
@@ -254,7 +271,7 @@ export const BOSS_QUESTIONS=['processes-0','services-0','pipeline-0'];
 
         this.store.event({type:'deploy'});
         this.addFloatingText(`+${def.name}`, col * CELL_SIZE + 20, row * CELL_SIZE, def.color);
-        this.log(`Deployed [${def.name}] at col ${col}, row ${row} (-${def.cost} C)`);
+        this.placementFeedback(`Deployed [${def.name}] at column ${col+1}, row ${row+1} (-${def.cost} C). Tap this turret to upgrade.`);
         this.updateHUD();
       }
 
@@ -582,7 +599,7 @@ export const BOSS_QUESTIONS=['processes-0','services-0','pipeline-0'];
       updateHUD() {
         document.getElementById('hostile-tracker').textContent=`HOSTILES: ${this.enemies.length} ACTIVE`;
         document.getElementById('btn-start-wave').disabled=this.status!=='ready'||this.waveActive||this.paused;
-        document.getElementById('terminal-status').textContent=this.status==='won'?'DEFENSE COMPLETE':this.status==='lost'?'HOST LOST · RESTART TO RETRY':this.paused?'PAUSED · HOST SAFE':this.enemies.some(e=>e.shielded)?'SECURITY BREACH · BOSS SHIELDED':this.waveActive?'DEFENDING HOST':'READY · PLACE TURRETS, THEN START';
+        document.getElementById('terminal-status').textContent=this.status==='won'?'DEFENSE COMPLETE':this.status==='lost'?'HOST LOST · RESTART TO RETRY':this.paused?(this.pauseReason||'PAUSED · RESUME TO BUILD'):this.enemies.some(e=>e.shielded)?'SECURITY BREACH · BOSS SHIELDED':this.waveActive?'DEFENDING HOST':'READY · PLACE TURRETS, THEN START';
         const pauseButton=document.getElementById('btn-pause');if(pauseButton)pauseButton.disabled=this.status!=='ready';
         document.getElementById('hud-credits').innerText = `${this.credits} C`;
         document.getElementById('hud-health').innerText = `${this.health} HP`;

@@ -7,6 +7,12 @@ import { PowerShellDefenseGame, BOSS_QUESTIONS } from './defense.js';
 const $ = id => document.getElementById(id);
 let activeLesson = null, questionId = null, manualPaused = false;
 const lessonPanel = $('lesson-dialog'), bossPanel = $('boss-dialog');
+const placementFeedback = document.createElement('p');
+placementFeedback.id = 'placement-feedback';
+placementFeedback.setAttribute('role', 'status');
+placementFeedback.setAttribute('aria-live', 'polite');
+placementFeedback.textContent = 'Test-Connection selected · 50 credits. Tap an empty tile beside the path to build. Tap an existing turret to upgrade.';
+document.querySelector('.canvas-wrap').insertAdjacentElement('beforebegin', placementFeedback);
 document.querySelector('.layout > section')?.append(lessonPanel, bossPanel);
 
 export const game = new PowerShellDefenseGame({ onBoss: () => openBoss() });
@@ -37,8 +43,14 @@ function refresh() {
   $('cross-game-bonus').textContent = profile.unlocks.startingCredits ? 'Earth Guardian earned: +200 credits at the start of each attempt.' : 'Restore the Echo Gardens in Matrix of Conscience for Earth Guardian and +200 starting credits.';
 }
 
-function pause(value) {
-  game.paused = manualPaused || value; game.updateHUD();
+function pause(value, reason = '') {
+  game.paused = manualPaused || value;
+  game.pauseReason = reason || (questionOpen('lesson-dialog')
+    ? 'LESSON OPEN · RETURN TO DEFENSE TO BUILD'
+    : questionOpen('boss-dialog')
+      ? 'BOSS QUIZ OPEN · RETURN TO DEFENSE TO BUILD'
+      : game.paused ? 'PAUSED · RESUME TO BUILD' : '');
+  game.updateHUD();
   $('btn-pause').textContent = manualPaused ? 'Resume defense' : 'Pause defense';
   $('btn-pause').setAttribute('aria-pressed', String(manualPaused)); $('btn-pause').disabled = game.status !== 'ready';
 }
@@ -57,7 +69,7 @@ $('btn-pause').onclick = () => { manualPaused = !manualPaused; pause(questionOpe
 function openLesson(id) {
   activeLesson = PS_LESSONS.find(lesson => lesson.id === id); if (!activeLesson) return;
   bossPanel.hidden = true;
-  pause(true); $('lesson-title').textContent = activeLesson.title; $('lesson-command').textContent = activeLesson.command;
+  pause(true, 'LESSON OPEN · RETURN TO DEFENSE TO BUILD'); $('lesson-title').textContent = activeLesson.title; $('lesson-command').textContent = activeLesson.command;
   $('lesson-copy').textContent = activeLesson.copy; $('lesson-docs').href = activeLesson.docs;
   questions($('lesson-questions'), activeLesson.questions); $('lesson-submit').disabled = false;
   $('lesson-feedback').textContent = ''; $('lesson-retry').hidden = true; revealQuestion('lesson-dialog');
@@ -85,7 +97,7 @@ function drawBoss() {
 function openBoss() {
   if (!game.enemies.some(enemy => enemy.boss && enemy.shielded)) return;
   lessonPanel.hidden = true;
-  pause(true); drawBoss(); if (bossPanel.hidden) revealQuestion('boss-dialog');
+  pause(true, 'BOSS QUIZ OPEN · RETURN TO DEFENSE TO BUILD'); drawBoss(); if (bossPanel.hidden) revealQuestion('boss-dialog');
 }
 $('boss-form').onsubmit = event => {
   event.preventDefault(); if ($('boss-submit').disabled) return;
