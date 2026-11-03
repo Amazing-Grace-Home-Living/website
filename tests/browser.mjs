@@ -13,8 +13,8 @@ try {
   page.on('response', response => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
   await page.goto('http://127.0.0.1:4174/');
   assert.match(await page.title(), /Amazing Grace Home Living/);
-  assert.equal(await page.locator('.site-header .logo img').getAttribute('src'), '/assets/AmazingGraceHomeLivingLogo.png');
-  assert.ok(await page.locator('.site-header .logo img').evaluate(image => image.complete && image.naturalWidth > 0));
+  assert.equal(await page.locator('.site-header .logo .brand-horizontal image').getAttribute('href'), '/assets/brand-sheet.png');
+  assert.equal(await page.locator('.site-header .logo .brand-horizontal').isVisible(), true);
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   await page.setViewportSize({ width: 320, height: 740 });
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
