@@ -163,6 +163,7 @@ export const BOSS_QUESTIONS=['processes-0','services-0','pipeline-0'];
         this.dmgBonus=0;this.speedBonus=0;this.bossAnswers=new Set();this.keyboardCell={col:0,row:0};
         this.selectedTowerKey='ping';this.accumulator=0;this.lastTime=null;
         this.setupUI();this.updateHUD();
+        this.placementFeedback('Test-Connection selected · 50 credits. Tap an empty tile beside the path to build.');
       }
       setupEvents(){
         document.addEventListener('visibilitychange',()=>this.refreshFrame());

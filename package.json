@@ -29,7 +29,12 @@
     "test:tools:browser": "node tests/ai-setup-browser.mjs",
     "balance:matrix": "node scripts/simulate-matrix.mjs",
     "test:progress": "node --test tests/transfer.test.mjs",
-    "test:progress:browser": "node tests/transfer-browser.mjs"
+    "test:progress:browser": "node tests/transfer-browser.mjs",
+    "pretest:local": "powershell -ExecutionPolicy Bypass -File ./cleanup-chrome.ps1",
+    "test:local": "node ./run-authenticated-tests.mjs",
+    "posttest:local": "powershell -ExecutionPolicy Bypass -File ./cleanup-chrome.ps1",
+    "security:scan": "bash ./.github/verify-no-secrets.sh",
+    "prepare": "git config core.hooksPath .github/hooks --if-present || true"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1"

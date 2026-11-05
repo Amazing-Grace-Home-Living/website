@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Git pre-commit hook enforcing verify-no-secrets.sh
+./.github/verify-no-secrets.sh
