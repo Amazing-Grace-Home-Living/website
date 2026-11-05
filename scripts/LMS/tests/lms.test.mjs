@@ -1,0 +1,6 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {initialMetrics,applyDelta,previewRules,scenarios} from '../public/lms/engine.mjs';
+test('rule preview applies operators, comments and clamps without mutating original',()=>{const original=initialMetrics();assert.deepEqual(previewRules('empathy += 100\ncompassion -= 100\nfreewill = 30 # comment',original),{metrics:{empathy:100,compassion:0,freewill:30,stability:85},count:3});assert.equal(original.empathy,60);});
+test('invalid rules and arbitrary code fail without partial state updates',()=>{const state=initialMetrics();for(const code of ['empathy += 5\nfetch("https://example.com")','import os','stability = 101','window.location = 1','<img src=x onerror=alert(1)>','# only comments'])assert.throws(()=>previewRules(code,state));assert.deepEqual(state,initialMetrics());});
+test('all three story chapters have valid bounded choices and immutable transitions',()=>{assert.equal(scenarios.length,3);for(const scenario of scenarios){assert.ok(scenario.choices.length>=2);for(const choice of scenario.choices){const before=initialMetrics(),after=applyDelta(before,choice.delta);assert.deepEqual(before,initialMetrics());for(const score of Object.values(after))assert.ok(score>=0&&score<=100);}}});
