@@ -18,6 +18,10 @@
     "firebase-functions": "^7.4.0"
   },
   "devDependencies": {
+    "dotenv": "^16.4.5",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.6",
+    "typescript": "^5.0.0"
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.6",
     "typescript": "^5.0.0"

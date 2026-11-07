@@ -1,4 +1,4 @@
-﻿import { initializeApp } from "firebase-admin/app";
+import { initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { onRequest, Request } from "firebase-functions/v2/https";
 import { onDocumentCreated, FirestoreEvent } from "firebase-functions/v2/firestore";
@@ -34,3 +34,39 @@ export const onUserCreated = onDocumentCreated(
     );
   }
 );
+
+// Export points API functions
+export { grantPoints, spendPoints } from "./points";
+
+/**
+ * Lemon Squeezy webhook handler – receives purchase events and stores them in Firestore.
+ * Deploy with: `firebase deploy --only functions:lemonSqueezyWebhook`
+ */
+import * as functionsV2 from "firebase-functions/v2";
+import { onRequest } from "firebase-functions/v2/https";
+import * as logger from "firebase-functions/logger";
+
+export const lemonSqueezyWebhook = onRequest(
+  { cors: true, region: "us-central1" },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      return res.status(405).send("Method Not Allowed");
+    }
+    const payload = req.body;
+    if (!payload || typeof payload !== "object") {
+      return res.status(400).send("Invalid payload");
+    }
+    try {
+      await db.collection("payments").add({
+        receivedAt: new Date(),
+        payload,
+      });
+      logger.info("Stored Lemon Squeezy webhook payload", payload);
+      return res.status(200).send("OK");
+    } catch (e) {
+      logger.error("Error processing Lemon Squeezy webhook", e);
+      return res.status(500).send("Internal Server Error");
+    }
+  }
+);
+

@@ -1,5 +1,18 @@
 {
   "hosting": {
+    "rewrites": [
+      { "source": "/arcade/matrix-of-conscience/index.html", "destination": "/arcade/matrix-of-conscience.html" },
+      { "source": "/arcade/matrix-of-conscience/matrix-act-iv.html", "destination": "/arcade/matrix-of-conscience.html" },
+      { "source": "/arcade/matrix_of_consciousness_match_3_game.html", "destination": "/arcade/matrix-of-conscience.html" },
+      { "source": "/arcade/powershell-defense/index.html", "destination": "/arcade/code-matrix.html" },
+      { "source": "/arcade/code-matrix/index.html", "destination": "/arcade/code-matrix.html" },
+      { "source": "/arcade/signal-operations/index.html", "destination": "/arcade/code-matrix.html" },
+      { "source": "/arcade/academy/index.html", "destination": "/arcade/academy-tools.html" },
+      { "source": "/arcade/tools/index.html", "destination": "/arcade/academy-tools.html" },
+      { "source": "/arcade/vim-defense/index.html", "destination": "/arcade/academy-tools.html" },
+      { "source": "/arcade/bible-study/index.html", "destination": "/arcade/bible-study-stars.html" },
+      { "source": "/arcade/seven-stars/index.html", "destination": "/arcade/bible-study-stars.html" }
+    ],
     "public": "public",
     "ignore": [
       "firebase.json",
@@ -10,7 +23,7 @@
   "functions": {
     "source": "functions",
     "predeploy": [
-      "npm --prefix \"\" run build"
+      "npx tsc -p functions/tsconfig.json"
     ]
   },
   "firestore": {

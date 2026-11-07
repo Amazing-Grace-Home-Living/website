@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.onUserCreated = exports.apiHealth = void 0;
+exports.lemonSqueezyWebhook = exports.spendPoints = exports.grantPoints = exports.onUserCreated = exports.apiHealth = void 0;
 const app_1 = require("firebase-admin/app");
 const firestore_1 = require("firebase-admin/firestore");
 const https_1 = require("firebase-functions/v2/https");
@@ -55,4 +55,29 @@ exports.onUserCreated = (0, firestore_2.onDocumentCreated)({ document: "users/{u
         return;
     logger.info(`New user document created: ${event.params.userId}`);
     await db.collection("profiles").doc(event.params.userId).set({ createdAt: new Date() }, { merge: true });
+});
+// Export points API functions
+var points_1 = require("./points");
+Object.defineProperty(exports, "grantPoints", { enumerable: true, get: function () { return points_1.grantPoints; } });
+Object.defineProperty(exports, "spendPoints", { enumerable: true, get: function () { return points_1.spendPoints; } });
+exports.lemonSqueezyWebhook = (0, https_1.onRequest)({ cors: true, region: "us-central1" }, async (req, res) => {
+    if (req.method !== "POST") {
+        return res.status(405).send("Method Not Allowed");
+    }
+    const payload = req.body;
+    if (!payload || typeof payload !== "object") {
+        return res.status(400).send("Invalid payload");
+    }
+    try {
+        await db.collection("payments").add({
+            receivedAt: new Date(),
+            payload,
+        });
+        logger.info("Stored Lemon Squeezy webhook payload", payload);
+        return res.status(200).send("OK");
+    }
+    catch (e) {
+        logger.error("Error processing Lemon Squeezy webhook", e);
+        return res.status(500).send("Internal Server Error");
+    }
 });
