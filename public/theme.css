@@ -1,0 +1,56 @@
+/* Unified theme for Amazing Grace Arcade */
+:root {
+  --bg-dark: #0f172a;
+  --bg-card: #1e293b;
+  --bg-card-hover: #334155;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent-green: #86efac;
+  --accent-green-hover: #bbf7d0;
+  --border-color: #334155;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  margin:0; padding:0; background-color:var(--bg-dark); color:var(--text-main);
+  font-family:var(--font-sans); line-height:1.6;
+}
+
+.site-nav {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:1.5rem 2rem; background-color:var(--bg-dark);
+  border-bottom:1px solid var(--border-color); position:sticky; top:0; z-index:100;
+}
+.nav-brand {display:flex; flex-direction:column; text-decoration:none;}
+.nav-logo-text {color:var(--text-main); font-weight:700; font-size:1.1rem; letter-spacing:.05em; text-transform:uppercase; display:flex; align-items:center; gap:.5rem;}
+.nav-sub-text {color:var(--accent-green); font-size:.8rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase;}
+.nav-links {display:flex; gap:2rem;}
+.nav-links a {color:var(--text-main); text-decoration:none; font-size:.95rem; font-weight:500; transition:color .2s;}
+.nav-links a:hover {color:var(--accent-green);}
+
+.container {max-width:1000px; margin:0 auto; padding:2rem;}
+.profile-bar {background-color:var(--bg-card); border-radius:12px; padding:1.5rem 2rem; display:flex; justify-content:space-between; align-items:center; margin-bottom:3rem; border:1px solid var(--border-color);}
+.profile-info h2 {margin:0 0 .25rem 0; font-size:1.25rem; color:var(--accent-green);}
+.profile-info p {margin:0; color:var(--text-muted); font-size:.9rem;}
+.profile-actions a {color:var(--text-main); text-decoration:none; font-size:.9rem; border-bottom:1px solid var(--accent-green); padding-bottom:2px; transition:color .2s;}
+.profile-actions a:hover {color:var(--accent-green);}
+
+.hero-grid {display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-bottom:3rem;}
+.hero-content h3 {color:var(--accent-green); font-size:.85rem; text-transform:uppercase; letter-spacing:.1em; margin-bottom:1rem;}
+.hero-content h1 {font-size:3rem; line-height:1.1; margin:0 0 1.5rem 0; font-family:serif;}
+.hero-content p {color:var(--text-muted); margin-bottom:2rem; font-size:1.1rem;}
+.btn-primary {background-color:var(--accent-green); color:var(--bg-dark); padding:.75rem 1.5rem; border-radius:8px; text-decoration:none; font-weight:600; display:inline-block; transition:background-color .2s;}
+.btn-primary:hover {background-color:var(--accent-green-hover);}
+
+.card {background-color:var(--bg-card); border:1px solid var(--border-color); border-radius:12px; padding:2rem;}
+.card h2 {margin:0 0 1rem 0; font-family:serif; font-size:1.8rem;}
+.card-meta {color:var(--accent-green); font-size:.8rem; text-transform:uppercase; letter-spacing:.1em; margin-bottom:1rem; display:block;}
+.feature-list {display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1.5rem;}
+.feature-item strong {display:block; color:var(--text-main); font-size:.95rem;}
+.feature-item span {color:var(--text-muted); font-size:.85rem;}
+
+@media (max-width:768px) {
+  .hero-grid {grid-template-columns:1fr;}
+  .profile-bar {flex-direction:column; align-items:flex-start; gap:1rem;}
+  .nav-links {display:none;}
+}

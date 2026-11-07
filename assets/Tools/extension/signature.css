@@ -1,0 +1,6 @@
+body { width: min(740px, 100vw); }
+[hidden] { display: none !important; }
+canvas { display: block; width: min(100%, 600px); height: auto; border: 1px solid #565047; background: #fff; touch-action: none; }
+canvas#signature-preview { background: #fff; }
+.page-guide { position: relative; margin-top: 20px; width: min(220px, 70%); aspect-ratio: 8.5 / 11; border: 1px solid #ddd; background: #fff; overflow: hidden; }
+#position-guide { position: absolute; color: #242424; background: #dfc48e; font-size: 9px; text-align: center; overflow: hidden; }

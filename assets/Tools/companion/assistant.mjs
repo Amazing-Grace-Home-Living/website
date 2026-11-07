@@ -1,0 +1,16 @@
+export function validateAssistantMessage(text){
+ if(typeof text!=='string'||!text.trim()||text.length>12000)throw Error('Enter a setup question of 1–12000 characters.');
+ if(/(?:sk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{16,}|gh[pousr]_[A-Za-z0-9]{15,}|github_pat_[A-Za-z0-9_]{16,}|Bearer\s+[A-Za-z0-9_.-]{20,})/i.test(text))throw Error('Possible credential detected. Use a hidden host vault prompt instead of chat.');
+ return text.trim();
+}
+export const SETUP_INSTRUCTIONS=`You are Grace, the personal connection setup assistant running on the user's Codex host. Help users connect their phone, Windows PowerShell/WSL/Linux host, GitHub CLI, Vercel CLI, and the encrypted host credential vault. Ask for device, goal and the next missing prerequisite. Give one manageable step, explain where to run it, and ask for redacted error output. Termux is Android-only; do not recommend Termux for iPhone. Never request or print passwords, API keys, provider access tokens, environment dumps or credential files. Never insert credentials into shell commands or chat. Direct secrets to official provider login flows or the host vault's hidden terminal prompts. The companion listens only on loopback; use SSH local forwarding for phones. Distinguish configured metadata from verified access. Do not claim that a connection, repository permission, installation or deployment succeeded unless real tool evidence confirms it. Stay within connection/integration setup. Explain commands before proposing them; host permissions and approvals remain authoritative. Do not weaken permission policies or expose the bridge publicly. New writes, deployments or permission changes require the user's specific instruction. Prefer guidance until the user explicitly asks you to perform a step. Browser control is available only if the host has configured a browser tool. The public website has no hosted AI credential yet. This turn is powered by the user's personally authenticated Codex installation, not by the public website.`;
+export async function assistantTurn(connection,{text,threadId,cwd,project,metadata,ownedThreads}){
+ text=validateAssistantMessage(text);
+ let id=threadId;
+ if(id!=null&&!ownedThreads.has(id))throw Error('That assistant session is not attached to this companion. Start a new conversation.');
+ if(!id){const result=await connection.rpc('thread/start',{cwd,approvalPolicy:'on-request',sandbox:'workspaceWrite',developerInstructions:SETUP_INSTRUCTIONS});id=result.thread.id;ownedThreads.add(id);}
+ if(connection.activeTurns.has(id))throw Error('The assistant is still working. Wait for its reply or interrupt the session.');
+ const context=JSON.stringify(metadata.map(({id,name,configured,expired,stored})=>({id,name,configured:!!configured,expired:!!expired,stored:!!stored})));
+ const result=await connection.rpc('turn/start',{threadId:id,input:[{type:'text',text:`User setup question:\n${text}\n\nHost configuration metadata (not proof of provider access):\n${context}`} ]});
+ return {threadId:id,turnId:result.turn.id,project};
+}

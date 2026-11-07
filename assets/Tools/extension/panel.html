@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nexus Assistant</title>
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <header><span class="eyebrow">NEXUS / PRIVATE WORKSPACE</span><h1>Your projects. Your models.</h1></header>
+  <main>
+    <section aria-labelledby="connection-title">
+      <h2 id="connection-title">Connect your computer</h2><p>Extension ID <code id="extension-id"></code></p><p><a href="host-panel.html">Open Codex, model discovery &amp; PowerShell controls →</a></p><p><a href="signature.html" target="_blank">Sign a PDF locally →</a></p>
+      <label>Bridge token<input id="token" type="password" autocomplete="off" placeholder="From your running companion"></label>
+      <button id="connect" type="button">Connect bridge</button><button id="lock" type="button">Lock</button>
+      <p id="connection" role="status">Start the companion on port 8787 with this extension ID.</p>
+    </section>
+    <section aria-labelledby="profiles-title">
+      <h2 id="profiles-title">Project profiles</h2>
+      <div class="row"><label class="grow">Saved profile<select id="profiles"></select></label><button id="new" type="button">New</button><button id="delete" type="button">Delete</button></div>
+      <form id="profile-form">
+        <div class="grid">
+          <label>Profile name<input name="name" required maxlength="80"></label>
+          <label>Profile type<select name="type"><option value="personal">Personal portfolio</option><option value="ministry">Ministry / nonprofit</option><option value="rental">Rental / business</option><option value="nexus-lms">Nexus LMS</option></select></label>
+          <label>AI provider<select name="provider" id="provider"></select></label>
+          <label>Model ID<input name="model" required maxlength="160" aria-describedby="model-help"></label>
+          <label class="wide">API base URL<input name="baseURL" type="url" required aria-describedby="base-url-help"><span id="base-url-help" class="hint">Cloud providers use a fixed official endpoint. Local providers must use a loopback /v1 endpoint.</span></label>
+          <label>Reasoning<select name="reasoning"><option value="default">Provider default</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></label>
+          <label>Context capacity<input name="contextLimit" type="number" min="4096" max="1050000"></label>
+          <label>Maximum output tokens<input name="maxOutputTokens" type="number" min="256" max="8192"></label>
+          <p id="credential" class="hint"></p>
+          <label class="wide">GitHub repository<input name="repository" type="url" placeholder="https://github.com/owner/repository"></label>
+          <label>Branch<input name="branch" maxlength="160"></label>
+          <label>Domain<input name="domain" placeholder="example.com"></label>
+          <label>Registrar<select name="registrar"><option>DreamHost</option><option>Custom</option></select></label>
+          <label>DNS provider<select name="dns"><option>DreamHost</option><option>Custom</option></select></label>
+          <label id="custom-registrar-field" hidden>Custom registrar<input name="customRegistrar" maxlength="100"></label><label id="custom-dns-field" hidden>Custom DNS provider<input name="customDns" maxlength="100"></label><label>Hosting provider<input name="hosting" maxlength="100" placeholder="Vercel, Firebase, DreamHost, or custom"></label>
+        </div>
+        <p id="model-help" class="hint">Use the exact model ID available to this provider account or local server. Context capacity is saved as model metadata; it does not reserve tokens.</p>
+        <button type="submit">Save profile</button>
+      </form>
+    </section>
+    <section aria-labelledby="cline-title">
+      <h2 id="cline-title">Cline coding task</h2>
+      <p class="hint">Cline runs on the companion's startup workspace with auto-approval. It can edit files, run commands, and access services without further confirmation. It uses its own configured credentials and provider, not the chat profile.</p>
+      <form id="cline-form">
+        <label>Cline provider ID<input id="cline-provider" required maxlength="80" placeholder="Provider configured in Cline"></label>
+        <label>Cline model ID<input id="cline-model" required maxlength="160" placeholder="Model configured in Cline"></label>
+        <label>Task<textarea id="cline-prompt" rows="4" maxlength="12000" required></textarea></label>
+        <button id="cline-run" type="submit">Run autonomous Cline task</button>
+        <button id="cline-stop" type="button">Request stop</button>
+      </form>
+      <p id="cline-status" role="status" aria-live="polite"></p>
+      <pre id="cline-output"></pre>
+    </section>
+    <section aria-labelledby="browser-title">
+      <h2 id="browser-title">Experimental browser agent</h2>
+      <p class="hint">Starting a task lets the selected model click and type automatically in the current tab, up to eight steps. Page headings and control labels are sent to that provider. Untrusted pages can mislead AI, and actions may submit forms or change accounts. Review the site and task carefully. Password and payment fields are blocked, but this is not a security guarantee.</p>
+      <form id="browser-form">
+        <label>Confirm provider <select id="browser-provider" required><option value="">Select a provider</option></select></label>
+        <label>Task <textarea id="browser-task" rows="3" maxlength="4000" required placeholder="Describe what to do on the current page"></textarea></label>
+        <button id="browser-run" type="submit">Start automatic task</button>
+        <button id="browser-stop" type="button">Stop</button>
+      </form>
+      <p id="browser-status" role="status" aria-live="polite"></p>
+      <pre id="browser-log"></pre>
+    </section>
+    <section aria-labelledby="chat-title">
+      <h2 id="chat-title">Ask your assistant</h2>
+      <p id="destination"></p>
+      <button id="attach" type="button">Preview current page text</button>
+      <button id="remove-page" type="button" hidden>Remove page</button>
+      <details id="page-preview" hidden><summary id="page-title">Attached page</summary><pre id="page-text"></pre></details>
+      <form id="chat-form">
+        <label>Confirm provider for this request<select id="send-provider" required><option value="">Select a provider</option></select></label>
+        <label>Your request<textarea id="prompt" rows="4" maxlength="12000" required placeholder="What would you like help with?"></textarea></label>
+        <button id="send" type="submit">Send to selected provider</button>
+      </form>
+      <p id="status" role="status" aria-live="polite"></p>
+      <pre id="answer" aria-live="polite"></pre>
+    </section>
+  </main>
+  <script type="module" src="panel.js"></script>
+</body>
+</html>

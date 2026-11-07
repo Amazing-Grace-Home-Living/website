@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b1420">
+  <meta name="description" content="Unified Matrix of Conscience RPG with sign‑in and points system.">
+  <title>Matrix of Conscience • Amazing Grace</title>
+  <link rel="stylesheet" href="/src/game/matrix-rpg/rpg.css">
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js">// Load user profile from FastAPI backend
+  firebase.auth().onAuthStateChanged(async user => {
+    if (user) {
+      userStatus.textContent = `Signed in as ${user.displayName || user.email}`;
+      signInBtn.style.display = 'none';
+      signOutBtn.style.display = 'inline-block';
+      // Fetch profile
+      try {
+        const resp = await fetch(`http://127.0.0.1:8000/api/users/${user.uid}/profile`);
+        if (resp.ok) {
+          const data = await resp.json();
+          userPoints.textContent = data.signal_credits ?? 0;
+          // Show extra stats in header (optional)
+          const header = document.querySelector('.site-header');
+          const stats = document.createElement('span');
+          stats.textContent = `XP: ${data.xp} • Level ${data.level}`;
+          header.appendChild(stats);
+        }
+      } catch (e) {
+        console.error('Failed to load profile', e);
+      }
+    } else {
+      userStatus.textContent = 'Not signed in';
+      signInBtn.style.display = 'inline-block';
+      signOutBtn.style.display = 'none';
+      userPoints.textContent = '0';
+    }
+  });
+
+  // Example sync call – you would trigger this after a game event
+  async function syncProgress(addedXp, addedCredits, passport) {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+    try {
+      const resp = await fetch('http://127.0.0.1:8000/api/progress/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.uid,
+          added_xp: addedXp,
+          added_credits: addedCredits,
+          game_state_passport: passport
+        })
+      });
+      const result = await resp.json();
+      console.log('Sync result', result);
+      // Refresh points UI
+      const profileResp = await fetch(`http://127.0.0.1:8000/api/users/${user.uid}/profile`);
+      const profile = await profileResp.json();
+      userPoints.textContent = profile.signal_credits;
+    } catch (e) {
+      console.error('Sync failed', e);
+    }
+  }
+
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js">// Load user profile from FastAPI backend
+  firebase.auth().onAuthStateChanged(async user => {
+    if (user) {
+      userStatus.textContent = `Signed in as ${user.displayName || user.email}`;
+      signInBtn.style.display = 'none';
+      signOutBtn.style.display = 'inline-block';
+      // Fetch profile
+      try {
+        const resp = await fetch(`http://127.0.0.1:8000/api/users/${user.uid}/profile`);
+        if (resp.ok) {
+          const data = await resp.json();
+          userPoints.textContent = data.signal_credits ?? 0;
+          // Show extra stats in header (optional)
+          const header = document.querySelector('.site-header');
+          const stats = document.createElement('span');
+          stats.textContent = `XP: ${data.xp} • Level ${data.level}`;
+          header.appendChild(stats);
+        }
+      } catch (e) {
+        console.error('Failed to load profile', e);
+      }
+    } else {
+      userStatus.textContent = 'Not signed in';
+      signInBtn.style.display = 'inline-block';
+      signOutBtn.style.display = 'none';
+      userPoints.textContent = '0';
+    }
+  });
+
+  // Example sync call – you would trigger this after a game event
+  async function syncProgress(addedXp, addedCredits, passport) {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+    try {
+      const resp = await fetch('http://127.0.0.1:8000/api/progress/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.uid,
+          added_xp: addedXp,
+          added_credits: addedCredits,
+          game_state_passport: passport
+        })
+      });
+      const result = await resp.json();
+      console.log('Sync result', result);
+      // Refresh points UI
+      const profileResp = await fetch(`http://127.0.0.1:8000/api/users/${user.uid}/profile`);
+      const profile = await profileResp.json();
+      userPoints.textContent = profile.signal_credits;
+    } catch (e) {
+      console.error('Sync failed', e);
+    }
+  }
+
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js">// Load user profile from FastAPI backend
+  firebase.auth().onAuthStateChanged(async user => {
+    if (user) {
+      userStatus.textContent = `Signed in as ${user.displayName || user.email}`;
+      signInBtn.style.display = 'none';
+      signOutBtn.style.display = 'inline-block';
+      // Fetch profile
+      try {
+        const resp = await fetch(`http://127.0.0.1:8000/api/users/${user.uid}/profile`);
+        if (resp.ok) {
+          const data = await resp.json();
+          userPoints.textContent = data.signal_credits ?? 0;
+          // Show extra stats in header (optional)
+          const header = document.querySelector('.site-header');
+          const stats = document.createElement('span');
+          stats.textContent = `XP: ${data.xp} • Level ${data.level}`;
+          header.appendChild(stats);
+        }
+      } catch (e) {
+        console.error('Failed to load profile', e);
+      }
+    } else {
+      userStatus.textContent = 'Not signed in';
+      signInBtn.style.display = 'inline-block';
+      signOutBtn.style.display = 'none';
+      userPoints.textContent = '0';
+    }
+  });
+
+  // Example sync call – you would trigger this after a game event
+  async function syncProgress(addedXp, addedCredits, passport) {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+    try {
+      const resp = await fetch('http://127.0.0.1:8000/api/progress/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.uid,
+          added_xp: addedXp,
+          added_credits: addedCredits,
+          game_state_passport: passport
+        })
+      });
+      const result = await resp.json();
+      console.log('Sync result', result);
+      // Refresh points UI
+      const profileResp = await fetch(`http://127.0.0.1:8000/api/users/${user.uid}/profile`);
+      const profile = await profileResp.json();
+      userPoints.textContent = profile.signal_credits;
+    } catch (e) {
+      console.error('Sync failed', e);
+    }
+  }
+
+  <script src="/auth.js">// Load user profile from FastAPI backend
+  firebase.auth().onAuthStateChanged(async user => {
+    if (user) {
+      userStatus.textContent = `Signed in as ${user.displayName || user.email}`;
+      signInBtn.style.display = 'none';
+      signOutBtn.style.display = 'inline-block';
+      // Fetch profile
+      try {
+        const resp = await fetch(`http://127.0.0.1:8000/api/users/${user.uid}/profile`);
+        if (resp.ok) {
+          const data = await resp.json();
+          userPoints.textContent = data.signal_credits ?? 0;
+          // Show extra stats in header (optional)
+          const header = document.querySelector('.site-header');
+          const stats = document.createElement('span');
+          stats.textContent = `XP: ${data.xp} • Level ${data.level}`;
+          header.appendChild(stats);
+        }
+      } catch (e) {
+        console.error('Failed to load profile', e);
+      }
+    } else {
+      userStatus.textContent = 'Not signed in';
+      signInBtn.style.display = 'inline-block';
+      signOutBtn.style.display = 'none';
+      userPoints.textContent = '0';
+    }
+  });
+
+  // Example sync call – you would trigger this after a game event
+  async function syncProgress(addedXp, addedCredits, passport) {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+    try {
+      const resp = await fetch('http://127.0.0.1:8000/api/progress/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.uid,
+          added_xp: addedXp,
+          added_credits: addedCredits,
+          game_state_passport: passport
+        })
+      });
+      const result = await resp.json();
+      console.log('Sync result', result);
+      // Refresh points UI
+      const profileResp = await fetch(`http://127.0.0.1:8000/api/users/${user.uid}/profile`);
+      const profile = await profileResp.json();
+      userPoints.textContent = profile.signal_credits;
+    } catch (e) {
+      console.error('Sync failed', e);
+    }
+  }
+
+  <script src="/authHelper.js">// Load user profile from FastAPI backend
+  firebase.auth().onAuthStateChanged(async user => {
+    if (user) {
+      userStatus.textContent = `Signed in as ${user.displayName || user.email}`;
+      signInBtn.style.display = 'none';
+      signOutBtn.style.display = 'inline-block';
+      // Fetch profile
+      try {
+        const resp = await fetch(`http://127.0.0.1:8000/api/users/${user.uid}/profile`);
+        if (resp.ok) {
+          const data = await resp.json();
+          userPoints.textContent = data.signal_credits ?? 0;
+          // Show extra stats in header (optional)
+          const header = document.querySelector('.site-header');
+          const stats = document.createElement('span');
+          stats.textContent = `XP: ${data.xp} • Level ${data.level}`;
+          header.appendChild(stats);
+        }
+      } catch (e) {
+        console.error('Failed to load profile', e);
+      }
+    } else {
+      userStatus.textContent = 'Not signed in';
+      signInBtn.style.display = 'inline-block';
+      signOutBtn.style.display = 'none';
+      userPoints.textContent = '0';
+    }
+  });
+
+  // Example sync call – you would trigger this after a game event
+  async function syncProgress(addedXp, addedCredits, passport) {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+    try {
+      const resp = await fetch('http://127.0.0.1:8000/api/progress/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.uid,
+          added_xp: addedXp,
+          added_credits: addedCredits,
+          game_state_passport: passport
+        })
+      });
+      const result = await resp.json();
+      console.log('Sync result', result);
+      // Refresh points UI
+      const profileResp = await fetch(`http://127.0.0.1:8000/api/users/${user.uid}/profile`);
+      const profile = await profileResp.json();
+      userPoints.textContent = profile.signal_credits;
+    } catch (e) {
+      console.error('Sync failed', e);
+    }
+  }
+
+  <style>
+    /* Shared header styling */
+    .site-header{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 1rem;background:#0b1420;color:#edf1e9}
+    .site-header a.brand{color:#b3e5c8;text-decoration:none;font-weight:bold}
+    .user-panel{display:flex;gap:1rem;align-items:center}
+    #store-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#142634;padding:1.5rem;border:1px solid #34505c;border-radius:12px;display:none;z-index:1000}
+    #store-modal button{margin-top:0.5rem}
+    #store-backdrop{position:fixed;top:0;left:0;width:100%;height:100%;background:#0008;display:none;z-index:900}
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="/arcade/">✦ AMAZING GRACE <small>THE LEARNING ARCADE</small></a>
+  <div class="user-panel">
+    <span id="user-status">Not signed in</span>
+    <button id="signInBtn">Sign in / Join</button>
+    <button id="signOutBtn" style="display:none;">Sign out</button>
+    <span>Points: <strong id="user-points">0</strong></span>
+    <button id="storeBtn">Store</button>
+  </div>
+</header>
+<main>
+  <!-- Original Matrix of Conscience content (trimmed for brevity) -->
+  <section class="intro">
+    <div>
+      <p class="eyebrow">MATRIX OF CONSCIENCE / A LEARNING RPG</p>
+      <h1>The world needs<br><em>a Signalkeeper.</em></h1>
+      <p>Follow the echoes. Connect the communities.<br>Discover what you can do with a curious mind.</p>
+    </div>
+  </section>
+  <!-- Insert the rest of the original game markup here or keep as placeholder -->
+  <div id="arcade-profile"></div>
+</main>
+<footer>
+  <a href="/arcade/">← Back to the arcade</a>
+  <span>Matrix of Conscience · The Signalkeepers</span>
+<section id="leaderboard-section" style="margin:2rem 0;">
+  <h2>Top Learners</h2>
+  <ul id="leaderboard-list"></ul>
+</section>
+<script>
+  async function loadLeaderboard(){
+    try{
+      const resp = await fetch(`${API_BASE_URL}/api/leaderboard?limit=5`);
+      const data = await resp.json();
+      const ul = document.getElementById('leaderboard-list');
+      ul.innerHTML = '';
+      data.forEach(item=>{
+        const li = document.createElement('li');
+        li.textContent = `${item.user_id.slice(0,6)}… – ${item.xp} XP (Level ${item.level})`;
+        ul.appendChild(li);
+      });
+    }catch(e){console.error('Leaderboard load error',e);}
+  }
+  loadLeaderboard();
+</script>
+<div id="store-backdrop"></div>
+<div id="store-modal">
+  <h2>Points Store</h2>
+  <p>Buy points to unlock features.</p>
+  <button data-amount="10">10 pts – $0.10</button>
+  <button data-amount="100">100 pts – $1.00</button>
+  <button id="closeStore">Close</button>
+</div>
+<script type="module" src="/src/game/matrix-rpg/ui.js">// Load user profile from FastAPI backend
+  firebase.auth().onAuthStateChanged(async user => {
+    if (user) {
+      userStatus.textContent = `Signed in as ${user.displayName || user.email}`;
+      signInBtn.style.display = 'none';
+      signOutBtn.style.display = 'inline-block';
+      // Fetch profile
+      try {
+        const resp = await fetch(`http://127.0.0.1:8000/api/users/${user.uid}/profile`);
+        if (resp.ok) {
+          const data = await resp.json();
+          userPoints.textContent = data.signal_credits ?? 0;
+          // Show extra stats in header (optional)
+          const header = document.querySelector('.site-header');
+          const stats = document.createElement('span');
+          stats.textContent = `XP: ${data.xp} • Level ${data.level}`;
+          header.appendChild(stats);
+        }
+      } catch (e) {
+        console.error('Failed to load profile', e);
+      }
+    } else {
+      userStatus.textContent = 'Not signed in';
+      signInBtn.style.display = 'inline-block';
+      signOutBtn.style.display = 'none';
+      userPoints.textContent = '0';
+    }
+  });
+
+  // Example sync call – you would trigger this after a game event
+  async function syncProgress(addedXp, addedCredits, passport) {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+    try {
+      const resp = await fetch('http://127.0.0.1:8000/api/progress/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.uid,
+          added_xp: addedXp,
+          added_credits: addedCredits,
+          game_state_passport: passport
+        })
+      });
+      const result = await resp.json();
+      console.log('Sync result', result);
+      // Refresh points UI
+      const profileResp = await fetch(`http://127.0.0.1:8000/api/users/${user.uid}/profile`);
+      const profile = await profileResp.json();
+      userPoints.textContent = profile.signal_credits;
+    } catch (e) {
+      console.error('Sync failed', e);
+    }
+  }
+
+<script>
+  const signInBtn=document.getElementById('signInBtn');
+  const signOutBtn=document.getElementById('signOutBtn');
+  const userStatus=document.getElementById('user-status');
+  const userPoints=document.getElementById('user-points');
+  const storeBtn=document.getElementById('storeBtn');
+  const storeModal=document.getElementById('store-modal');
+  const storeBackdrop=document.getElementById('store-backdrop');
+  const closeStore=document.getElementById('closeStore');
+
+  firebase.auth().onAuthStateChanged(user=>{
+    if(user){
+      userStatus.textContent=`Signed in as ${user.displayName||user.email}`;
+      signInBtn.style.display='none';
+      signOutBtn.style.display='inline-block';
+      // Load points from Firestore (simple example)
+      const db=firebase.firestore();
+      db.collection('profiles').doc(user.uid).get().then(doc=>{
+        const data=doc.data();
+        userPoints.textContent=data?.points||0;
+      });
+    }else{
+      userStatus.textContent='Not signed in';
+      signInBtn.style.display='inline-block';
+      signOutBtn.style.display='none';
+      userPoints.textContent='0';
+    }
+  });
+  signInBtn.onclick=()=>authHelper.signInGoogle();
+  signOutBtn.onclick=()=>authHelper.signOut();
+  storeBtn.onclick=()=>{storeModal.style.display='block';storeBackdrop.style.display='block';};
+  closeStore.onclick=()=>{storeModal.style.display='none';storeBackdrop.style.display='none';};
+  // Simple purchase handler (real implementation would call a Cloud Function)
+  storeModal.addEventListener('click',e=>{
+    if(e.target.tagName==='BUTTON' && e.target.dataset.amount){
+      const amt=Number(e.target.dataset.amount);
+      const user=firebase.auth().currentUser;
+      if(user){
+        const db=firebase.firestore();
+        const ref=db.collection('profiles').doc(user.uid);
+        ref.set({points:firebase.firestore.FieldValue.increment(amt)},{merge:true});
+      }
+    }
+  });
+// Load user profile from FastAPI backend
+  firebase.auth().onAuthStateChanged(async user => {
+    if (user) {
+      userStatus.textContent = `Signed in as ${user.displayName || user.email}`;
+      signInBtn.style.display = 'none';
+      signOutBtn.style.display = 'inline-block';
+      // Fetch profile
+      try {
+        const resp = await fetch(`http://127.0.0.1:8000/api/users/${user.uid}/profile`);
+        if (resp.ok) {
+          const data = await resp.json();
+          userPoints.textContent = data.signal_credits ?? 0;
+          // Show extra stats in header (optional)
+          const header = document.querySelector('.site-header');
+          const stats = document.createElement('span');
+          stats.textContent = `XP: ${data.xp} • Level ${data.level}`;
+          header.appendChild(stats);
+        }
+      } catch (e) {
+        console.error('Failed to load profile', e);
+      }
+    } else {
+      userStatus.textContent = 'Not signed in';
+      signInBtn.style.display = 'inline-block';
+      signOutBtn.style.display = 'none';
+      userPoints.textContent = '0';
+    }
+  });
+
+  // Example sync call – you would trigger this after a game event
+  async function syncProgress(addedXp, addedCredits, passport) {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+    try {
+      const resp = await fetch('http://127.0.0.1:8000/api/progress/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.uid,
+          added_xp: addedXp,
+          added_credits: addedCredits,
+          game_state_passport: passport
+        })
+      });
+      const result = await resp.json();
+      console.log('Sync result', result);
+      // Refresh points UI
+      const profileResp = await fetch(`http://127.0.0.1:8000/api/users/${user.uid}/profile`);
+      const profile = await profileResp.json();
+      userPoints.textContent = profile.signal_credits;
+    } catch (e) {
+      console.error('Sync failed', e);
+    }
+  }
+
+</body>
+</html>

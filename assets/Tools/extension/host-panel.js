@@ -1,6 +1,51 @@
-const $=s=>document.querySelector(s);let token='',busy=false,history=[],terminalTimer,codexTask=null,cursor=0,lastActivity=Date.now();
+const $=s=>document.querySelector(s);
+let token='';
+let busy=false;
+let history=[];
+let terminalTimer;
+let codexTask=null;
+let cursor=0;
+let lastActivity=Date.now();
+let secrets = {};
+async function loadSecrets(){
+  const items = await new Promise(res=>chrome.storage.local.get(['geminiKey','openaiKey','firebaseToken','githubToken'], res));
+  secrets = {geminiKey: items.geminiKey||'', openaiKey: items.openaiKey||'', firebaseToken: items.firebaseToken||'', githubToken: items.githubToken||''};
+  // Populate UI fields if present
+  if($('#gemini-key')) $('#gemini-key').value = secrets.geminiKey;
+  if($('#openai-key')) $('#openai-key').value = secrets.openaiKey;
+  if($('#firebase-token')) $('#firebase-token').value = secrets.firebaseToken;
+  if($('#github-token')) $('#github-token').value = secrets.githubToken;
+}
+loadSecrets();
+// Save secrets from UI
+$('#save-secrets').onclick = async()=>{
+  const geminiKey = $('#gemini-key').value.trim();
+  const openaiKey = $('#openai-key').value.trim();
+  const firebaseToken = $('#firebase-token').value.trim();
+  const githubToken = $('#github-token').value.trim();
+  await new Promise(res=>chrome.storage.local.set({geminiKey,openaiKey,firebaseToken,githubToken}, res));
+  secrets = {geminiKey,openaiKey,firebaseToken,githubToken};
+  status('Secrets saved locally.');
+};
 $('#extension-id').textContent=chrome.runtime.id;
-async function api(path,body){if(!token)throw Error('Enter the companion token and connect.');const r=await fetch('http://127.0.0.1:8787'+path,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+token,'X-Grace-Extension-Id':chrome.runtime.id,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});let data;try{data=await r.json();}catch{throw Error('Connection rejected. Enable this extension ID on the host, or check the companion is running.');}if(!r.ok)throw Error(data.error||'Request rejected.');return data;}
+async function api(path,body){
+  if(!token)throw Error('Enter the companion token and connect.');
+  const headers = {
+    Authorization: 'Bearer '+token,
+    'X-Grace-Extension-Id': chrome.runtime.id,
+    ...(body?{'Content-Type':'application/json'}:{}),
+    // Inject stored secrets as custom headers if present
+    ...(secrets.geminiKey?{'X-Gemini-Key':secrets.geminiKey}:{}),
+    ...(secrets.openaiKey?{'X-OpenAI-Key':secrets.openaiKey}:{}),
+    ...(secrets.firebaseToken?{'X-Firebase-Token':secrets.firebaseToken}:{}),
+    ...(secrets.githubToken?{'X-GitHub-Token':secrets.githubToken}:{})
+  };
+  const r=await fetch('http://127.0.0.1:8787'+path,{method:body?'POST':'GET',headers, ...(body?{body:JSON.stringify(body)}:{})});
+  let data;
+  try{data=await r.json();}catch{throw Error('Connection rejected. Enable this extension ID on the host, or check the companion is running.');}
+  if(!r.ok)throw Error(data.error||'Request rejected.');
+  return data;
+}
 function status(text){$('#status').textContent=text;}
 function addMessage(label,text){const p=document.createElement('div');p.className='message';p.textContent=label+'\n'+text;$('#messages').append(p);return p;}
 function lock(){chrome.storage.session.remove('bridgeToken');token='';history=[];busy=false;codexTask=null;$('#send').disabled=false;$('#provider').disabled=false;$('#token').value='';$('#messages').textContent='';$('#output').textContent='';clearTimeout(terminalTimer);status('Locked. Reconnect using your saved companion token.');}

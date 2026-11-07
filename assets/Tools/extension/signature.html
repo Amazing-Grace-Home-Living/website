@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nexus · Sign a PDF</title>
+  <link rel="stylesheet" href="panel.css">
+  <link rel="stylesheet" href="signature.css">
+</head>
+<body>
+  <header><span class="eyebrow">NEXUS / LOCAL PDF TOOL</span><h1>Sign a document</h1></header>
+  <main>
+    <p>Your PDF and signature stay on this device. This adds a visible mark, not a certificate-based digital signature. Editing a signed PDF can invalidate existing digital signatures. Check applicable requirements before relying on it.</p>
+    <form id="signature-form">
+      <section>
+        <h2>1. Choose a PDF</h2>
+        <label>PDF file <input id="pdf" type="file" accept=".pdf,application/pdf" required></label>
+        <p id="file-info" role="status">Maximum file size: 25 MB.</p>
+      </section>
+      <section>
+        <h2>2. Create your signature</h2>
+        <label>Signature style <select id="style"><option value="draw">Draw</option><option value="script">Script</option><option value="handwritten">Handwritten</option><option value="serif">Serif</option></select></label>
+        <div id="draw-controls">
+          <p>Draw inside the box with a mouse, pen, or touch.</p>
+          <canvas id="drawing" width="600" height="160" aria-label="Signature drawing area"></canvas>
+          <button type="button" id="clear-drawing">Clear drawing</button>
+        </div>
+        <label id="typed-controls" hidden>Type your name <input id="typed-name" maxlength="80" autocomplete="off"></label>
+        <p>Typed styles use fonts available on your device; substitutes may be used.</p>
+        <p>Signature preview</p>
+        <canvas id="signature-preview" width="600" height="160" aria-label="Signature preview"></canvas>
+      </section>
+      <section>
+        <h2>3. Position the mark</h2>
+        <p>Positions are percentages of the page, measured from its left and bottom edges. Open the PDF separately to choose a blank area; the guide below does not display document content.</p>
+        <div class="grid">
+          <label>Page number <input id="page" type="number" min="1" value="1" required></label>
+          <label>Left edge (%) <input id="left" type="number" min="0" max="99" value="10" required></label>
+          <label>Bottom edge (%) <input id="bottom" type="number" min="0" max="99" value="10" required></label>
+          <label>Signature width (%) <input id="width" type="number" min="1" max="100" value="30" required></label>
+        </div>
+        <div class="page-guide" aria-label="Approximate position guide"><div id="position-guide">Signature</div></div>
+      </section>
+      <button id="save" type="submit">Download signed copy</button>
+      <p id="status" role="status" aria-live="polite"></p>
+    </form>
+    <p>Signing requests, shared links, account login, and identity verification are not available in this local preview.</p>
+  </main>
+  <script src="vendor/pdf-lib.min.js"></script>
+  <script type="module" src="signature.js"></script>
+</body>
+</html>

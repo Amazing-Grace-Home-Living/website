@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Nexus Assistant Preview",
+  "version": "0.1.0",
+  "description": "Local-first AI profiles, coding tasks, and PDF signatures.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "sidePanel"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1/*"
+  ],
+  "action": {
+    "default_title": "Nexus Assistant"
+  },
+  "options_page": "panel.html",
+  "side_panel": {
+    "default_path": "panel.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; connect-src http://127.0.0.1:8787"
+  }
+}

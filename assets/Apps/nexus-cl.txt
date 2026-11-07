@@ -1,0 +1,51 @@
+# gemini-menu.ps1 - Enhanced Nexus Controller
+function Show-GeminiNexus {
+    Clear-Host
+    Write-Host "==========================================" -ForegroundColor Cyan
+    Write-Host "            GEMINI NEXUS PORTAL           " -ForegroundColor Cyan
+    Write-Host "==========================================" -ForegroundColor Cyan
+    Write-Host "1. Launch Gemini CLI (Auto-Update)"
+    Write-Host "2. Force Check & Update Gemini CLI"
+    Write-Host "3. Sync Key Matrix & Drive State"
+    Write-Host "4. Start Local Web Preview Server"
+    Write-Host "5. Exit"
+    Write-Host "------------------------------------------"
+    $choice = Read-Host "Select an option [1-5]"
+
+    switch ($choice) {
+        "1" { 
+            Write-Host "Starting Gemini CLI..." -ForegroundColor Green
+            # Verification check for environment variable
+            $envKey = [System.Environment]::GetEnvironmentVariable('GEMINI_API_KEY', 'User')
+            if (-not $envKey) {
+                Write-Host "Warning: GEMINI_API_KEY is not set in User Environment!" -ForegroundColor Red
+            }
+            gemini
+        }
+        "2" { 
+            Write-Host "Updating @google/gemini-cli..." -ForegroundColor Yellow
+            npm install -g @google/gemini-cli@latest
+            Read-Host "Update complete! Press Enter to return to menu."
+            Show-GeminiNexus
+        }
+        "3" {
+            Write-Host "Checking Drive State & Key Matrix Sync..." -ForegroundColor Green
+            # Calls local maintenance script to pull latest project JSON from Drive
+            if (Test-Path "$PSScriptRoot/Test-AmazingGrace.ps1") {
+                & "$PSScriptRoot/Test-AmazingGrace.ps1"
+            }
+            Read-Host "Sync complete! Press Enter to return to menu."
+            Show-GeminiNexus
+        }
+        "4" {
+            Write-Host "Launching local preview server..." -ForegroundColor Green
+            if (Test-Path "$PSScriptRoot/Start-AmazingGracePreview.ps1") {
+                & "$PSScriptRoot/Start-AmazingGracePreview.ps1"
+            }
+        }
+        "5" { exit }
+        default { Show-GeminiNexus }
+    }
+}
+
+Show-GeminiNexus
