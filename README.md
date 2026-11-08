@@ -1,4 +1,4 @@
-# Amazing Grace Home Living
+# Nexus OS
 
 Static website for amazinggracehl.org: arcade games, Learn & Play, shared local progress, stories, music, and Tampa room listings.
 
