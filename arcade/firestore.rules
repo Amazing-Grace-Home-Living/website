@@ -1,6 +1,25 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isShortString(value, maxLen) {
+      return value is string && value.size() > 0 && value.size() <= maxLen;
+    }
+
+    function hasOptionalTimestamp(data, field) {
+      return !data.keys().hasAny([field]) || data[field] is timestamp;
+    }
+
+    function hasOptionalShortString(data, field, maxLen) {
+      return !data.keys().hasAny([field]) || (data[field] is string && data[field].size() <= maxLen);
+    }
 
     // Public content (blog posts, game info)
     match /public/{docId} {
@@ -10,27 +29,53 @@ service cloud.firestore {
 
     // User‑specific data (profile, points, progress)
     match /users/{userId}/{sub=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if isSelf(userId);
     }
 
     // Chat rooms – anyone logged in can read / create messages.
     // Updates / deletes only by the original author, and the authorUid cannot be changed.
     match /lmsChats/{roomId}/messages/{msgId} {
-      allow read, create: if request.auth != null;
+      allow read: if isSignedIn();
+
+      allow create: if isSignedIn()
+                    && request.resource.data.keys().hasOnly([
+                      'authorUid',
+                      'text',
+                      'createdAt',
+                      'updatedAt'
+                    ])
+                    && request.resource.data.keys().hasAll(['authorUid', 'text', 'createdAt'])
+                    && request.resource.data.authorUid == request.auth.uid
+                    && isShortString(request.resource.data.authorUid, 128)
+                    && isShortString(request.resource.data.text, 2000)
+                    && request.resource.data.createdAt is timestamp
+                    && hasOptionalTimestamp(request.resource.data, 'updatedAt');
 
       // Update: author must match and must not be changed
-      allow update: if request.auth != null
+      allow update: if isSignedIn()
                     && resource.data.authorUid == request.auth.uid
-                    && request.resource.data.authorUid == resource.data.authorUid;
+                    && request.resource.data.authorUid == resource.data.authorUid
+                    && request.resource.data.keys().hasOnly([
+                      'authorUid',
+                      'text',
+                      'createdAt',
+                      'updatedAt'
+                    ])
+                    && request.resource.data.keys().hasAll(['authorUid', 'text', 'createdAt'])
+                    && isShortString(request.resource.data.authorUid, 128)
+                    && isShortString(request.resource.data.text, 2000)
+                    && request.resource.data.createdAt == resource.data.createdAt
+                    && hasOptionalTimestamp(request.resource.data, 'updatedAt');
 
       // Delete: author must match
-      allow delete: if request.auth != null
+      allow delete: if isSignedIn()
                     && resource.data.authorUid == request.auth.uid;
     }
 
-    // Points store – only the owning user can modify their wallet
+    // Points store – readable only by owner; writes must be server-side.
     match /wallets/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if isSelf(userId);
+      allow write: if false;
     }
 
     // -----------------------------------------------------------------
@@ -41,8 +86,25 @@ service cloud.firestore {
     match /games/{gameId} {
       // Anyone can read game data (e.g., public leaderboards)
       allow read: if true;
-      // Owner of the game document can create / update / delete it
-      allow create, update, delete: if request.auth != null && request.auth.uid == request.resource.data.ownerUid;
+
+      // Owner can create; ownerUid must be immutable and bounded.
+      allow create: if isSignedIn()
+                    && request.resource.data.ownerUid == request.auth.uid
+                    && isShortString(request.resource.data.ownerUid, 128)
+                    && request.resource.data.keys().size() <= 25
+                    && hasOptionalShortString(request.resource.data, 'title', 160)
+                    && hasOptionalTimestamp(request.resource.data, 'createdAt')
+                    && hasOptionalTimestamp(request.resource.data, 'updatedAt');
+
+      allow update: if isSignedIn()
+                    && resource.data.ownerUid == request.auth.uid
+                    && request.resource.data.ownerUid == resource.data.ownerUid
+                    && isShortString(request.resource.data.ownerUid, 128)
+                    && request.resource.data.keys().size() <= 25
+                    && hasOptionalShortString(request.resource.data, 'title', 160)
+                    && hasOptionalTimestamp(request.resource.data, 'updatedAt');
+
+      allow delete: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
     }
 
     // Store items – catalog of purchasable items (read‑only for users)
@@ -56,9 +118,9 @@ service cloud.firestore {
     // Donations – immutable records created by a trusted server (Cloud Function)
     match /donations/{donationId} {
       // The donor can read their own donation record
-      allow read: if request.auth != null && request.auth.uid == resource.data.uid;
-      // Only server‑side admin (no auth) may create a donation entry
-      allow create: if request.auth == null;
+      allow read: if isSignedIn() && request.auth.uid == resource.data.uid;
+      // Client writes denied; trusted server uses Admin SDK and bypasses rules.
+      allow create: if false;
       // No updates or deletes allowed (audit trail)
       allow update, delete: if false;
     }
