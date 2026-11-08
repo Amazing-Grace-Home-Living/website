@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Public content (blog posts, game info)
+    match /public/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // User‑specific data (profile, points, progress)
+    match /users/{userId}/{sub=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Chat rooms – anyone logged in can read/write the messages of a room
+    match /lmsChats/{roomId}/messages/{msgId} {
+      allow read, create: if request.auth != null;
+      // Updates / deletes only by the original author
+      allow update, delete: if request.auth != null &&
+                            request.resource.data.authorUid == request.auth.uid;
+    }
+
+    // Points store – only the owning user can modify their wallet
+    match /wallets/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

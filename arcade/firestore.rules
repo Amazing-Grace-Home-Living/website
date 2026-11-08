@@ -32,5 +32,36 @@ service cloud.firestore {
     match /wallets/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
+
+    // -----------------------------------------------------------------
+    // Additional data models for the LMS
+    // -----------------------------------------------------------------
+
+    // Games collection – each game document stores state, scores etc.
+    match /games/{gameId} {
+      // Anyone can read game data (e.g., public leaderboards)
+      allow read: if true;
+      // Owner of the game document can create / update / delete it
+      allow create, update, delete: if request.auth != null && request.auth.uid == request.resource.data.ownerUid;
+    }
+
+    // Store items – catalog of purchasable items (read‑only for users)
+    match /store/{itemId} {
+      // Public read of catalog
+      allow read: if true;
+      // Write only by an admin account (replace with real admin UID later)
+      allow write: if request.auth != null && request.auth.uid == "ADMIN_UID_PLACEHOLDER";
+    }
+
+    // Donations – immutable records created by a trusted server (Cloud Function)
+    match /donations/{donationId} {
+      // The donor can read their own donation record
+      allow read: if request.auth != null && request.auth.uid == resource.data.uid;
+      // Only server‑side admin (no auth) may create a donation entry
+      allow create: if request.auth == null;
+      // No updates or deletes allowed (audit trail)
+      allow update, delete: if false;
+    }
+
   }
 }

@@ -11,6 +11,37 @@ let busy = false;
 let pendingRequest = null;
 let clineTimer;
 let clineGeneration = 0;
+
+// Update launch command based on selected assistant and token
+function updateLaunchCommand() {
+  const assistant = $('assistant-select')?.value || 'codex';
+  const token = $('token').value.trim();
+  // Build a sample launch command; adjust as needed for actual bridge usage
+  const cmd = `node bridge.mjs --extension-id ${chrome.runtime.id} --assistant ${assistant}` + (token ? ` --token ${token}` : '');
+  const launchCmdElem = $('launch-cmd');
+  if (launchCmdElem) {
+    launchCmdElem.value = cmd;
+    $('launch-section').style.display = 'block';
+  }
+}
+
+// Listen for assistant selection changes to update instructions and launch command
+function setupAssistantSelector() {
+  const select = $('assistant-select');
+  if (!select) return;
+  select.addEventListener('change', () => {
+    const opt = select.selectedOptions[0];
+    const url = opt.dataset.doc;
+    const instructions = $('assistant-instructions');
+    if (instructions) {
+      instructions.innerHTML = `Documentation: <a href="${url}" target="_blank" rel="noopener">${opt.textContent}</a>`;
+    }
+    updateLaunchCommand();
+  });
+}
+
+// Call setup after DOM loaded (script runs after DOM)
+setupAssistantSelector();
 let browserController;
 
 for (const [value, provider] of Object.entries(PROVIDERS)) {
