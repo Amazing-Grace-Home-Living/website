@@ -35,10 +35,13 @@
     "posttest:local": "powershell -ExecutionPolicy Bypass -File ./cleanup-chrome.ps1",
     "security:scan": "bash ./.github/verify-no-secrets.sh",
     "prepare": "git config core.hooksPath .github/hooks --if-present || true",
-    "check": "npm run lint && npm run test && npm run build && tsc --noEmit"
+    "lint": "npx eslint .",
+    "type-check": "tsc --noEmit",
+    "check": "npm run lint && npm run type-check && npm run test && npm run build"
   },
   "devDependencies": {
-    "@playwright/test": "^1.64.1"
+    "@playwright/test": "^1.64.1",
+    "dotenv": "^18.0.9"
   },
   "engines": {
     "node": ">=22"
