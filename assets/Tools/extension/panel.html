@@ -10,10 +10,31 @@
   <header><span class="eyebrow">NEXUS / PRIVATE WORKSPACE</span><h1>Your projects. Your models.</h1></header>
   <main>
     <section aria-labelledby="connection-title">
-      <h2 id="connection-title">Connect your computer</h2><p>Extension ID <code id="extension-id"></code></p><p><a href="host-panel.html">Open Codex, model discovery &amp; PowerShell controls →</a></p><p><a href="signature.html" target="_blank">Sign a PDF locally →</a></p>
-      <label>Bridge token<input id="token" type="password" autocomplete="off" placeholder="From your running companion"></label>
+      <h2 id="connection-title">Connect your computer</h2>
+      <p>Extension ID <code id="extension-id">bdeieglbihjihnnmgbbiifbnpcobefmh</code></p>
+      <p><a href="host-panel.html">Open Codex, model discovery &amp; PowerShell controls →</a></p>
+      <p><a href="signature.html" target="_blank" rel="noopener">Sign a PDF locally →</a></p>
+
+      <label for="assistant-select">Choose AI assistant:</label>
+      <select id="assistant-select">
+        <option value="codex" data-doc="https://platform.openai.com/docs/guides/code">Codex</option>
+        <option value="antigravity" data-doc="https://github.com/google">Antigravity</option>
+        <option value="gemini" data-doc="https://gemini.google.com">Gemini</option>
+      </select>
+      <p id="assistant-instructions" class="hint">Select an assistant to see instructions and an API link.</p>
+
+      <label for="token">Bridge token</label>
+      <input id="token" type="password" autocomplete="off" placeholder="From your running companion">
+
       <button id="connect" type="button">Connect bridge</button><button id="lock" type="button">Lock</button>
       <p id="connection" role="status">Start the companion on port 8787 with this extension ID.</p>
+
+      <div id="launch-section" style="display:none; margin-top:0.5em;">
+        <label for="launch-cmd">Launch command (copy to clipboard):</label>
+        <textarea id="launch-cmd" readonly style="width:100%;height:4em;margin-top:0.2em;"></textarea>
+        <button id="copy-launch" type="button">Copy</button>
+        <a id="sidecar-link" class="sidecar-link" href="sidecar://127.0.0.1:8787" style="margin-left:0.5em;">Open Companion</a>
+      </div>
     </section>
     <section aria-labelledby="profiles-title">
       <h2 id="profiles-title">Project profiles</h2>
