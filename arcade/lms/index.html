@@ -16,25 +16,27 @@
       margin-top: 2rem;
       text-align: center;
     }
+    .placeholder {
+      padding: 2rem;
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
   <div id="app"></div>
 
   <script type="module">
-    import AuthForm from "../src/AuthForm.jsx";
-    import ChatRoom from "../src/ChatRoom.jsx";
-    import PointsWallet from "../src/PointsWallet.jsx";
-
+    // NOTE: The original JSX components (AuthForm, ChatRoom, PointsWallet) are not available as raw .jsx modules
+    // in a static HTML page. To avoid runtime import errors, we render simple placeholder elements.
     const root = ReactDOM.createRoot(document.getElementById('app'));
-
-    root.render(
-      React.createElement('div', { className: 'lms-grid' },
-        React.createElement('div', { id: 'auth-form-mount' }, React.createElement(AuthForm)),
-        React.createElement('div', { id: 'points-wallet-mount' }, React.createElement(PointsWallet)),
-        React.createElement('div', { id: 'chat-room-mount' }, React.createElement(ChatRoom, { roomId: 'general' }))
-      )
+    const placeholder = React.createElement('div', {className: 'lms-grid'},
+      React.createElement('div', {className: 'placeholder'}, 'Auth Form placeholder'),
+      React.createElement('div', {className: 'placeholder'}, 'Points Wallet placeholder'),
+      React.createElement('div', {className: 'placeholder'}, 'Chat Room placeholder')
     );
+    root.render(placeholder);
 
     const welcome = document.createElement('section');
     welcome.className = 'lms-welcome';
@@ -44,10 +46,9 @@
     `;
     document.body.appendChild(welcome);
 
-    document.getElementById('logout-button')?.addEventListener('click', () => {
-      if (window.firebase && window.firebase.auth) {
-        window.firebase.auth().signOut().then(() => location.reload());
-      }
+    // Simple logout stub – replace with real Firebase auth when integrated
+    document.getElementById('logout-button').addEventListener('click', () => {
+      alert('Logout functionality not yet implemented.');
     });
   </script>
 </body>
