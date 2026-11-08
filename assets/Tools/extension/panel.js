@@ -12,12 +12,11 @@ let pendingRequest = null;
 let clineTimer;
 let clineGeneration = 0;
 
-// Update launch command based on selected assistant and token
+// Update launch command based on selected assistant and extension ID
 function updateLaunchCommand() {
   const assistant = $('assistant-select')?.value || 'codex';
-  const token = $('token').value.trim();
-  // Build a sample launch command; adjust as needed for actual bridge usage
-  const cmd = `node bridge.mjs --extension-id ${chrome.runtime.id} --assistant ${assistant}` + (token ? ` --token ${token}` : '');
+  // Standard companion launch command with extension ID and terminal support
+  const cmd = `node bridge.mjs --extension-id ${chrome.runtime.id} --terminal`;
   const launchCmdElem = $('launch-cmd');
   if (launchCmdElem) {
     launchCmdElem.value = cmd;
@@ -25,19 +24,43 @@ function updateLaunchCommand() {
   }
 }
 
-// Listen for assistant selection changes to update instructions and launch command
+// Listen for assistant selection changes and wire launch section controls
 function setupAssistantSelector() {
   const select = $('assistant-select');
-  if (!select) return;
-  select.addEventListener('change', () => {
-    const opt = select.selectedOptions[0];
-    const url = opt.dataset.doc;
-    const instructions = $('assistant-instructions');
-    if (instructions) {
-      instructions.innerHTML = `Documentation: <a href="${url}" target="_blank" rel="noopener">${opt.textContent}</a>`;
-    }
-    updateLaunchCommand();
-  });
+  if (select) {
+    select.addEventListener('change', () => {
+      const opt = select.selectedOptions[0];
+      const url = opt.dataset.doc;
+      const instructions = $('assistant-instructions');
+      if (instructions) {
+        instructions.innerHTML = `Documentation: <a href="${url}" target="_blank" rel="noopener">${opt.textContent}</a>`;
+      }
+      updateLaunchCommand();
+    });
+  }
+
+  // Also update when user types in token or loads panel
+  $('token')?.addEventListener('input', updateLaunchCommand);
+
+  // Wire Copy Launch Command button with visual feedback
+  const copyBtn = $('copy-launch');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', async () => {
+      const launchCmd = $('launch-cmd')?.value;
+      if (!launchCmd) return;
+      try {
+        await navigator.clipboard.writeText(launchCmd);
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => { copyBtn.textContent = originalText; }, 2000);
+      } catch (err) {
+        console.error('Clipboard copy failed:', err);
+      }
+    });
+  }
+
+  // Initialize command on panel load
+  updateLaunchCommand();
 }
 
 // Call setup after DOM loaded (script runs after DOM)
