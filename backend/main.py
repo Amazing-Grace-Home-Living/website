@@ -5,9 +5,10 @@ from pydantic import BaseModel
 import models
 from database import engine, get_db
 import firebase_admin
-from firebase_admin import auth as firebase_auth, credentials, firestore
+from firebase_admin import auth as firebase_auth, firestore
 
-# Initialise Firebase Admin SDK – expects GOOGLE_APPLICATION_CREDENTIALS env var
+# Initialise Firebase Admin SDK – expects GOOGLE_APPLICATION_CREDENTIALS
+# env var
 if not firebase_admin._apps:
     firebase_admin.initialize_app()
 
@@ -35,31 +36,40 @@ app.add_middleware(
 # -------------------------------------------------
 # Helper – verify Firebase ID token from Authorization header
 # -------------------------------------------------
+
+
 async def get_current_user(request: Request):
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
+        raise HTTPException(status_code=401,
+                            detail="Missing or invalid Authorization header")
     id_token = auth_header.split(" ")[1]
     try:
         decoded = firebase_auth.verify_id_token(id_token)
         return decoded  # contains uid, email, name, etc.
     except Exception:
-        raise HTTPException(status_code=401, detail="Invalid Firebase ID token")
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid Firebase ID token")
 
 # -------------------------------------------------
 # Pydantic Schemas
 # -------------------------------------------------
+
+
 class SyncRequest(BaseModel):
     user_id: str
     added_xp: int
     added_credits: int
     game_state_passport: dict
 
+
 class LessonCompletionRequest(BaseModel):
     user_id: str
     module_id: str
     score: int
     passed: bool
+
 
 class BlogPostRequest(BaseModel):
     title: str
@@ -69,9 +79,14 @@ class BlogPostRequest(BaseModel):
 # -------------------------------------------------
 # API Endpoints
 # -------------------------------------------------
+
+
 @app.get("/api/users/{user_id}/profile")
 def get_profile(user_id: str, db: Session = Depends(get_db)):
-    """Return the user’s LMS profile. If the user has never synced, return defaults."""
+    """Return the user’s LMS profile.
+
+    If the user has never synced, return defaults.
+    """
     progress = (
         db.query(models.UserProgress)
         .filter(models.UserProgress.user_id == user_id)
@@ -85,6 +100,7 @@ def get_profile(user_id: str, db: Session = Depends(get_db)):
         "signal_credits": progress.signal_bonus_credits,
         "passport": progress.game_state_passport,
     }
+
 
 @app.post("/api/progress/sync")
 def sync_progress(req: SyncRequest, db: Session = Depends(get_db)):
@@ -108,7 +124,9 @@ def sync_progress(req: SyncRequest, db: Session = Depends(get_db)):
         progress.game_state_passport = req.game_state_passport
         progress.level = (progress.total_xp // 500) + 1
     db.commit()
-    return {"message": "Progress synced", "current_xp": progress.total_xp, "level": progress.level}
+    return {"message": "Progress synced",
+            "current_xp": progress.total_xp, "level": progress.level}
+
 
 @app.post("/api/store/topup")
 def topup_credits(user_id: str, amount: int, db: Session = Depends(get_db)):
@@ -118,7 +136,9 @@ def topup_credits(user_id: str, amount: int, db: Session = Depends(get_db)):
         .first()
     )
     if not progress:
-        raise HTTPException(status_code=404, detail="User not found. Complete a lesson first.")
+        raise HTTPException(
+            status_code=404,
+            detail="User not found. Complete a lesson first.")
     progress.signal_bonus_credits += amount
     db.commit()
     return {"new_balance": progress.signal_bonus_credits}
@@ -126,6 +146,8 @@ def topup_credits(user_id: str, amount: int, db: Session = Depends(get_db)):
 # -------------------------------------------------
 # Leaderboard endpoint – top users by total XP
 # -------------------------------------------------
+
+
 @app.get("/api/leaderboard")
 def get_leaderboard(limit: int = 10, db: Session = Depends(get_db)):
     rows = (
@@ -135,25 +157,33 @@ def get_leaderboard(limit: int = 10, db: Session = Depends(get_db)):
         .all()
     )
     return [
-        {"user_id": r.user_id, "xp": r.total_xp, "level": r.level, "credits": r.signal_bonus_credits}
+        {"user_id": r.user_id, "xp": r.total_xp,
+            "level": r.level, "credits": r.signal_bonus_credits}
         for r in rows
     ]
+
 
 # -------------------------------------------------
 # Lessons endpoints – list & record completion
 # -------------------------------------------------
 LESSON_CATALOG = [
-    {"id": "matrix-1", "title": "Matrix Basics", "description": "Intro to signal‑keeper role"},
-    {"id": "code-matrix-1", "title": "Code Matrix Level 1", "description": "Pattern matching puzzle"},
-    {"id": "vim-defense-1", "title": "VIM Defense Intro", "description": "Bash navigation tutorial"},
+    {"id": "matrix-1", "title": "Matrix Basics",
+        "description": "Intro to signal‑keeper role"},
+    {"id": "code-matrix-1", "title": "Code Matrix Level 1",
+        "description": "Pattern matching puzzle"},
+    {"id": "vim-defense-1", "title": "VIM Defense Intro",
+        "description": "Bash navigation tutorial"},
 ]
+
 
 @app.get("/api/lessons")
 def list_lessons():
     return LESSON_CATALOG
 
+
 @app.post("/api/lessons/completion")
-def record_lesson_completion(req: LessonCompletionRequest, db: Session = Depends(get_db)):
+def record_lesson_completion(
+        req: LessonCompletionRequest, db: Session = Depends(get_db)):
     # Ensure user record exists (creates a dummy User if missing)
     user = db.query(models.User).filter(models.User.id == req.user_id).first()
     if not user:
@@ -164,7 +194,10 @@ def record_lesson_completion(req: LessonCompletionRequest, db: Session = Depends
     # Record or update LessonCompletion
     lc = (
         db.query(models.LessonCompletion)
-        .filter(models.LessonCompletion.user_id == req.user_id, models.LessonCompletion.module_id == req.module_id)
+        .filter(
+            models.LessonCompletion.user_id == req.user_id,
+            models.LessonCompletion.module_id == req.module_id
+        )
         .first()
     )
     if not lc:
@@ -184,8 +217,11 @@ def record_lesson_completion(req: LessonCompletionRequest, db: Session = Depends
 # -------------------------------------------------
 # Blog post endpoint – store article with author metadata
 # -------------------------------------------------
+
+
 @app.post("/api/blog/post")
-async def create_blog_post(req: BlogPostRequest, current_user: dict = Depends(get_current_user)):
+async def create_blog_post(req: BlogPostRequest,
+                           current_user: dict = Depends(get_current_user)):
     """Store a blog article, attributing it to the signed‑in Firebase user."""
     doc = {
         "title": req.title,
