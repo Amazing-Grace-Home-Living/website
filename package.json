@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "lint": "eslint .",
     "start": "node bridge.mjs",
     "test:academy": "node --test tests/academy.test.mjs",
     "test:academy:browser": "node tests/academy-browser.mjs",
