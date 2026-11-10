@@ -1,0 +1,250 @@
+# Build and Development Guide
+
+This guide covers building, testing, auditing, and maintaining the Nexus OS repository.
+
+## Quick Start
+
+### Prerequisites
+- **Node.js** (a version supported by the project and Vercel)
+- **npm** or **npm ci** (for reproducible installs)
+- **Chrome** or **Edge** (for browser tests)
+- **Git LFS** (if working with large media files)
+
+### First Build
+```bash
+npm ci              # Install dependencies (preferred over npm install)
+npm run build       # Generate dist/ with all assets
+npm run dev         # Serve at http://127.0.0.1:4173
+```
+
+## Development Workflow
+
+### Building
+```bash
+npm run build       # Production build → dist/
+npm run preview     # Preview build output locally
+npm run dev         # Serve the local site
+```
+
+### Testing
+
+**Unit and game logic tests:**
+```bash
+npm test                              # All tests
+npm run test:arcade                   # All arcade games
+npm run test:learning                 # Learning games only
+npm run test:vim-defense              # Vim Defense logic
+npm run test:rpg                       # Matrix RPG
+npm run test:providers                # Provider integrations
+npm run test:academy                  # Academy module
+```
+
+**Browser integration tests:**
+```bash
+npm run test:browser                  # Full site navigation
+npm run test:learning:browser          # Learning games in browser
+npm run test:vim-defense:browser       # Complete Vim Defense campaign
+npm run test:rpg:browser               # Matrix RPG in browser
+```
+
+**Link auditing:**
+```bash
+npm run audit:links                   # Validate all HTML links
+```
+
+**Browser test environment variables:**
+```bash
+CHROME_PATH=/path/to/chrome npm run test:browser
+PLAYWRIGHT_CHANNEL=chromium npm run test:vim-defense:browser
+```
+
+### Optional: Grace Remote Companion
+The Grace Remote is a separate local application for testing companion features:
+
+```bash
+npm start                             # Start Grace Remote bridge
+node bridge.mjs --cwd /path/to/app   # Custom path
+```
+
+See [Grace Remote setup](grace-remote.md) for detailed configuration.
+
+---
+
+## Deployment
+
+### Vercel Integration
+The repository is connected to Vercel project `amazing-grace-home-living`:
+- **Trigger:** Push to main branch
+- **Build command:** `npm run build`
+- **Output directory:** `dist/`
+- **Production domains:** https://amazinggracehl.org, https://www.amazinggracehl.org
+
+### Before Publishing
+1. Run tests: `npm test && npm run test:browser`
+2. Verify all links: `npm run audit:links`
+3. Build and preview: `npm run build && npm run preview`
+4. Keep the following out of commits:
+   - Local credentials and environment files (see `.gitignore`)
+   - Temporary test screenshots
+   - Review copies
+   - Host applications not part of the static output
+
+---
+
+## Repository Maintenance
+
+### Auditing
+
+**Quick audit** (Bash/Linux/macOS):
+```bash
+./audit.sh
+```
+
+**Detailed audit** (Windows PowerShell):
+```powershell
+.\audit_repo.ps1
+```
+
+Reports large files, dangling objects, and Git LFS issues.
+
+**With garbage collection:**
+```powershell
+.\audit_repo.ps1 -RunGC
+```
+
+### Cleaning Up Large Files
+
+If you accidentally commit large files (>50 MB), remove them from history before pushing:
+
+**Option 1: Using BFG Repo-Cleaner (Recommended)**
+```powershell
+# Windows PowerShell
+.\audit_and_clean.ps1 -RepoPath . -SizeThresholdMB 100
+
+# Or manually:
+java -jar bfg.jar --delete-files "*.jar" --no-blob-protection
+git reflog expire --expire=now --all
+git gc --prune=now --aggressive
+git push --force-with-lease origin main
+```
+
+**Option 2: Using Git Filter-Branch (Slower)**
+```bash
+# Remove a specific file from all commits
+git filter-branch --tree-filter 'rm -f path/to/large-file.zip' HEAD
+
+# Force garbage collection
+git reflog expire --expire=now --all
+git gc --prune=now --aggressive
+
+# Force push (only if committed locally, not yet pushed)
+git push --force-with-lease origin main
+```
+
+**Option 3: Use Git LFS for Binary Files**
+If you need to commit large binary assets, use Git LFS:
+```bash
+# Install LFS
+./setup_lfs_and_fix.ps1    # Windows
+# or manually: git lfs install
+
+# Track large files
+git lfs track "*.zip"
+git lfs track "*.mp4"
+git add .gitattributes
+
+# Commit as normal
+git add large-file.zip
+git commit -m "Add large file via LFS"
+git push origin main
+```
+
+### Monitoring Repository Size
+
+```bash
+# Check for large files currently in Git
+git rev-list --objects --all | \
+  git cat-file --batch-check='%(objectsize) %(rest)' | \
+  sort -n | tail -20
+
+# Check LFS objects (if installed)
+git lfs ls-files
+
+# Analyze pack files
+git gc
+du -sh .git/objects/pack/
+```
+
+### Linting
+
+```bash
+npm run lint              # Run ESLint on all JS/TS/HTML
+```
+
+---
+
+## Architecture Overview
+
+### Directory Structure
+- **`src/`** – Source code (games, UI, logic)
+- **`public/`** – Static assets (fonts, images, config)
+- **`dist/`** – Build output (generated by `npm run build`)
+- **`docs/`** – Documentation
+- **`arcade/`** – Game implementations and guides
+- **`tests/`** – Unit and browser tests
+- **`scripts/`** – Build and utility scripts
+- **`backend/`, `functions/`, `services/`** – Firebase backend (not included in static output)
+
+### Key Technologies
+- **Node.js** – Build tooling
+- **ESLint** – Linting
+- **Playwright** – Browser testing
+- **Firebase** – Hosting and Firestore
+- **Vercel** – CDN and deployments
+
+---
+
+## Troubleshooting
+
+### Build Fails with Module Not Found
+```bash
+npm ci              # Reinstall from lock file
+npm run build       # Retry build
+```
+
+### Browser Tests Timeout
+```bash
+# Check Chrome/Edge installation
+which chrome      # or 'where chrome' on Windows
+which edge        # or 'where msedge' on Windows
+
+# Specify explicit path
+CHROME_PATH=/usr/bin/google-chrome npm run test:browser
+```
+
+### Large File Accidentally Committed
+Follow the "Cleaning Up Large Files" section above.
+
+### Git LFS Issues
+```bash
+./setup_lfs_and_fix.ps1    # Windows
+# or manually: git lfs install && git lfs fetch --all
+```
+
+### Deploy Failures
+1. Check build locally: `npm run build`
+2. Verify tests pass: `npm test`
+3. Check `.gitignore` for deployed secrets
+4. Review [Vercel deployment logs](https://vercel.com/dashboard)
+
+---
+
+## References
+
+- [Arcade Games Guide](../arcade/vim-defense/README.md)
+- [Grace Remote Setup](grace-remote.md)
+- [Mobile Host Access](../MOBILE-ACCESS.md)
+- [Security Policy](../SECURITY.md)
+- [Changelog](../CHANGELOG.md)
+- [Git LFS Documentation](https://git-lfs.github.com)
+- [BFG Repo-Cleaner](https://rtyley.github.io/bfg-repo-cleaner/)

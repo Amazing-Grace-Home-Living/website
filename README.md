@@ -2,11 +2,21 @@
 
 Static website for amazinggracehl.org: arcade games, Learn & Play, shared local progress, stories, music, and Tampa room listings.
 
-## Develop and verify
+## Quick Start
 
 - `npm ci` installs the test tools.
 - `npm run build` generates `dist/`, including property galleries and public provider guides.
 - `npm run dev` or `npm run preview` serves that build at http://127.0.0.1:4173.
+
+## Documentation
+
+**New to the project?** Start here:
+- **[Build & Development Guide](docs/BUILD.md)** – Complete build, test, and deployment workflow
+- **[Troubleshooting Guide](docs/TROUBLESHOOTING.md)** – Common issues and solutions
+- **[Audit Scripts Reference](scripts/AUDIT_SCRIPTS.md)** – Repository health and cleanup tools
+
+## Testing
+
 - `npm test` runs game logic and local-companion tests.
 - `npm run test:browser` checks the website, puzzles, media and listings.
 - `npm run test:vim-defense:browser` checks keyboard, mouse, multi-touch and the complete defense campaign.
