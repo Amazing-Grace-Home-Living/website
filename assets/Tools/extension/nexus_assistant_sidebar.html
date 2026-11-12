@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nexus Assistant – AI Workspace</title>
+  <link rel="stylesheet" href="nexus_assistant_sidebar.css" />
+</head>
+<body>
+  <header class="sidebar-header">
+    <div class="logo-area">
+      <img src="icons/logo.svg" alt="Nexus" class="logo" />
+    </div>
+    <div class="workspace-selector">
+      <label for="workspace">Workspace</label>
+      <select id="workspace">
+        <option>Personal</option>
+        <option>Team</option>
+      </select>
+    </div>
+    <div class="quick-search">
+      <input type="search" placeholder="Search…" id="global-search" />
+    </div>
+    <div class="user-info">
+      <img src="icons/avatar.png" alt="User" class="avatar" />
+      <div class="status-indicators">
+        <span class="provider gemini" title="Gemini Connected">🟦</span>
+        <span class="provider chatgpt" title="ChatGPT Connected">🟥</span>
+        <span class="provider copilot" title="Copilot Connected">⚫</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="sidebar-nav">
+    <section class="nav-section" id="section-conversations">
+      <h2>💬 Conversations</h2>
+      <ul>
+        <li>Recent</li>
+        <li>Favorites</li>
+        <li>Pinned</li>
+        <li>Shared</li>
+      </ul>
+    </section>
+
+    <section class="nav-section" id="section-providers">
+      <h2>🤖 AI Providers</h2>
+      <ul>
+        <li>Microsoft Copilot <span class="status ok">✓</span></li>
+        <li>ChatGPT <span class="status ok">✓</span></li>
+        <li>Google Gemini <span class="status ok">✓</span></li>
+        <li>Claude <span class="status soon">Coming Soon</span></li>
+      </ul>
+    </section>
+
+    <section class="nav-section" id="section-quick-actions">
+      <h2>⚡ Quick Actions</h2>
+      <ul>
+        <li>➕ New Chat</li>
+        <li>📄 Summarize File</li>
+        <li>✉ Draft Email</li>
+        <li>📅 Schedule Meeting</li>
+        <li>📝 Create Document</li>
+        <li>🔎 Research Topic</li>
+      </ul>
+    </section>
+
+    <section class="nav-section" id="section-workspace">
+      <h2>📁 Workspace</h2>
+      <ul>
+        <li>Documents</li>
+        <li>Projects</li>
+        <li>Tasks</li>
+        <li>Bookmarks</li>
+        <li>Uploads</li>
+      </ul>
+    </section>
+
+    <section class="nav-section" id="section-knowledge">
+      <h2>📚 Knowledge Hub</h2>
+      <ul>
+        <li>Saved Answers</li>
+        <li>Templates</li>
+        <li>Prompts</li>
+        <li>Research</li>
+        <li>Notes</li>
+      </ul>
+    </section>
+
+    <section class="nav-section" id="section-developer" hidden>
+      <h2>🛠 Developer</h2>
+      <ul>
+        <li>GitHub</li>
+        <li>Repositories</li>
+        <li>Pull Requests</li>
+        <li>Issues</li>
+        <li>Actions</li>
+        <li>Secrets</li>
+        <li>Deployments</li>
+      </ul>
+    </section>
+
+    <section class="nav-section" id="section-activity">
+      <h2>🔔 Activity Center</h2>
+      <ul>
+        <li>Notifications</li>
+        <li>Approvals</li>
+        <li>Updates</li>
+        <li>Alerts</li>
+      </ul>
+    </section>
+
+    <section class="nav-section" id="section-settings">
+      <h2>⚙ Settings</h2>
+      <ul>
+        <li>Theme (Dark/Light)</li>
+        <li>Accounts</li>
+        <li>Preferences</li>
+      </ul>
+    </section>
+  </nav>
+
+  <footer class="sidebar-footer">
+    <div class="connected-accounts">
+      <h3>Connected Accounts</h3>
+      <ul>
+        <li>🟦 Microsoft – Connected <button class="manage-btn">Manage</button></li>
+        <li>🟥 Google – Connected <button class="manage-btn">Manage</button></li>
+        <li>⚫ OpenAI – Connected <button class="manage-btn">Manage</button></li>
+      </ul>
+    </div>
+  </footer>
+</body>
+</html>
