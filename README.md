@@ -26,3 +26,4 @@ The separate Grace Remote companion is launched with `npm start` or `node bridge
 [Companion setup notes](docs/grace-remote.md) describe that separate application; references there to a hosted Site or companion downloads are not features deployed by this website build. [Mobile host access](MOBILE-ACCESS.md) covers the optional Windows launcher.
 
 [Defense controls and checkpoints](arcade/vim-defense/README.md) document Vim/Bash Defense. Site progress stays in the browser unless the user explicitly exports and restores a learning passport.
+\n<!-- ESLint v9 upgrade recorded for first release -->
