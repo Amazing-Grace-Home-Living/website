@@ -18,7 +18,7 @@ export const monthlyLeaderboardDiscounts = functions.pubsub
     const now = Timestamp.now();
     const today = now.toDate();
     const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-    if (today.getDate() !== lastDay) return null; // only run on final day
+    if (today.getDate() !== lastDay) return; // only run on final day
 
     logger.info('Running monthly leaderboard discount calculation');
     const startPrevMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
@@ -58,7 +58,7 @@ export const monthlyLeaderboardDiscounts = functions.pubsub
     });
     await batch.commit();
     logger.info('Monthly discounts written', { count: rank - 1 });
-    return null;
+    return;
   });
 
 /**
@@ -119,5 +119,5 @@ export const yearlyDiscounts = functions.pubsub
 
     await batch.commit();
     logger.info('Yearly discounts written');
-    return null;
+    return;
   });

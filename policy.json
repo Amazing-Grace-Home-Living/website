@@ -1,0 +1,63 @@
+{
+  "bindings": [
+    {
+      "role": "roles/iam.workloadIdentityUser",
+      "members": [
+        "principalSet://iam.googleapis.com/projects/1081883726845/locations/global/workloadIdentityPools/github-pool/attribute.repository/NicholaiMadias/AmazingGrace"
+      ]
+    },
+    {
+      "role": "roles/storage.admin",
+      "members": [
+        "serviceAccount:admin-amazing-grace@amazing-grace-hl.iam.gserviceaccount.com",
+        "user:Libertarian.Empire@gmail.com",
+        "user:admin@amazinggracehl.org",
+        "user:gulfnexus@gmail.com"
+      ]
+    },
+    {
+      "role": "roles/storage.objectAdmin",
+      "members": [
+        "serviceAccount:admin-amazing-grace@amazing-grace-hl.iam.gserviceaccount.com",
+        "user:Libertarian.Empire@gmail.com",
+        "user:admin@amazinggracehl.org",
+        "user:gulfnexus@gmail.com"
+      ]
+    },
+    {
+      "role": "roles/storage.objectUser",
+      "members": [
+        "serviceAccount:admin-amazing-grace@amazing-grace-hl.iam.gserviceaccount.com",
+        "user:Libertarian.Empire@gmail.com",
+        "user:admin@amazinggracehl.org",
+        "user:gulfnexus@gmail.com"
+      ]
+    },
+    {
+      "role": "roles/storage.objectViewer",
+      "members": [
+        "serviceAccount:firebase-app-hosting-compute@amazing-grace-hl.iam.gserviceaccount.com"
+      ]
+    },
+    {
+      "role": "roles/vpcaccess.admin",
+      "members": [
+        "serviceAccount:admin-amazing-grace@amazing-grace-hl.iam.gserviceaccount.com",
+        "user:NicholaiMadias@gmail.com",
+        "user:admin@amazinggracehl.org",
+        "user:gulfnexus@gmail.com"
+      ]
+    },
+    {
+      "role": "roles/workloadcertificate.admin",
+      "members": [
+        "serviceAccount:admin-amazing-grace@amazing-grace-hl.iam.gserviceaccount.com",
+        "user:NicholaiMadias@gmail.com",
+        "user:admin@amazinggracehl.org",
+        "user:gulfnexus@gmail.com"
+      ]
+    }
+  ],
+  "etag": "BwZgI0zXK6o=",
+  "version": 3
+}

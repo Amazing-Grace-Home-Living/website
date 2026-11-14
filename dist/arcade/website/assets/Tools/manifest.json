@@ -1,0 +1,6 @@
+{
+ "manifest_version":3,"name":"Nexus Toolbox Sidebar","version":"1.1.0","description":"Local and direct API chat with account-owned setup through your personal companion.",
+ "permissions":["sidePanel"],"host_permissions":["http://127.0.0.1/*"],
+ "side_panel":{"default_path":"panel.html"},"background":{"service_worker":"background.js"},"action":{"default_title":"Open Grace sidebar"},
+ "content_security_policy":{"extension_pages":"script-src 'self'; object-src 'none'; connect-src http://127.0.0.1:8787"}
+}

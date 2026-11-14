@@ -1,0 +1,104 @@
+{
+  "files": [
+    {
+      "path": "assets/audio/badge.mp3",
+      "sha256": "a7e1946de608768170986fdc3cf356939800fdc0fc205b3301d5702b0c3f0a72",
+      "bytes": 170112
+    },
+    {
+      "path": "assets/audio/course-clear-fanfare.mp3",
+      "sha256": "7eca84c019ef70fd55e30c71f98a73d097dff6df19ffca94920ad66f2635fe59",
+      "bytes": 167936
+    },
+    {
+      "path": "assets/audio/ending.mp3",
+      "sha256": "99689fcb206f3c9d2d37c58d6e5657918014af8022343f1b1d2bacf9f57b534b",
+      "bytes": 4048896
+    },
+    {
+      "path": "assets/audio/player-down.mp3",
+      "sha256": "76e4f843cba3ec5fe0be8d5d765aeb364ff8420625557d7cd42f530ed86a6118",
+      "bytes": 96256
+    },
+    {
+      "path": "assets/audio/storm.mp3",
+      "sha256": "625703f3d1ffd70d98cad504214d9f603909b90b4e45164cbb59c76aa8a20a74",
+      "bytes": 129024
+    },
+    {
+      "path": "assets/audio/victory.mp3",
+      "sha256": "8222c4e83bc22e0755597767ec975a33cc9e038f02f53364a8d7bbbc8857c141",
+      "bytes": 495616
+    },
+    {
+      "path": "assets/music/m64bomb.mid",
+      "sha256": "2049f1f437a596d562ee157eb17f9f101071e94785333110212d31d88f2eb983",
+      "bytes": 3246
+    },
+    {
+      "path": "assets/music/m64bowsr.mid",
+      "sha256": "7a23aab67c780c27d229ecdb3ef325b9893977328e6aac52d244e8d42547b7d3",
+      "bytes": 22746
+    },
+    {
+      "path": "assets/music/m64crs1.mid",
+      "sha256": "4e2d80ce751b93407180ccec6d0ed08764b399f865f6fb00d23cb05af39f3fff",
+      "bytes": 56318
+    },
+    {
+      "path": "assets/music/m64crse1.mid",
+      "sha256": "2f77e729170ce6593d21f9dec395aee8397a4f2933509971fb470fdc3145df73",
+      "bytes": 22731
+    },
+    {
+      "path": "assets/music/m64docks.mid",
+      "sha256": "55cf2fd4880dc4d38934417fb7d2123ca8926ed170b8525e6f92309e6659dbc7",
+      "bytes": 31320
+    },
+    {
+      "path": "assets/music/m64endin.mid",
+      "sha256": "20eac4ebad0fd3b0fc6dfce643c2adf671995616e47e3a07fb3374b44bf73a2b",
+      "bytes": 42319
+    },
+    {
+      "path": "assets/music/m64file.mid",
+      "sha256": "1f13fdedc232021044c332e23abf7590bfa34475153b23169507d2d5e44173aa",
+      "bytes": 3607
+    },
+    {
+      "path": "assets/music/m64metal.mid",
+      "sha256": "beab61eaac698ce8e7c93b467870b4cc6d80d5b9c5d903f276b4f615576de48e",
+      "bytes": 16731
+    },
+    {
+      "path": "assets/music/m64metlm.mid",
+      "sha256": "cb591cef4a9c1ad3f80d342205813c4feef0983202296888a36093eba75ea807",
+      "bytes": 15458
+    },
+    {
+      "path": "assets/music/m64slide.mid",
+      "sha256": "86b5cbd050deab0f388d3ac5ef2853037f1c5b1be38264f2fed7959f715cfad3",
+      "bytes": 49390
+    },
+    {
+      "path": "assets/music/m64snow.mid",
+      "sha256": "9ebc1798a81ddcd2a748c43afaef9fdc04b06d3ccfad25b65bdb9aa9eeb59086",
+      "bytes": 21577
+    },
+    {
+      "path": "assets/music/m64vansh.mid",
+      "sha256": "2f780a8befaf27c2b093b8fb8450abfca642e331e7bbf91133f916620b22cd7d",
+      "bytes": 12441
+    },
+    {
+      "path": "assets/music/m64water.mid",
+      "sha256": "e750e7f237d31b7e53db0f7181975e93b6025f9acc3afa529af9e0a85ea8715e",
+      "bytes": 21429
+    },
+    {
+      "path": "assets/music/m64wings.mid",
+      "sha256": "644b6849b56e222a0d2d65ab2149dbab762a657caacbac3d0a07fd8752c315ce",
+      "bytes": 7896
+    }
+  ]
+}

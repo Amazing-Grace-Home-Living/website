@@ -1,0 +1,33 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtemp,readFile,writeFile,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join,resolve} from 'node:path';
+import {createBridge} from '../bridge.mjs';
+import {createLearningStore} from '../learning-store.mjs';
+import {JOURNEYS} from '../src/game/learning/journeys/content.js';
+import {newAcademy} from '../src/game/academy/state.js';
+const correct=lesson=>lesson.questions.map(q=>q.answer);
+test('learning writes serialize, survive a new process store, and do not duplicate rewards on concurrent retries',async t=>{
+ const dir=await mkdtemp(join(tmpdir(),'grace-learning-'));t.after(()=>rm(dir,{recursive:true,force:true}));const file=join(dir,'progress.json'),store=createLearningStore({file});
+ const results=await Promise.all([store.quiz(JOURNEYS[0].id,correct(JOURNEYS[0])),store.quiz(JOURNEYS[0].id,correct(JOURNEYS[0]))]);assert.equal(results.reduce((n,r)=>n+r.result.xp,0),60);
+ const again=createLearningStore({file});assert.equal((await again.read()).journeys.mastered.length,1);const serialized=await readFile(file,'utf8');assert.ok(!serialized.includes('messages'));assert.ok(!serialized.includes('explanation'));
+ await writeFile(file,'{bad');await assert.rejects(again.quiz(JOURNEYS[0].id,correct(JOURNEYS[0])),/not be read/);assert.equal(await readFile(file,'utf8'),'{bad');
+});
+test('authenticated learning connects sidebar, host persistence, progress merge and a bounded read-only coach',async t=>{
+ const dir=await mkdtemp(join(tmpdir(),'grace-learning-api-'));t.after(()=>rm(dir,{recursive:true,force:true}));const port=18821,id='a'.repeat(32),file=join(dir,'progress.json');let codexCalls=0,coachPayload;
+ const app=await createBridge({cwd:resolve('.'),port,token:'fixture-session',extensionIds:[id],learningOrigins:['http://127.0.0.1:4173'],learningStore:createLearningStore({file}),integrationEnv:{OPENAI_API_KEY:'fixture-private-provider-key'},connectionFactory:()=>{codexCalls++;throw Error('Must not launch Codex');},providerFetch:async(url,options)=>{coachPayload=JSON.parse(options.body);return new Response(JSON.stringify({output:[{type:'message',content:[{type:'output_text',text:'Compare a specific observation with a testable explanation.'}]}]}),{headers:{'Content-Type':'application/json'}});}});
+ await new Promise(resolve=>app.server.listen(port,'127.0.0.1',resolve));t.after(()=>app.close());const base='http://127.0.0.1:'+port;
+ const call=(path,body,headers={})=>fetch(base+path,{method:body?'POST':'GET',headers:{Authorization:'Bearer fixture-session',...(body?{'Content-Type':'application/json'}:{}),...headers},...(body?{body:JSON.stringify(body)}:{})});
+ assert.equal((await fetch(base+'/api/learning')).status,401);assert.equal((await call('/api/learning',null,{Origin:'https://evil.example'})).status,403);
+ const origin={Origin:'http://127.0.0.1:4173'};assert.equal((await call('/api/connect',{},origin)).status,403);
+ assert.equal((await fetch(base+'/api/learning',{method:'OPTIONS',headers:{Origin:origin.Origin,'Access-Control-Request-Method':'POST'}})).status,204);
+ const first=await (await call('/api/learning')).json();assert.equal(first.catalog.length,7);assert.equal(first.profile.xp,0);assert.ok(!JSON.stringify(first).includes('fixture-private-provider-key'));
+ const quiz=await (await call('/api/learning/quiz',{lesson:JOURNEYS[0].id,answers:correct(JOURNEYS[0])},{Origin:'chrome-extension://'+id,'X-Grace-Extension-Id':id})).json();assert.equal(quiz.result.xp,60);
+ const merged=await (await call('/api/learning/sync',{progress:{version:1,academy:{...newAcademy(),deployed:true},journeys:quiz.snapshot.journeys}},origin)).json();assert.ok(merged.profile.badges.includes('Script Defender'));assert.equal(merged.profile.xp,60);
+ const rejection=await call('/api/learning/sync',{progress:{version:1,academy:{...newAcademy(),player:'sk-proj-'+'a'.repeat(30)}}},origin);assert.equal(rejection.status,400);
+ assert.equal((await call('/api/learning/quiz',{lesson:JOURNEYS[1].id,answers:[99,99,99]},origin)).status,400);
+ const coach=await (await call('/api/learning/coach',{lesson:JOURNEYS[0].id,provider:'openai',model:'fixture-model',question:'What is evidence?'},origin)).json();assert.match(coach.text,/observation/);assert.equal(coachPayload.store,false);assert.equal(coachPayload.tools,undefined);assert.ok(!JSON.stringify(coachPayload).includes('fixture-private-provider-key'));
+ assert.equal((await call('/api/learning/unknown',{},origin)).status,404);assert.equal(codexCalls,0);assert.equal((await createLearningStore({file}).read()).journeys.mastered.length,1);
+ const html=await (await fetch(base+'/lms/journeys/')).text();assert.match(html,/Signalkeeper Journeys/);assert.equal((await fetch(base+'/src/game/learning/journeys/content.js')).status,200);assert.equal((await fetch(base+'/arcade/academy/')).status,200);assert.equal((await fetch(base+'/matchmaker/')).status,200);assert.equal((await fetch(base+'/.env.local')).status,404);assert.equal((await fetch(base+'/src/game/academy/.env')).status,404);
+});

@@ -1,0 +1,23 @@
+import '/src/game/academy/profile-widget.js';
+import { campaign } from '/src/game/learning/campaign-store.js';
+        const churches = [
+            { name: 'Ephesus', message: 'The church in Ephesus was known for its hard work and perseverance. However, Jesus warned them that they had abandoned their first love.', question: 'What had the church in Ephesus abandoned?', options: ['Their generosity', 'Their first love', 'Their church building', 'Their daily prayers'], answer: 'Their first love' },
+            { name: 'Smyrna', message: 'The church in Smyrna faced tribulation and poverty, yet Jesus praised their faithfulness and told them not to fear suffering.', question: 'What did Jesus tell Smyrna not to fear?', options: ['False prophets', 'Poverty', 'Suffering', 'Travel'], answer: 'Suffering' },
+            { name: 'Pergamum', message: 'Pergamum held fast to Jesus’ name in a difficult city, but some there were tolerating false teaching.', question: 'What problem did Pergamum tolerate?', options: ['False teaching', 'Silence', 'No worship songs', 'Lack of elders'], answer: 'False teaching' },
+            { name: 'Thyatira', message: 'Thyatira was praised for love, faith, service, and perseverance, but rebuked for tolerating corruption.', question: 'What was Thyatira praised for?', options: ['Military power', 'Love and service', 'Wealth alone', 'Temple size'], answer: 'Love and service' },
+            { name: 'Sardis', message: 'Sardis had a reputation for being alive, but Jesus said they were dead and needed to wake up.', question: 'What did Sardis need to do?', options: ['Build larger walls', 'Wake up', 'Move cities', 'Collect offerings'], answer: 'Wake up' },
+            { name: 'Philadelphia', message: 'Philadelphia had little strength, but kept Jesus’ word and did not deny His name. An open door was set before them.', question: 'What was set before Philadelphia?', options: ['A closed gate', 'A golden crown', 'An open door', 'A mountain path'], answer: 'An open door' },
+            { name: 'Laodicea', message: 'Laodicea was called lukewarm—neither hot nor cold—and was warned against complacency.', question: 'How was Laodicea described?', options: ['Faithful', 'Bold', 'Lukewarm', 'Joyful'], answer: 'Lukewarm' }
+        ];
+
+
+const $=id=>document.getElementById(id);let completed=[],persistent=true,active=null;
+try{const saved=JSON.parse(localStorage.getItem('aghl_sevenStarsCompleted')||'[]');if(Array.isArray(saved))completed=churches.filter(item=>saved.includes(item.name)).map(item=>item.name);}catch{persistent=false;}
+function render(){
+ $('stars-map').replaceChildren(...churches.map((item,index)=>{const card=document.createElement('article'),heading=document.createElement('h2'),button=document.createElement('button');card.className='card';heading.textContent=item.name;button.type='button';button.textContent=completed.includes(item.name)?'✓ Review reading':'Read message';button.dataset.reading=index;button.onclick=()=>open(index);card.append(heading,button);return card;}));
+ $('stars-status').textContent=completed.length+'/7 readings complete · '+(persistent?'Progress saves in this browser.':'Saving unavailable; this tab can continue.');$('stars-ending').hidden=completed.length!==7;
+ if(completed.length===7)try{campaign.complete('seven-stars');}catch{}window.dispatchEvent(new Event('academy-progress'));
+}
+function open(index){active=churches[index];$('stars-title').textContent=active.name;$('stars-story').textContent=active.message;$('stars-question').textContent=active.question;$('stars-feedback').textContent='';$('stars-options').replaceChildren(...active.options.map((text,value)=>{const label=document.createElement('label'),input=document.createElement('input');input.type='radio';input.name='answer';input.value=value;input.required=true;label.append(input,document.createTextNode(text));return label;}));$('stars-reader').hidden=false;$('stars-map').hidden=true;$('stars-reader').focus();}
+$('stars-form').onsubmit=event=>{event.preventDefault();const data=new FormData(event.currentTarget),answer=data.has('answer')?Number(data.get('answer')):-1;if(active.options[answer]!==active.answer){$('stars-feedback').textContent='Review the message and try again. There is no timer or penalty.';return;}if(!completed.includes(active.name))completed.push(active.name);try{localStorage.setItem('aghl_sevenStarsCompleted',JSON.stringify(completed));}catch{persistent=false;}$('stars-feedback').textContent='Correct. The reading checkpoint is complete. Replaying does not award duplicate XP.';render();};
+$('stars-back').onclick=()=>{$('stars-reader').hidden=true;$('stars-map').hidden=false;};render();

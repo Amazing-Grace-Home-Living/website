@@ -1,21 +1,3 @@
-node_modules/
-dist/
-.vercel/
-.env*
-assets/.env
-*.log
-artifacts/
-
-# Per-user host credentials must never be checked in.
-**/.grace-remote/
-
-# Local review copies and operating-system metadata are not release sources.
-services/scoring/.integration-check/
-services/scoring/.integration-staging/
-desktop.ini
-academy-defense-mobile.png
-academy-profile-mobile.png
-
-# Audit helpers
-audit_and_clean.ps1
-bfg.jar
+# Secrets – never commit
+backend/service_account.json
+.env
