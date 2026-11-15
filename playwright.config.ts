@@ -12,9 +12,15 @@ export default defineConfig({
   /* Highly efficient reporting options */
   reporter: process.env.CI ? 'github' : 'html',
   
+  webServer: process.env.VERCEL_URL ? undefined : {
+    command: 'npm run preview',
+    url: 'http://127.0.0.1:4173',
+    reuseExistingServer: !process.env.CI,
+  },
+
   use: {
-    /* Base URL for your app, falling back to local port 8080 if not set */
-    baseURL: process.env.VERCEL_URL || 'http://localhost:8080',
+    /* Base URL for your app, falling back to local port 4173 if not set */
+    baseURL: process.env.VERCEL_URL || 'http://127.0.0.1:4173',
 
     /* 🧠 Smart Diagnostic Strategy: Only expend disk I/O on retries */
     trace: 'on-first-retry',
@@ -25,7 +31,13 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      webServer: process.env.VERCEL_URL ? undefined : {
+    command: 'npm run preview',
+    url: 'http://127.0.0.1:4173',
+    reuseExistingServer: !process.env.CI,
+  },
+
+  use: { ...devices['Desktop Chrome'] },
     },
   ],
 });
