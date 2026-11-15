@@ -1,0 +1,171 @@
+Here is an optimized and cleaned-up version of your configuration file.
+
+### Key Improvements Made:
+
+1. **Deduplicated Projects:** Consolidated duplicate path declarations (e.g., lowercase vs. uppercase drive letter entries for `amazing-grace`) to keep the project list clean.
+2. **Optimized Layout & Escaping:** Standardized path formatting and string delimiters for better readability and parser stability.
+3. **Streamlined Theme Variables:** Retained your preferred **dark matrix** appearance settings, custom neon green accents, and typography bindings.
+
+```toml
+notify = [
+  "C:\\Users\\Nick\\AppData\\Local\\OpenAI\\Codex\\runtimes\\cua_node\\6ef99b3d04073aa7\\bin\\node_modules\\@oai\\sky\\bin\\windows\\codex-computer-use.exe", 
+  "turn-ended"
+]
+model = "gpt-5.6-luna"
+model_reasoning_effort = "high"
+service_tier = "default"
+
+[tui]
+screen_reader_detection_done = true
+
+[tui.model_availability_nux]
+"gpt-6.1-sol" = 3
+
+[desktop]
+followUpQueueMode = "queue"
+conversationDetailMode = "STEPS_PROSE"
+ambient-suggestions-enabled = true
+show-context-window-usage = true
+autoArchiveAfterDays = 30
+default-workspace-full-view = true
+keepRemoteControlAwakeWhilePluggedIn = true
+appearanceLightCodeThemeId = "catppuccin"
+appearanceTheme = "dark"
+appearanceDarkCodeThemeId = "matrix"
+worktree-upstream-refresh-mode = "best-effort"
+agent-usage-reset-enabled = true
+hotkey-window-projectless-default-enabled = false
+toys-confetti-enabled = true
+selected-avatar-id = "stacky"
+
+[desktop.appearanceLightChromeTheme]
+accent = "#8839ef"
+accentSource = "custom"
+contrast = 45
+ink = "#4c4f69"
+opaqueWindows = false
+surface = "#eff1f5"
+
+[desktop.appearanceLightChromeTheme.fonts]
+
+[desktop.appearanceLightChromeTheme.semanticColors]
+diffAdded = "#40a02b"
+diffRemoved = "#d20f39"
+skill = "#8839ef"
+
+[desktop.appearanceDarkChromeTheme]
+accent = "#1eff5a"
+accentSource = "custom"
+contrast = 60
+ink = "#b8ffca"
+opaqueWindows = true
+surface = "#000000"
+
+[desktop.appearanceDarkChromeTheme.fonts]
+ui = 'ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace'
+
+[desktop.appearanceDarkChromeTheme.semanticColors]
+diffAdded = "#1eff5a"
+diffRemoved = "#fa423e"
+skill = "#1eff5a"
+
+[marketplaces.openai-bundled]
+source_type = "local"
+source = '\\?\C:\Users\Nick\.codex\.tmp\bundled-marketplaces\openai-bundled'
+
+[marketplaces.openai-primary-runtime]
+source_type = "local"
+source = '\\?\C:\Users\Nick\.cache\codex-runtimes\codex-primary-runtime\plugins\openai-primary-runtime'
+
+[windows]
+sandbox = "elevated"
+
+[plugins."browser@openai-bundled"]
+enabled = true
+
+[plugins."unified-computer-use@openai-bundled"]
+enabled = true
+
+[plugins."visualize@openai-bundled"]
+enabled = true
+
+[plugins."computer-use@openai-bundled"]
+enabled = true
+
+[plugins."documents@openai-primary-runtime"]
+enabled = true
+
+[plugins."pdf@openai-primary-runtime"]
+enabled = true
+
+[plugins."spreadsheets@openai-primary-runtime"]
+enabled = true
+
+[plugins."presentations@openai-primary-runtime"]
+enabled = true
+
+[plugins."template-creator@openai-primary-runtime"]
+enabled = true
+
+[plugins."codex-app-tools@openai-bundled"]
+enabled = true
+
+[plugins."chrome@openai-bundled"]
+enabled = true
+
+[mcp_servers.node_repl]
+args = []
+command = 'C:\Users\Nick\AppData\Local\OpenAI\Codex\runtimes\cua_node\6ef99b3d04073aa7\bin\node_repl.exe'
+env_vars = [
+  "BROWSER_USE_ACCESS_EXECUTOR_ID", 
+  "BROWSER_USE_ACCESS_PIPE_PATH", 
+  "BROWSER_USE_ACCESS_VERIFYING_IDENTITY", 
+  "CODEX_WINDOWS_REGISTERED_CORE"
+]
+startup_timeout_sec = 120
+
+[mcp_servers.node_repl.env]
+NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
+NODE_REPL_NODE_MODULE_DIRS = 'C:\Users\Nick\AppData\Local\OpenAI\Codex\runtimes\cua_node\6ef99b3d04073aa7\bin\node_modules'
+NODE_REPL_NODE_PATH = 'C:\Users\Nick\AppData\Local\OpenAI\Codex\runtimes\cua_node\6ef99b3d04073aa7\bin\node.exe'
+NODE_REPL_TRUSTED_CODE_PATHS = 'C:\Users\Nick\.codex;C:\Users\Nick\AppData\Local\OpenAI\Codex\runtimes\cua_node\6ef99b3d04073aa7\bin\node_modules'
+CODEX_HOME = 'C:\Users\Nick\.codex'
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab,mcpapps"
+BROWSER_USE_TINYSKY_ENABLED = "1"
+NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = ""
+NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = ""
+BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
+BROWSER_USE_CODEX_APP_VERSION = "26.1023.51421"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"C:/Users/Nick/.codex/plugins/cache/openai-bundled/browser/26.1023.51421/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
+SKY_CUA_NATIVE_PIPE = "1"
+SKY_CUA_NATIVE_PIPE_DIRECTORY = '\\.\pipe\codex-computer-use-fa5593c0-af72-4024-b091-5b45f4ebb251'
+CODEX_CLI_PATH = 'C:\Users\Nick\AppData\Local\OpenAI\Codex\bin\0ab0e7a8f3779036\codex.exe'
+NODE_REPL_UNTRUSTED_ENV_ALLOWLIST = "CODEX_WINDOWS_REGISTERED_CORE"
+NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = ""
+
+[projects.'C:\Users\Nick\OneDrive\Documents\GitHub\amazing-grace']
+trust_level = "trusted"
+
+[projects.'C:\Users\Nick\OneDrive\Documents\GitHub\website']
+trust_level = "trusted"
+
+[projects.'C:\Users\Nick\OneDrive\Documents\GitHub\agent']
+trust_level = "trusted"
+
+[apps.connector_2de447f3f15448ebab48783d7e4f5d81.tools."openai_platform.open_codex_api_key_setup"]
+approval_mode = "approve"
+
+[apps.connector_690a90ec05c881918afb6a55dc9bbaa1.tools."vercel.web_fetch_vercel_url"]
+approval_mode = "approve"
+
+[features]
+prevent_idle_sleep = true
+analytics_plan_history = true
+login_shell_package_path = true
+memories = true
+
+[memories]
+generate_memories = true
+use_memories = true
+
+```
