@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
+  testMatch: '**/*.spec.ts',
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left a debug 'test.only' statement in the source */
   forbidOnly: !!process.env.CI,
