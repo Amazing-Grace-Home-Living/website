@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Nexus Toolbox",
+  "version": "1.0",
+  "description": "Sidebar extension for AI chat, terminal and secret management.",
+  "action": {
+    "default_popup": "host-panel.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "permissions": ["tabs", "scripting", "activeTab", "storage"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

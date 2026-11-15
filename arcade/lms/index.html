@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LMS Dashboard – Amazing Grace</title>
+  <script src="https://esm.sh/react@18/umd/react.production.min.js"></script>
+  <script src="https://esm.sh/react-dom@18/umd/react-dom.production.min.js"></script>
+  <style>
+    .lms-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    .lms-welcome {
+      margin-top: 2rem;
+      text-align: center;
+    }
+    .placeholder {
+      padding: 2rem;
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    // NOTE: The original JSX components (AuthForm, ChatRoom, PointsWallet) are not available as raw .jsx modules
+    // in a static HTML page. To avoid runtime import errors, we render simple placeholder elements.
+    const root = ReactDOM.createRoot(document.getElementById('app'));
+    const placeholder = React.createElement('div', {className: 'lms-grid'},
+      React.createElement('div', {className: 'placeholder'}, 'Auth Form placeholder'),
+      React.createElement('div', {className: 'placeholder'}, 'Points Wallet placeholder'),
+      React.createElement('div', {className: 'placeholder'}, 'Chat Room placeholder')
+    );
+    root.render(placeholder);
+
+    const welcome = document.createElement('section');
+    welcome.className = 'lms-welcome';
+    welcome.innerHTML = `
+      <h2>Welcome, <span id="user-name">User</span>!</h2>
+      <button id="logout-button" type="button">Logout</button>
+    `;
+    document.body.appendChild(welcome);
+
+    // Simple logout stub – replace with real Firebase auth when integrated
+    document.getElementById('logout-button').addEventListener('click', () => {
+      alert('Logout functionality not yet implemented.');
+    });
+  </script>
+</body>
+</html>

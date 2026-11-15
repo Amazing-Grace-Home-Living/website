@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexus Toolbox</title>
+  <style>
+    body {font-family: Arial, sans-serif; margin:0; background:#111; color:#eee;}
+    .tabs-navigation {display:flex; background:#222;}
+    .tab-btn {flex:1; padding:0.8rem; border:none; background:none; color:#ccc; cursor:pointer;}
+    .tab-btn.active {background:#333; color:#fff;}
+    .tab-content {padding:1rem; display:none;}
+    .tab-content[hidden] {display:none;}
+    .tab-content:not([hidden]) {display:block;}
+    .input-group {margin-bottom:0.8rem;}
+    label {display:block; margin-bottom:0.2rem; font-size:0.9rem;}
+    input {width:100%; padding:0.4rem; border:1px solid #444; background:#222; color:#eee;}
+    .primary-btn {background:#0066ff; color:#fff; border:none; padding:0.5rem 1rem; cursor:pointer;}
+    .status-msg {color:#0f0; margin-left:0.5rem;}
+  </style>
+</head>
+<body>
+  <nav class="tabs-navigation">
+    <button id="chat-tab" class="tab-btn active">AI Chat</button>
+    <button id="terminal-tab" class="tab-btn">PowerShell</button>
+    <button id="secrets-tab" class="tab-btn">Secrets</button>
+  </nav>
+
+  <section id="chat" class="tab-content">
+    <h3>AI Chat</h3>
+    <!-- Placeholder for your existing chat UI -->
+    <p class="subtitle">Chat UI goes here.</p>
+  </section>
+
+  <section id="terminal" class="tab-content" hidden>
+    <h3>PowerShell Terminal</h3>
+    <!-- Placeholder for terminal UI -->
+    <p class="subtitle">Terminal UI goes here.</p>
+  </section>
+
+  <section id="secrets" class="tab-content" hidden>
+    <h3>Credential Vault</h3>
+    <p class="subtitle">Keys are stored locally in your browser storage.</p>
+    <div class="input-group">
+      <label for="gemini-key">Gemini API Key</label>
+      <input type="password" id="gemini-key" placeholder="AIzaSy..." />
+    </div>
+    <div class="input-group">
+      <label for="github-token">GitHub Token</label>
+      <input type="password" id="github-token" placeholder="ghp_..." />
+    </div>
+    <div class="input-group">
+      <label for="firebase-token">Firebase Token</label>
+      <input type="password" id="firebase-token" />
+    </div>
+    <div class="input-group">
+      <label for="openai-key">OpenAI API Key</label>
+      <input type="password" id="openai-key" placeholder="sk-proj-..." />
+    </div>
+    <button id="save-secrets" class="primary-btn">Save Secrets</button>
+    <span id="save-status" class="status-msg" hidden>Secrets saved successfully!</span>
+  </section>
+
+  <script>
+    // Tab switching --------------------------------------------------------
+    const sections = {
+      chat: document.getElementById('chat'),
+      terminal: document.getElementById('terminal'),
+      secrets: document.getElementById('secrets')
+    };
+    const tabs = {
+      chat: document.getElementById('chat-tab'),
+      terminal: document.getElementById('terminal-tab'),
+      secrets: document.getElementById('secrets-tab')
+    };
+    function switchTab(name) {
+      Object.values(sections).forEach(s => s.hidden = true);
+      Object.values(tabs).forEach(b => b.classList.remove('active'));
+      sections[name].hidden = false;
+      tabs[name].classList.add('active');
+    }
+    tabs.chat.onclick = () => switchTab('chat');
+    tabs.terminal.onclick = () => switchTab('terminal');
+    tabs.secrets.onclick = () => switchTab('secrets');
+
+    // Load saved secrets ---------------------------------------------------
+    async function loadSecrets() {
+      const { secrets } = await chrome.storage.local.get('secrets');
+      if (secrets) {
+        if (secrets.gemini) document.getElementById('gemini-key').value = secrets.gemini;
+        if (secrets.github) document.getElementById('github-token').value = secrets.github;
+        if (secrets.firebase) document.getElementById('firebase-token').value = secrets.firebase;
+        if (secrets.openai) document.getElementById('openai-key').value = secrets.openai;
+      }
+    }
+    // Save secrets --------------------------------------------------------
+    document.getElementById('save-secrets').onclick = async () => {
+      const secrets = {
+        gemini: document.getElementById('gemini-key').value,
+        github: document.getElementById('github-token').value,
+        firebase: document.getElementById('firebase-token').value,
+        openai: document.getElementById('openai-key').value
+      };
+      await chrome.storage.local.set({ secrets });
+      const status = document.getElementById('save-status');
+      status.hidden = false;
+      setTimeout(() => status.hidden = true, 3000);
+    };
+
+    // Initialize -----------------------------------------------------------
+    document.addEventListener('DOMContentLoaded', loadSecrets);
+  </script>
+</body>
+</html>

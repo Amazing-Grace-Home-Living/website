@@ -10,7 +10,7 @@ await walk('src');
 await walk('toolbox');
 files.push('index.html');
 const missing = new Map();
-for (const file of files) { const source = await readFile(file, 'utf8'); for (const match of source.matchAll(/(?:href|src)=["']([^"'#?]+)["']/g)) { const target = match[1]; if (!target.startsWith('/') || target.startsWith('//')) continue; const local = join('.', target.slice(1)), publicLocal = join('public', target.slice(1)); if (!await exists(local) && !await exists(join(local, 'index.html')) && !await exists(publicLocal) && !await exists(join(publicLocal, 'index.html'))) { if (!missing.has(target)) missing.set(target, []); missing.get(target).push(file); } } }
+for (const file of files) { const source = await readFile(file, 'utf8'); for (const match of source.matchAll(/(?:href|src)=["']([^"'#?]+)["']/g)) { const target = match[1]; if (!target.startsWith('/') || target.startsWith('//')) continue; const path = decodeURIComponent(target.slice(1)); const local = join('.', path), publicLocal = join('public', path); if (!await exists(local) && !await exists(join(local, 'index.html')) && !await exists(publicLocal) && !await exists(join(publicLocal, 'index.html'))) { if (!missing.has(target)) missing.set(target, []); missing.get(target).push(file); } } }
 for (const [target, sources] of missing) console.log(`${target} <- ${sources.join(', ')}`);
 console.log(`HTML files ${files.length}; missing local targets ${missing.size}`);
 process.exitCode = missing.size ? 1 : 0;

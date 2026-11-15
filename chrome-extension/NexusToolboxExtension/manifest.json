@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Nexus Toolbox",
+  "version": "1.0",
+  "description": "Utility extension with AI chat, terminal, and secret vault.",
+  "action": {
+    "default_panel": "host-panel.html"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://api.github.com/*",
+    "https://generativelanguage.googleapis.com/*",
+    "https://api.openai.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}
