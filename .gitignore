@@ -1,3 +1,4 @@
 # Secrets – never commit
 backend/service_account.json
 .env
+dist/arcade/website/assets/Apps/*.tar.gz

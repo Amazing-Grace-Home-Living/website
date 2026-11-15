@@ -1,0 +1,10 @@
+{
+  "title": "CompTIA Network+ Quiz",
+  "questions": [
+    {
+      "question": "What is the purpose of a subnet mask?",
+      "options": ["Define the network portion of an IP address","Encrypt network traffic","Assign MAC addresses"],
+      "answer": 0
+    }
+  ]
+}

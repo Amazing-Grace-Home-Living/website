@@ -1,0 +1,25 @@
+{
+  "title": "CompTIA Security+ Quiz",
+  "questions": [
+    {
+      "question": "Which of the following is a primary goal of confidentiality in information security?",
+      "options": [
+        "Ensuring data is accurate",
+        "Preventing unauthorized access",
+        "Ensuring data is available",
+        "Maintaining system performance"
+      ],
+      "answer": "Preventing unauthorized access"
+    },
+    {
+      "question": "What does the principle of least privilege enforce?",
+      "options": [
+        "All users have admin rights",
+        "Users receive only the permissions they need",
+        "Systems run with maximum permissions",
+        "Permissions are granted randomly"
+      ],
+      "answer": "Users receive only the permissions they need"
+    }
+  ]
+}

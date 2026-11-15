@@ -1,0 +1,10 @@
+{
+  "title": "CompTIA A+ Quiz",
+  "questions": [
+    {
+      "question": "What does CPU stand for?",
+      "options": ["Central Processing Unit", "Computer Processing Unit", "Control Program Utility"],
+      "answer": 0
+    }
+  ]
+}
