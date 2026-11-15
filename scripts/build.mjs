@@ -68,4 +68,4 @@ async function addAnalytics(directory) {
     }
   } catch (err) {}
 }
-await addAnalytics(output);
+if (process.env.VERCEL === '1') await addAnalytics(output);
