@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0b1420">
   <meta name="description" content="Unified Matrix of Conscience RPG with sign‑in and points system.">
   <title>Matrix of Conscience • Amazing Grace</title>
-  <link rel="stylesheet" href="/src/game/matrix-rpg/rpg.css">
+  <link rel="stylesheet" href="/src/game/matrix-rpg/rpg.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/src/game/matrix-rpg/rpg.css"></noscript>
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js">// Load user profile from FastAPI backend
   firebase.auth().onAuthStateChanged(async user => {
@@ -503,3 +503,4 @@
 
 </body>
 </html>
+

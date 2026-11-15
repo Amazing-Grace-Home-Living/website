@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
+<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
+<script defer src="/_vercel/insights/script.js"></script>
 <script>
   (function () {
     const allowedHosts = new Set([
@@ -345,7 +347,7 @@
         .screen { display: none; }
         .screen.active { display: block; }
     </style>
-<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};window.va('beforeSend',function(e){e.url=e.url.split(/[?#]/)[0];return e});</script><script defer src="/_vercel/insights/script.js"></script></head>
+</head>
 <body>
     <audio id="bg-music" loop>
         <source src="../../assets/audio/victory.mp3" type="audio/mpeg">
@@ -617,7 +619,7 @@
         return a;
     }
 
-    // ── Screens ────────────────────────────────────────────────────────
+    // ── Screens ──────────���─────────────────────────────────────────────
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
