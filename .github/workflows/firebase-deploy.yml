@@ -17,10 +17,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build static site
-        run: npm run build && npm run export
+        run: npm run build
       - name: Deploy to Firebase Hosting
-        uses: w9jds/firebase-action@v12
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          args: deploy --only hosting
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          repoToken: ${{ github.token }}
+          firebaseServiceAccount: ${{ secrets.Service_Account_JSON }}
+          projectId: amazing-grace-hl
+          channelId: live

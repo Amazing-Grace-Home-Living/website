@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "export": "npm run build && rd /s /q out && xcopy /E /I /Y dist out",
+    "export": "npm run build",
     "lint": "eslint .",
     "start": "node bridge.mjs",
     "test:academy": "node --test tests/academy.test.mjs",
@@ -43,7 +43,8 @@
     "@playwright/test": "^1.64.1",
     "dotenv": "^18.0.9",
     "eslint": "^9.39.5",
-    "minimatch": "^11.0.8"
+    "minimatch": "^11.0.8",
+    "typescript": "5.9.3"
   },
   "engines": {
     "node": ">=22"
