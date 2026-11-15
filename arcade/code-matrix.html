@@ -19,7 +19,8 @@
     .site-header a.brand{color:#b3e5c8;text-decoration:none;font-weight:bold}
     .user-panel{display:flex;gap:1rem;align-items:center}
   </style>
-</head>
+<link rel="stylesheet" href="/src/theme/dark.css" media="(prefers-color-scheme: dark)" onload="this.media='all'">
+<style>.BannerDescription{font-size:clamp(2.5rem,5.5vw,4.5rem);line-height:1.1;color:var(--ink);}</style></head>
 <body>
 <header class="site-header">
   <a class="brand" href="/arcade/">✦ AMAZING GRACE <small>THE LEARNING ARCADE</small></a>
@@ -86,5 +87,6 @@
   signInBtn.onclick=()=>authHelper.signInGoogle();
   signOutBtn.onclick=()=>authHelper.signOut();
 </script>
-</body>
+<figure><img src='https://via.placeholder.com/300x200?text=code-matrix' alt='Screenshot of code-matrix game' loading='lazy'></figure></body>
 </html>
+
