@@ -89,42 +89,50 @@
   <!-- ========================================== -->
   <!-- HEADER & STATUS BAR (Optimized for Mobile) -->
   <!-- ========================================== -->
-  <header class="border-b border-slate-800 bg-slate-950/90 px-3 py-2 sm:px-6 sm:py-3 flex items-center justify-between sticky top-0 z-40">
-    <div class="flex items-center space-x-2 sm:space-x-3">
-      <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
-        <i data-lucide="cpu" class="w-5 h-5"></i>
-      </div>
-      <div>
-        <h1 class="text-xs sm:text-base font-bold tracking-wider text-slate-100 flex items-center space-x-2">
-          <span>GRACE NEXUS ACADEMY</span>
-          <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-950 border border-amber-800 text-amber-400 font-mono-code" id="player-rank">INITIATE</span>
-        </h1>
-        <p class="text-[10px] sm:text-xs text-slate-400 font-mono-code hidden xs:block" id="campaign-breadcrumb">WORLD 1: EARTH · LEVEL 1</p>
-      </div>
-    </div>
-
-    <!-- Status Indicators -->
-    <div class="flex items-center space-x-1 sm:space-x-2.5 text-xs">
-      <div class="flex flex-col items-end px-2 py-1 rounded-md bg-slate-900 border border-slate-800">
-        <span class="text-[9px] text-slate-400 font-mono-code leading-none">LEVEL / XP</span>
-        <span id="player-xp-val" class="font-bold font-mono-code text-amber-400 text-xs sm:text-sm leading-tight">LV 1 (0 XP)</span>
-      </div>
-      <div class="flex flex-col items-end px-2 py-1 rounded-md bg-slate-900 border border-slate-800">
-        <span class="text-[9px] text-slate-400 font-mono-code leading-none">AWARENESS</span>
-        <span id="awareness-val" class="font-bold font-mono-code text-cyan-400 text-xs sm:text-sm leading-tight">0%</span>
-      </div>
-      <div class="flex flex-col items-end px-2 py-1 rounded-md bg-slate-900 border border-slate-800">
-        <span class="text-[9px] text-slate-400 font-mono-code leading-none">INTEGRITY</span>
-        <span id="integrity-val" class="font-bold font-mono-code text-emerald-400 text-xs sm:text-sm leading-tight">100%</span>
-      </div>
-
-      <!-- Grace Remote Console Trigger -->
-      <button id="btn-open-terminal" class="min-h-[40px] px-2.5 py-1.5 rounded-lg bg-purple-950/70 hover:bg-purple-900 active:bg-purple-800 text-purple-300 border border-purple-700/60 font-mono-code text-xs flex items-center space-x-1.5 transition touch-manipulation">
-        <i data-lucide="terminal" class="w-4 h-4 text-purple-400"></i>
-        <span class="hidden sm:inline font-semibold">CONSOLE</span>
-      </button>
-    </div>
-  </header>
+  <header class="site-header">
+<a class="logo" href="/" aria-label="Amazing Grace Home Living homepage">
+<img src="/assets/AmazingGraceHomeLivingLogo.png" alt="">
+</a>
+<nav class="main-nav" aria-label="Primary Navigation">
+<a href="/" aria-current="page">Home</a>
+<details class="nav-dropdown">
+<summary>Sites</summary>
+<ul class="dropdown-menu">
+<li><a href="/amazing-grace">Amazing Grace Home Living</a></li>
+<li><a href="/voice-of-jesus">Voice of Jesus Ministry</a></li>
+<li><a href="/limitless-nexus">Limitless Nexus</a></li>
+</ul>
+</details>
+<a href="/arcade/">Arcade</a>
+<details class="nav-dropdown">
+<summary>Tools</summary>
+<ul class="dropdown-menu">
+<li><a href="/tools">All tools</a></li>
+<li><a href="/agent-nexus">Agent Nexus & Assistant</a></li>
+</ul>
+</details>
+<a href="#about">About Us</a>
+</nav>
+<nav class="mobile-nav" aria-label="Mobile navigation">
+<a href="/listings/">Rooms</a>
+<a href="/lms/">LMS</a>
+<details class="mobile-menu">
+<summary aria-label="Open navigation menu">?</summary>
+<div class="mobile-links">
+<a href="/">Home</a>
+<a href="/arcade/">Arcade</a>
+<a href="/audio-library/">Library</a>
+<a href="/lms/#ai-setup">LM Studio AI setup</a>
+<a href="/toolbox/">Nexus Toolbox</a>
+<a href="https://voiceofjesusministry.net" target="_blank" rel="noopener noreferrer">Voice of Jesus Ministry ?</a>
+<a href="#about">About Us</a>
+<a href="/privacy/">Privacy</a>
+</div>
+</details>
+<a href="#about">About Us</a>
+<a href="/privacy/">Privacy</a>
+</nav>
+</header>
 
   <!-- ========================================== -->
   <!-- MAIN LAYOUT & GRID CONTAINER               -->
@@ -1370,3 +1378,4 @@
   <script type="module" src="./matrix-campaign.js"></script>
 </body>
 </html>
+

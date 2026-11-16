@@ -1,7 +1,50 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#060c09"><title>Grace Remote · Your work, within reach</title><meta name="description" content="A personal mobile console for Codex tasks, approvals and code review."><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="style.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="style.css"></noscript><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};window.va('beforeSend',function(e){e.url=e.url.split(/[?#]/)[0];return e});</script><script defer src="/_vercel/insights/script.js"></script></head>
 <body><div class="shell"><aside class="sidebar"><a href="#" class="brand"><span class="brand-icon">g<span>↗</span></span><span>grace<span class="brand-sub">REMOTE WORKSPACE</span></span></a><div class="space-label">YOUR WORKSPACE <span>01</span></div><nav aria-label="Workspace"><button class="nav active" data-view="assistant"><span>✳</span> Assistant</button><button class="nav" data-view="tasks"><span>◫</span> Sessions <i id="session-count">0</i></button><button class="nav" data-view="approvals"><span>◇</span> Approvals <i id="approval-count">0</i></button><button class="nav" data-view="changes"><span>⑂</span> Changes</button><button class="nav" data-view="integrations"><span>⊞</span> Integrations</button><button class="nav" data-view="learn"><span>▤</span> Learn</button><button class="nav" data-view="setup"><span>⌁</span> Connection</button></nav><div class="side-bottom"><div class="host-dot"></div><div><strong id="side-host">Connect your workspace</strong><small id="side-host-sub">No host connected</small></div><button class="icon-button" data-view="setup" aria-label="Connection settings">↗</button></div></aside>
-<div class="main-wrap"><header><div class="breadcrumb"><a href="/toolbox/">Toolbox</a> <span>/</span> <strong id="crumb">Sessions</strong></div><div class="header-actions"><span class="mode" id="mode" role="status" aria-live="polite">SETUP REQUIRED</span><button class="avatar" data-view="setup" aria-label="Open connection settings">G</button></div></header><main>
+<div class="main-wrap"><header class="site-header">
+<a class="logo" href="/" aria-label="Amazing Grace Home Living homepage">
+<img src="/assets/AmazingGraceHomeLivingLogo.png" alt="">
+</a>
+<nav class="main-nav" aria-label="Primary Navigation">
+<a href="/" aria-current="page">Home</a>
+<details class="nav-dropdown">
+<summary>Sites</summary>
+<ul class="dropdown-menu">
+<li><a href="/amazing-grace">Amazing Grace Home Living</a></li>
+<li><a href="/voice-of-jesus">Voice of Jesus Ministry</a></li>
+<li><a href="/limitless-nexus">Limitless Nexus</a></li>
+</ul>
+</details>
+<a href="/arcade/">Arcade</a>
+<details class="nav-dropdown">
+<summary>Tools</summary>
+<ul class="dropdown-menu">
+<li><a href="/tools">All tools</a></li>
+<li><a href="/agent-nexus">Agent Nexus & Assistant</a></li>
+</ul>
+</details>
+<a href="#about">About Us</a>
+</nav>
+<nav class="mobile-nav" aria-label="Mobile navigation">
+<a href="/listings/">Rooms</a>
+<a href="/lms/">LMS</a>
+<details class="mobile-menu">
+<summary aria-label="Open navigation menu">?</summary>
+<div class="mobile-links">
+<a href="/">Home</a>
+<a href="/arcade/">Arcade</a>
+<a href="/audio-library/">Library</a>
+<a href="/lms/#ai-setup">LM Studio AI setup</a>
+<a href="/toolbox/">Nexus Toolbox</a>
+<a href="https://voiceofjesusministry.net" target="_blank" rel="noopener noreferrer">Voice of Jesus Ministry ?</a>
+<a href="#about">About Us</a>
+<a href="/privacy/">Privacy</a>
+</div>
+</details>
+<a href="#about">About Us</a>
+<a href="/privacy/">Privacy</a>
+</nav>
+</header><main>
 <div class="page-heading"><div><div class="eyebrow">SYSTEM ONLINE / BUILD FROM ANYWHERE</div><h1>Let’s connect your workspace<span>.</span></h1><p>Setup guidance. Real connections. Your permissions.</p></div><button class="primary" id="new-task">＋ New session</button></div>
 <div class="notice" id="demo-note"><span class="notice-icon">⌁</span><span><strong>Start with your setup.</strong> Connect your own host for AI guidance and real task activity.</span><button data-view="setup">Connect host ↗</button></div>
 <section class="stats" aria-label="Workspace summary"><div><span class="stat-icon teal">↗</span><div><strong id="stat-sessions">0</strong><small>Sessions in this workspace</small></div></div><div><span class="stat-icon amber">◇</span><div><strong id="stat-approvals">0</strong><small>Waiting for your decision</small></div></div><div><span class="stat-icon muted">⌁</span><div><strong id="stat-host">Not connected</strong><small id="stat-host-sub">Your computer does the work</small></div></div></section>
@@ -22,4 +65,5 @@ node bridge.mjs --cwd /path/to/repo --integrations github
 
 Rotate: node vault.mjs set github
 Remove local copy: node vault.mjs remove github</pre><p class="hint">Vault uses AES-256-GCM with a scrypt-derived passphrase key. Keep a strong unique passphrase. Unlock it on host startup. Removing a local token does not revoke it at GitHub/Vercel/OpenAI; revoke there too. Restart the companion after rotation/removal. Integrations explicitly enabled at startup are available to the Codex child process.</p><p class="hint">The session token is separate: browser-memory only, rotates on request, uses the lifetime configured on your host. Host vault tokens are never returned to the UI. This is not a managed or audited enterprise secret manager.</p></dialog></body></html>
+
 

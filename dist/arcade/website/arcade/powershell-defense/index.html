@@ -1,5 +1,48 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#060c16"><title>PowerShell Defense Academy · Amazing Grace</title><link rel="icon" href="data:,"><link rel="stylesheet" href="/src/game/academy/academy.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/src/game/academy/academy.css"></noscript><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};window.va('beforeSend',function(e){e.url=e.url.split(/[?#]/)[0];return e});</script><script defer src="/_vercel/insights/script.js"></script></head><body>
-<header><a href="/arcade/">← Arcade</a><strong>PS&gt; DEFENSE ACADEMY</strong><nav><a href="/lms/">Learn & Play</a><a href="/arcade/academy/">Shared profile</a></nav></header>
+<header class="site-header">
+<a class="logo" href="/" aria-label="Amazing Grace Home Living homepage">
+<img src="/assets/AmazingGraceHomeLivingLogo.png" alt="">
+</a>
+<nav class="main-nav" aria-label="Primary Navigation">
+<a href="/" aria-current="page">Home</a>
+<details class="nav-dropdown">
+<summary>Sites</summary>
+<ul class="dropdown-menu">
+<li><a href="/amazing-grace">Amazing Grace Home Living</a></li>
+<li><a href="/voice-of-jesus">Voice of Jesus Ministry</a></li>
+<li><a href="/limitless-nexus">Limitless Nexus</a></li>
+</ul>
+</details>
+<a href="/arcade/">Arcade</a>
+<details class="nav-dropdown">
+<summary>Tools</summary>
+<ul class="dropdown-menu">
+<li><a href="/tools">All tools</a></li>
+<li><a href="/agent-nexus">Agent Nexus & Assistant</a></li>
+</ul>
+</details>
+<a href="#about">About Us</a>
+</nav>
+<nav class="mobile-nav" aria-label="Mobile navigation">
+<a href="/listings/">Rooms</a>
+<a href="/lms/">LMS</a>
+<details class="mobile-menu">
+<summary aria-label="Open navigation menu">?</summary>
+<div class="mobile-links">
+<a href="/">Home</a>
+<a href="/arcade/">Arcade</a>
+<a href="/audio-library/">Library</a>
+<a href="/lms/#ai-setup">LM Studio AI setup</a>
+<a href="/toolbox/">Nexus Toolbox</a>
+<a href="https://voiceofjesusministry.net" target="_blank" rel="noopener noreferrer">Voice of Jesus Ministry ?</a>
+<a href="#about">About Us</a>
+<a href="/privacy/">Privacy</a>
+</div>
+</details>
+<a href="#about">About Us</a>
+<a href="/privacy/">Privacy</a>
+</nav>
+</header>
 <main><p class="eyebrow">OBSERVE · FILTER · DEFEND</p><h1>Build skills.<br>Defend the host.</h1><p class="muted">Ten tactical waves. Four PowerShell lessons. One quiz-shielded Rogue Script AI.</p><arcade-profile></arcade-profile>
 <div class="stats" aria-label="Defense statistics"><div>Credits<strong id="hud-credits">220 C</strong></div><div>Host integrity<strong id="hud-health">25 HP</strong></div><div>Wave<strong id="hud-wave">1</strong></div><div>Arcade XP<strong id="hud-xp">0 XP</strong></div></div>
 <div class="layout"><section><div class="panel"><p id="terminal-status" role="status" aria-live="polite">READY</p><small id="hostile-tracker">HOSTILES: 0 ACTIVE</small><div class="canvas-wrap"><canvas id="game-canvas" width="800" height="480" tabindex="0" aria-label="Defense grid: 20 columns, 12 rows. Use arrow keys to move the placement cursor, Enter to place or upgrade a tower."></canvas></div><div id="towers-selector" class="towers" role="group" aria-label="Command turret selection"></div><div class="actions"><button class="primary" id="btn-start-wave" type="button">Start next wave</button><button id="btn-pause" type="button" aria-pressed="false">Pause defense</button><button id="btn-quiz-override" type="button">Command quiz / Boss shield</button><button id="btn-restart" type="button">Reset defense</button></div>
@@ -9,4 +52,5 @@
 <section id="lesson-dialog" class="panel question-panel" aria-labelledby="lesson-title" hidden><h2 id="lesson-title"></h2><pre id="lesson-command"></pre><p id="lesson-copy"></p><a id="lesson-docs" target="_blank" rel="noopener">Microsoft Learn reference ↗</a><form id="lesson-form"><div id="lesson-questions"></div><button class="primary" id="lesson-submit" type="submit">Check understanding</button></form><p id="lesson-feedback" role="status" aria-live="polite"></p><div class="actions"><button id="lesson-retry" type="button" hidden>Review and retry</button><button id="lesson-close" type="button">Return to defense</button></div></section>
 <section id="boss-dialog" class="panel question-panel" aria-labelledby="boss-title" hidden><p class="eyebrow">SECURITY BREACH DETECTED</p><h2 id="boss-title">Rogue Script AI · Quiz shield</h2><p>Answer three different questions correctly to drop the shield. Review and retry as often as you need. Combat is paused while this panel is open.</p><p id="boss-progress" role="status"></p><form id="boss-form"><div id="boss-question"></div><button class="primary" id="boss-submit" type="submit">Check answer</button></form><p id="boss-feedback" role="status" aria-live="polite"></p><div class="actions"><button id="boss-next" type="button" hidden>Next question</button><button id="boss-close" type="button">Return to defense</button></div></section>
 <script type="module" src="/src/game/academy/defense-ui.js"></script></body></html>
+
 

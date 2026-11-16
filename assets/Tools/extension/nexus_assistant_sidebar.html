@@ -7,29 +7,50 @@
   <link rel="stylesheet" href="nexus_assistant_sidebar.css" />
 </head>
 <body>
-  <header class="sidebar-header">
-    <div class="logo-area">
-      <img src="icons/logo.svg" alt="Nexus" class="logo" />
-    </div>
-    <div class="workspace-selector">
-      <label for="workspace">Workspace</label>
-      <select id="workspace">
-        <option>Personal</option>
-        <option>Team</option>
-      </select>
-    </div>
-    <div class="quick-search">
-      <input type="search" placeholder="Search…" id="global-search" />
-    </div>
-    <div class="user-info">
-      <img src="icons/avatar.png" alt="User" class="avatar" />
-      <div class="status-indicators">
-        <span class="provider gemini" title="Gemini Connected">🟦</span>
-        <span class="provider chatgpt" title="ChatGPT Connected">🟥</span>
-        <span class="provider copilot" title="Copilot Connected">⚫</span>
-      </div>
-    </div>
-  </header>
+  <header class="site-header">
+<a class="logo" href="/" aria-label="Amazing Grace Home Living homepage">
+<img src="/assets/AmazingGraceHomeLivingLogo.png" alt="">
+</a>
+<nav class="main-nav" aria-label="Primary Navigation">
+<a href="/" aria-current="page">Home</a>
+<details class="nav-dropdown">
+<summary>Sites</summary>
+<ul class="dropdown-menu">
+<li><a href="/amazing-grace">Amazing Grace Home Living</a></li>
+<li><a href="/voice-of-jesus">Voice of Jesus Ministry</a></li>
+<li><a href="/limitless-nexus">Limitless Nexus</a></li>
+</ul>
+</details>
+<a href="/arcade/">Arcade</a>
+<details class="nav-dropdown">
+<summary>Tools</summary>
+<ul class="dropdown-menu">
+<li><a href="/tools">All tools</a></li>
+<li><a href="/agent-nexus">Agent Nexus & Assistant</a></li>
+</ul>
+</details>
+<a href="#about">About Us</a>
+</nav>
+<nav class="mobile-nav" aria-label="Mobile navigation">
+<a href="/listings/">Rooms</a>
+<a href="/lms/">LMS</a>
+<details class="mobile-menu">
+<summary aria-label="Open navigation menu">?</summary>
+<div class="mobile-links">
+<a href="/">Home</a>
+<a href="/arcade/">Arcade</a>
+<a href="/audio-library/">Library</a>
+<a href="/lms/#ai-setup">LM Studio AI setup</a>
+<a href="/toolbox/">Nexus Toolbox</a>
+<a href="https://voiceofjesusministry.net" target="_blank" rel="noopener noreferrer">Voice of Jesus Ministry ?</a>
+<a href="#about">About Us</a>
+<a href="/privacy/">Privacy</a>
+</div>
+</details>
+<a href="#about">About Us</a>
+<a href="/privacy/">Privacy</a>
+</nav>
+</header>
 
   <nav class="sidebar-nav">
     <section class="nav-section" id="section-conversations">
@@ -131,3 +152,4 @@
   </footer>
 </body>
 </html>
+

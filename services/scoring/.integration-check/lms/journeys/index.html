@@ -1,2 +1,46 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101a24"><title>Signalkeeper Journeys · Learn & Play</title><link rel="icon" href="data:,"><link rel="stylesheet" href="/src/game/learning/learning.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/src/game/learning/learning.css"></noscript><link rel="stylesheet" href="/src/game/learning/journeys/journeys.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/src/game/learning/journeys/journeys.css"></noscript><link rel="stylesheet" href="/src/game/nexus/nexus.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/src/game/nexus/nexus.css"></noscript></head><body><a class="skip-link" href="#journey-root">Skip to your lesson</a><header><a class="brand" href="/arcade/">✦ AMAZING GRACE <small>SIGNALKEEPER JOURNEYS</small></a><nav aria-label="Main"><a href="/lms/">Learning hub</a><a href="/arcade/">Arcade</a><a href="/arcade/academy/">Player profile</a></nav></header><main><arcade-profile></arcade-profile><section class="hero"><div><p class="eyebrow">SEVEN STORIES · TWENTY-ONE CHECKS · REAL PRACTICE</p><h1>Notice carefully.<br><em>Act thoughtfully.</em></h1><p>Follow seven conscience frequencies with Electra, Noah, Ella and the Echo Children, from awareness to the Living Weave. Practice evidence, pipelines, quoting, credentials, AI privacy, and verification.</p></div><aside class="journey"><h2>One connected learning loop</h2><p>Read → check → practice in the arcade → reflect. Each mastered lesson awards XP once. You can read ahead, revisit a hint, or retry without a timer.</p><p>These stories and command examples are simulations. No terminal commands run from a lesson.</p></aside></section><section id="journey-root" aria-label="Interactive learning journey"></section><section class="note"><h2>Ask a learning coach</h2><p>Optional: connect your companion below, choose an explicitly configured provider and model, and ask a question inside a lesson. Your question and that lesson’s public context go only to that selected provider. This coach has no execution tools and cannot award quiz passes.</p><label for="coach-provider">Provider</label><select id="coach-provider"><option value="ollama">Ollama</option><option value="lmstudio">LM Studio</option><option value="openai">OpenAI</option><option value="gemini">Gemini</option><option value="anthropic">Anthropic</option></select><label for="coach-model">Model ID from your provider</label><input id="coach-model" list="coach-models" maxlength="200" autocomplete="off" placeholder="Refresh models after connecting"><datalist id="coach-models"></datalist><button id="coach-refresh" type="button">Refresh available models</button><p id="coach-status" role="status"></p><p id="journey-save" role="status"></p></section><section id="learning-sync" aria-label="Optional companion learning sync"></section><section class="note"><h2>Your progress, your pace</h2><p>Local learning needs no API key. Without sync, progress stays in this browser on this site. Completion badges are personal practice achievements, not accredited qualifications. Reflection prompts are not collected.</p></section></main><footer><a href="/lms/">← Learning hub</a><span>Read. Practice. Revisit.</span></footer><script type="module" src="/src/game/learning/journeys/ui.js"></script></body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101a24"><title>Signalkeeper Journeys · Learn & Play</title><link rel="icon" href="data:,"><link rel="stylesheet" href="/src/game/learning/learning.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/src/game/learning/learning.css"></noscript><link rel="stylesheet" href="/src/game/learning/journeys/journeys.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/src/game/learning/journeys/journeys.css"></noscript><link rel="stylesheet" href="/src/game/nexus/nexus.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/src/game/nexus/nexus.css"></noscript></head><body><a class="skip-link" href="#journey-root">Skip to your lesson</a><header class="site-header">
+<a class="logo" href="/" aria-label="Amazing Grace Home Living homepage">
+<img src="/assets/AmazingGraceHomeLivingLogo.png" alt="">
+</a>
+<nav class="main-nav" aria-label="Primary Navigation">
+<a href="/" aria-current="page">Home</a>
+<details class="nav-dropdown">
+<summary>Sites</summary>
+<ul class="dropdown-menu">
+<li><a href="/amazing-grace">Amazing Grace Home Living</a></li>
+<li><a href="/voice-of-jesus">Voice of Jesus Ministry</a></li>
+<li><a href="/limitless-nexus">Limitless Nexus</a></li>
+</ul>
+</details>
+<a href="/arcade/">Arcade</a>
+<details class="nav-dropdown">
+<summary>Tools</summary>
+<ul class="dropdown-menu">
+<li><a href="/tools">All tools</a></li>
+<li><a href="/agent-nexus">Agent Nexus & Assistant</a></li>
+</ul>
+</details>
+<a href="#about">About Us</a>
+</nav>
+<nav class="mobile-nav" aria-label="Mobile navigation">
+<a href="/listings/">Rooms</a>
+<a href="/lms/">LMS</a>
+<details class="mobile-menu">
+<summary aria-label="Open navigation menu">?</summary>
+<div class="mobile-links">
+<a href="/">Home</a>
+<a href="/arcade/">Arcade</a>
+<a href="/audio-library/">Library</a>
+<a href="/lms/#ai-setup">LM Studio AI setup</a>
+<a href="/toolbox/">Nexus Toolbox</a>
+<a href="https://voiceofjesusministry.net" target="_blank" rel="noopener noreferrer">Voice of Jesus Ministry ?</a>
+<a href="#about">About Us</a>
+<a href="/privacy/">Privacy</a>
+</div>
+</details>
+<a href="#about">About Us</a>
+<a href="/privacy/">Privacy</a>
+</nav>
+</header><main><arcade-profile></arcade-profile><section class="hero"><div><p class="eyebrow">SEVEN STORIES · TWENTY-ONE CHECKS · REAL PRACTICE</p><h1>Notice carefully.<br><em>Act thoughtfully.</em></h1><p>Follow seven conscience frequencies with Electra, Noah, Ella and the Echo Children, from awareness to the Living Weave. Practice evidence, pipelines, quoting, credentials, AI privacy, and verification.</p></div><aside class="journey"><h2>One connected learning loop</h2><p>Read → check → practice in the arcade → reflect. Each mastered lesson awards XP once. You can read ahead, revisit a hint, or retry without a timer.</p><p>These stories and command examples are simulations. No terminal commands run from a lesson.</p></aside></section><section id="journey-root" aria-label="Interactive learning journey"></section><section class="note"><h2>Ask a learning coach</h2><p>Optional: connect your companion below, choose an explicitly configured provider and model, and ask a question inside a lesson. Your question and that lesson’s public context go only to that selected provider. This coach has no execution tools and cannot award quiz passes.</p><label for="coach-provider">Provider</label><select id="coach-provider"><option value="ollama">Ollama</option><option value="lmstudio">LM Studio</option><option value="openai">OpenAI</option><option value="gemini">Gemini</option><option value="anthropic">Anthropic</option></select><label for="coach-model">Model ID from your provider</label><input id="coach-model" list="coach-models" maxlength="200" autocomplete="off" placeholder="Refresh models after connecting"><datalist id="coach-models"></datalist><button id="coach-refresh" type="button">Refresh available models</button><p id="coach-status" role="status"></p><p id="journey-save" role="status"></p></section><section id="learning-sync" aria-label="Optional companion learning sync"></section><section class="note"><h2>Your progress, your pace</h2><p>Local learning needs no API key. Without sync, progress stays in this browser on this site. Completion badges are personal practice achievements, not accredited qualifications. Reflection prompts are not collected.</p></section></main><footer><a href="/lms/">← Learning hub</a><span>Read. Practice. Revisit.</span></footer><script type="module" src="/src/game/learning/journeys/ui.js"></script></body></html>
+
 
