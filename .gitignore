@@ -2,3 +2,6 @@
 backend/service_account.json
 .env
 dist/arcade/website/assets/Apps/*.tar.gz
+
+# Ignore large JDK tarballs
+dist/assets/Apps/*.tar.gz
