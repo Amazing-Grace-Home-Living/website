@@ -1,6 +1,5 @@
 import { readdir, readFile, writeFile, stat } from 'node:fs/promises';
 const properties = [
-  { city: 'Clearwater', address: '118 S San Remo Ave' },
   { city: 'Tampa', address: '926 E Poinsettia Ave' },
 ];
 let html = await readFile('listings/index.html', 'utf8');

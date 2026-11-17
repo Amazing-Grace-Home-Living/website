@@ -2,7 +2,7 @@ const links = [...document.querySelectorAll('[data-photo]')];
 const viewer = document.getElementById('photo-viewer');
 const photo = document.getElementById('full-photo');
 const caption = document.getElementById('photo-caption');
-let index = 0, activeLinks = [], city = '';
+let index = 0, opener, activeLinks = [], city = '';
 function show(next) {
  index = (next + activeLinks.length) % activeLinks.length;
  photo.src = activeLinks[index].href;
@@ -10,7 +10,7 @@ function show(next) {
  caption.textContent = `${city} · ${index + 1} of ${activeLinks.length}`;
 }
 for (const link of links) link.addEventListener('click', event => {
- event.preventDefault();
+ event.preventDefault(); opener = link;
  const section = link.closest('.gallery-section'); city = section.dataset.city;
  activeLinks = [...section.querySelectorAll('[data-photo]')];
  show(Number(link.dataset.photo)); viewer.showModal();
@@ -22,12 +22,4 @@ viewer.addEventListener('keydown', event => {
  if (event.key === 'ArrowLeft') { event.preventDefault(); show(index - 1); }
  if (event.key === 'ArrowRight') { event.preventDefault(); show(index + 1); }
 });
-if (!('closedBy' in HTMLDialogElement.prototype)) {
- let pressedOutside = false;
- const outside = event => {
-  const rect = viewer.getBoundingClientRect();
-  return event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom;
- };
- viewer.addEventListener('pointerdown', event => { pressedOutside = outside(event); });
- viewer.addEventListener('pointerup', event => { if (pressedOutside && outside(event)) viewer.close(); });
-}
+viewer.addEventListener('close', () => opener?.focus());
