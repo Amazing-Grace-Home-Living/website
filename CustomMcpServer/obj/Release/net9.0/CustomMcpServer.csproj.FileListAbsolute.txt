@@ -1,0 +1,6 @@
+C:\Users\Nick\OneDrive\Documents\GitHub\amazing-grace-fresh\CustomMcpServer\obj\Release\net9.0\CustomMcpServer.csproj.AssemblyReference.cache
+C:\Users\Nick\OneDrive\Documents\GitHub\amazing-grace-fresh\CustomMcpServer\obj\Release\net9.0\CustomMcpServer.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Nick\OneDrive\Documents\GitHub\amazing-grace-fresh\CustomMcpServer\obj\Release\net9.0\CustomMcpServer.AssemblyInfoInputs.cache
+C:\Users\Nick\OneDrive\Documents\GitHub\amazing-grace-fresh\CustomMcpServer\obj\Release\net9.0\CustomMcpServer.AssemblyInfo.cs
+C:\Users\Nick\OneDrive\Documents\GitHub\amazing-grace-fresh\CustomMcpServer\obj\Release\net9.0\CustomMcpServer.csproj.CoreCompileInputs.cache
+C:\Users\Nick\OneDrive\Documents\GitHub\amazing-grace-fresh\CustomMcpServer\obj\Release\net9.0\CustomMcpServer.sourcelink.json

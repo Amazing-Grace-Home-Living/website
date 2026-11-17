@@ -115,16 +115,9 @@ try {
   assert.match(download.suggestedFilename(), /\.mp3$/); await download.cancel();
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   await page.goto('http://127.0.0.1:4174/listings/');
-  assert.equal(await page.locator('.listing').count(), 2);
-  assert.equal(await page.locator('#clearwater').count(), 1);
-  assert.equal(await page.locator('#tampa').count(), 1);
-  assert.match(await page.locator('meta[name="description"]').getAttribute('content'), /\$900\/month.*\$850\/month/);
-  const clearwaterPhotos = await (await page.request.get('http://127.0.0.1:4174/listings/clearwater-gallery.json')).json();
-  assert.ok(clearwaterPhotos.length > 0);
-  assert.equal(await page.locator('#clearwater .gallery-photo').count(), clearwaterPhotos.length);
-  assert.ok((await page.locator('#clearwater .gallery-title').textContent()).includes(`${clearwaterPhotos.length} photos`));
-  assert.equal(await page.locator('#clearwater .price').innerText(), '$900\n/ month · all included');
-  assert.match(await page.locator('#clearwater a.button').getAttribute('href'), /pid=7b7967b3-c6b1-4a4c-9b4f-284c606eee99$/);
+  assert.equal(await page.locator('.listing').count(), 1);
+  assert.equal(await page.locator('#clearwater').count(), 0);
+  assert.match(await page.locator('meta[name="description"]').getAttribute('content'), /\$850\/month/);
   const galleryPhotos = await (await page.request.get('http://127.0.0.1:4174/listings/tampa-gallery.json')).json();
   assert.ok(galleryPhotos.length > 0);
   assert.equal(await page.locator('#tampa .gallery-photo').count(), galleryPhotos.length);
@@ -145,7 +138,7 @@ try {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.screenshot({ path: 'artifacts/listings-desktop.png', fullPage: true });
   for (const href of await page.locator('.gallery-photo').evaluateAll(a => a.map(x => x.href))) {
-    const response = await page.request.get(href); assert.equal(response.status(), 200); assert.match(response.headers()['content-type'], /^image\/(jpeg|webp|png)$/);
+    const response = await page.request.get(href); assert.equal(response.status(), 200); assert.equal(response.headers()['content-type'], 'image/jpeg');
   }
   assert.deepEqual(errors, []);
   console.log('Browser checks passed: render, hint, swap, cascade, invalid swap, save/reload, keyboard, level progression, mobile layout, swipes, restart, campaign completion, dead-board recovery, corrupt-save recovery; no console/network errors.');

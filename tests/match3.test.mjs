@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 
 const [catalog, codeMatrix, legacyRoute, learningUi, gameUi, campaign] = await Promise.all([
   readFile(new URL('../arcade/index.html', import.meta.url), 'utf8'),
-  readFile(new URL('../arcade/code-matrix/index.html', import.meta.url), 'utf8'),
+  readFile(new URL('../code-matrix/index.html', import.meta.url), 'utf8'),
   readFile(new URL('../arcade/matrix_of_consciousness_match_3_game.html', import.meta.url), 'utf8'),
   readFile(new URL('../src/game/learning/learning-ui.js', import.meta.url), 'utf8'),
   readFile(new URL('../src/game/ui.js', import.meta.url), 'utf8'),
@@ -18,9 +18,9 @@ test('Code Matrix has a playable campaign route; the arcade lists one game and i
   assert.match(catalog, /href="\/lms\/">Enter the Matrix campaign/);
   assert.equal((catalog.match(/<article\b/g) || []).length, 1);
   assert.doesNotMatch(catalog, /href="\/arcade\/(powershell-defense|vim-defense|bible-study|seven-stars|matrix-of-conscience)\//);
-  assert.match(campaign, /href="\/arcade\/code-matrix\/">Play Code Matrix/);
+  assert.match(campaign, /href="\/code-matrix\/">Play Code Matrix/);
   assert.match(legacyRoute, /joined Code Matrix/);
-  assert.match(legacyRoute, /href="\/arcade\/code-matrix\/">Play Code Matrix/);
+  assert.match(legacyRoute, /href="\/code-matrix\/">Play Code Matrix/);
   assert.doesNotMatch(legacyRoute, /src=".*matrix-academy\.js/);
 });
 test('the single optional puzzle awards one-time Signal Bonus credits for defense resources', () => {

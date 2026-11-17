@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "dgSpecHash": "5Jg8SYtdPNU=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Nick\\OneDrive\\Documents\\GitHub\\amazing-grace-fresh\\CustomMcpServer\\CustomMcpServer.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Nick\\.nuget\\packages\\microsoft.extensions.ai.abstractions\\10.11.0\\microsoft.extensions.ai.abstractions.10.11.0.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\microsoft.extensions.caching.abstractions\\10.0.14\\microsoft.extensions.caching.abstractions.10.0.14.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\10.0.14\\microsoft.extensions.configuration.abstractions.10.0.14.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\10.0.14\\microsoft.extensions.dependencyinjection.abstractions.10.0.14.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\microsoft.extensions.diagnostics.abstractions\\10.0.14\\microsoft.extensions.diagnostics.abstractions.10.0.14.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\microsoft.extensions.fileproviders.abstractions\\10.0.14\\microsoft.extensions.fileproviders.abstractions.10.0.14.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\microsoft.extensions.hosting.abstractions\\10.0.14\\microsoft.extensions.hosting.abstractions.10.0.14.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\10.0.14\\microsoft.extensions.logging.abstractions.10.0.14.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\microsoft.extensions.options\\10.0.14\\microsoft.extensions.options.10.0.14.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\microsoft.extensions.primitives\\10.0.14\\microsoft.extensions.primitives.10.0.14.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\modelcontextprotocol\\2.4.0\\modelcontextprotocol.2.4.0.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\modelcontextprotocol.aspnetcore\\2.4.0\\modelcontextprotocol.aspnetcore.2.4.0.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\modelcontextprotocol.core\\2.4.0\\modelcontextprotocol.core.2.4.0.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\system.diagnostics.diagnosticsource\\10.0.14\\system.diagnostics.diagnosticsource.10.0.14.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\system.io.pipelines\\10.0.13\\system.io.pipelines.10.0.13.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\system.net.serversentevents\\10.0.14\\system.net.serversentevents.10.0.14.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\system.text.encodings.web\\10.0.13\\system.text.encodings.web.10.0.13.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\system.text.json\\10.0.13\\system.text.json.10.0.13.nupkg.sha512"
+  ],
+  "logs": []
+}
