@@ -4,7 +4,7 @@ Parameters:
   SiteBucketName:
     Type: String
     Description: Globally unique S3 bucket name; CloudFormation will not expose it publicly.
-    AllowedPattern: '[a-z0-9][a-z0-9.-]{2,62}'
+    AllowedPattern: '[a-z0-9][a-z0-9.-]{2,61}'
 Resources:
   SiteBucket:
     Type: AWS::S3::Bucket
