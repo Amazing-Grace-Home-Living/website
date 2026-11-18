@@ -37,3 +37,20 @@ html{scroll-padding-top:90px}
 @media(max-width:900px){.process-steps{grid-template-columns:1fr;gap:28px}.process-steps li{padding:0 0 22px;border-bottom:1px solid var(--rule)}.hero{padding-top:72px}.tagline{font-size:.81em}}
 @media(max-width:500px){.tagline{font-size:.78em}.hero-actions{gap:24px}.cta-primary{width:100%}.hero-actions .text-link{width:auto}.process{padding-top:65px;padding-bottom:68px}}
 @media(prefers-reduced-motion:reduce){.cta-primary,.featured-photos img{transition:none}.cta-primary:hover{transform:none}.featured-photos a:hover img{transform:none}}
+
+/* Homepage hero and navigation alignment — November 2026 */
+.site-header .desktop-nav{margin-left:auto;align-self:stretch;align-items:center}
+.site-header .desktop-nav summary{display:inline-flex;align-items:center;min-height:44px}
+.site-header .desktop-nav>a{display:inline-flex;align-items:center;min-height:44px}
+.site-header .nav-drop summary:after{display:inline-block;line-height:1;transform:translateY(-1px)}
+.hero{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(280px,.92fr);align-items:center;gap:clamp(28px,4vw,70px);padding-top:clamp(54px,7vw,105px);padding-bottom:clamp(60px,7vw,105px)}
+.hero-content{min-width:0}
+.hero h1{font-size:clamp(52px,6.4vw,96px)}
+.hero-visual{display:block;position:relative;min-width:0;overflow:hidden;border:1px solid var(--rule);background:#171410;aspect-ratio:4/5}
+.hero-visual img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
+.hero-visual:hover img{transform:scale(1.035)}
+.hero-visual-caption{position:absolute;inset:auto 0 0;display:flex;justify-content:space-between;gap:12px;padding:24px;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.85));font-size:12px;font-weight:700;letter-spacing:.13em}
+@media(max-width:1050px){.hero{grid-template-columns:1fr 0.85fr}.hero h1{font-size:clamp(48px,6vw,76px)}}
+@media(max-width:900px){.hero{grid-template-columns:1fr;gap:35px}.hero-visual{aspect-ratio:16/10;max-height:440px}.hero h1{font-size:clamp(50px,9vw,80px)}}
+@media(max-width:500px){.hero{padding-top:48px;padding-bottom:60px}.hero-visual{aspect-ratio:4/3}.hero-visual-caption{padding:17px;font-size:10px}}
+@media(prefers-reduced-motion:reduce){.hero-visual img{transition:none}.hero-visual:hover img{transform:none}}
