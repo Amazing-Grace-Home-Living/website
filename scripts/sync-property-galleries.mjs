@@ -6,7 +6,9 @@ const properties = [
 let html = await readFile('dist/listings/index.html', 'utf8');
 for (const { city, address } of properties) {
   const candidates = (await readdir(`assets/${city}`)).filter(name => /\.(jpe?g|png|webp)$/i.test(name));
-  const names = (await Promise.all(candidates.map(async name => (await stat(`assets/${city}/${name}`)).isFile() ? name : null))).filter(Boolean).sort();
+  const names = (await Promise.all(candidates.map(async name => (await stat(`assets/${city}/${name}`)).isFile() ? name : null))).filter(Boolean)
+    .filter(name => city !== 'Clearwater' || name !== 'COYV1031.JPG')
+    .sort((a, b) => city === 'Clearwater' ? (a === 'Kitchen.jpg' ? -1 : b === 'Kitchen.jpg' ? 1 : a.localeCompare(b)) : a.localeCompare(b));
   const items = names.map((name, i) => {
     const src = `/assets/${city}/` + encodeURIComponent(name);
     return `<a href="${src}" class="gallery-photo" data-photo="${i}" aria-label="Open ${city} property photo ${i + 1} of ${names.length}"><img src="${src}" alt="${address} property photo ${i + 1}" loading="lazy" decoding="async"><span>${String(i + 1).padStart(2, '0')}</span></a>`;
