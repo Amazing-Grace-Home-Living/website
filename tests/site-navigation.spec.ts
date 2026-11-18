@@ -7,8 +7,10 @@ test('home navigation, rental content and article link work', async ({ page }) =
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Space to belong.');
   await expect(page.getByRole('heading', { name: /Explore. Compare./ })).toBeVisible();
 
-  const blog = page.getByRole('navigation', { name: 'Main navigation' })
-    .getByRole('link', { name: 'Blog', exact: true });
+  const mainNavigation = page.getByRole('navigation', { name: 'Main navigation' });
+  await mainNavigation.getByText('Resources', { exact: true }).click();
+  const blog = mainNavigation.getByRole('link', { name: 'Blog', exact: true });
+  await expect(blog).toBeVisible();
   await expect(blog).toHaveAttribute('href', '/src/blog.html');
   const [response] = await Promise.all([
     page.waitForResponse(response => new URL(response.url()).pathname === '/src/blog.html'),
