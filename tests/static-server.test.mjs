@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, rm, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -11,6 +11,18 @@ test('the optional static host serves only the build output', async t => {
   await mkdir(join(directory, 'listings'));
   await writeFile(join(directory, 'index.html'), '<h1>Home</h1>');
   await writeFile(join(directory, 'listings', 'index.html'), '<h1>Listings</h1>');
+  // Verify a symlink planted inside dist cannot expose a private file.
+  const outside = await mkdtemp(join(tmpdir(), 'aghl-outside-'));
+  await writeFile(join(outside, 'private.txt'), 'private data');
+  t.after(async () => { await rm(outside, { recursive: true, force: true }); });
+  let symlinkCreated = false;
+  try {
+    await symlink(join(outside, 'private.txt'), join(directory, 'leak.txt'));
+    symlinkCreated = true;
+  } catch (error) {
+    if (!['EPERM', 'EACCES', 'ENOTSUP'].includes(error.code)) throw error;
+    // Some Windows hosts do not grant symlink privileges.
+  }
 
   const probe = createServer();
   const port = await new Promise((resolve, reject) => {
@@ -42,4 +54,7 @@ test('the optional static host serves only the build output', async t => {
   assert.equal((await fetch(url + '/missing')).status, 404);
   assert.equal((await fetch(url + '/', { method: 'POST' })).status, 405);
   assert.equal((await fetch(url + '/', { method: 'HEAD' })).status, 200);
+  if (symlinkCreated) {
+    assert.equal((await fetch(url + '/leak.txt')).status, 403);
+  }
 });

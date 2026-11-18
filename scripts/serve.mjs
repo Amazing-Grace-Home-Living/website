@@ -2,10 +2,11 @@
 // The private Grace Remote companion must never be exposed by this service.
 import { createServer } from 'node:http';
 import { createReadStream } from 'node:fs';
-import { stat } from 'node:fs/promises';
+import { stat, realpath } from 'node:fs/promises';
 import { resolve, join, extname, sep } from 'node:path';
 
 const root = resolve(process.argv[2] || 'dist');
+const realRoot = await realpath(root);
 const port = Number(process.env.PORT || 4173);
 const host = process.env.HOST || '127.0.0.1';
 const types = {
@@ -54,6 +55,12 @@ const server = createServer(async (request, response) => {
       info = await stat(target);
     }
     if (!info.isFile()) throw new Error('Not a file');
+    // A symlink inside dist must never expose files elsewhere in the container.
+    const realTarget = await realpath(target);
+    if (realTarget !== realRoot && !realTarget.startsWith(realRoot + sep)) {
+      response.writeHead(403).end('Forbidden');
+      return;
+    }
     response.writeHead(200, {
       'Content-Type': types[extname(target).toLowerCase()] || 'application/octet-stream',
       'Content-Length': info.size,
