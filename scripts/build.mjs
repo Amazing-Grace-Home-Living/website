@@ -52,6 +52,11 @@ try {
   console.log('Generated auth.js from template');
 } catch (err) {}
 
+// Chrome extension is a published download, not a public/ fallback asset.
+// Fail the build if the promised ZIP is missing instead of shipping a broken link.
+await mkdir('dist/downloads', { recursive: true });
+await cp('public/downloads/NexusToolboxExtension.zip', 'dist/downloads/NexusToolboxExtension.zip');
+
 console.log('Built static site in dist/');
 
 // Add privacy-conscious page views to every published HTML page.
