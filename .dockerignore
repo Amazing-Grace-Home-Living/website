@@ -17,12 +17,10 @@ artifacts
 **/*.vsidx
 **/*.wsuo
 bfg.jar
-*.zip
 tests
 docs
 *.ps1
 *.bat
-*.md
 backend
 worker
 CustomMcpServer
