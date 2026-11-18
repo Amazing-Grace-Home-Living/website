@@ -43,6 +43,8 @@ Edit sources rather than generated `dist/`. Property listings are operational co
 
 **Production: Vercel** project `amazing-grace-home-living`, with `npm run build` and output `dist/`. GitHub Actions verifies pull requests; Vercel is the production deployer.
 
+**Optional AWS:** [CloudFormation S3 + CloudFront preview](docs/aws-deployment.md) has a private S3 origin, OIDC GitHub Actions and a manual-only deployment workflow. It requires your AWS account configuration and does not change production.
+
 **Optional:** Cloud Run uses a Node 22 multi-stage `Dockerfile` that serves only `dist/` on `0.0.0.0:$PORT`. Firebase Hosting is a **manual fallback**, not an automatic second production deploy. Google Cloud Developer Connect checks may continue independently of GitHub workflows.
 
 See [deployment and Cloud Run troubleshooting](docs/deployment.md) and [repository instructions](AGENTS.md) for complete setup, known failure modes and deployment verification.
