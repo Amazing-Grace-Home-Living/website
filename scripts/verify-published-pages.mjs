@@ -47,7 +47,7 @@ async function checkArcadePlaceholders(folder) {
     if (entry.isDirectory()) await checkArcadePlaceholders(path);
     else if (entry.name.endsWith('.html')) {
       const html = await readFile(path, 'utf8');
-      assert.doesNotMatch(html, /via\\.placeholder\\.com/, 'placeholder artwork in ' + path);
+      assert.equal(html.includes('via.placeholder.com'), false, 'placeholder artwork in ' + path);
     }
   }
 }
