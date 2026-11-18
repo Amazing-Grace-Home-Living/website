@@ -65,7 +65,7 @@ async function configureAnalytics(directory) {
         const html = await readFile(path, 'utf8');
         if (!onVercel) {
           // Some source pages include the Vercel script explicitly. Omit it on other hosts.
-          const clean = html.replace(/<script\\b[^>]*src=["']\\/_vercel\\/insights\\/script\\.js["'][^>]*><\\/script>/gi, '');
+          const clean = html.replace(/<script\b[^>]*src=["']\/_vercel\/insights\/script\.js["'][^>]*><\/script>/gi, '');
           if (clean !== html) await writeFile(path, clean);
         } else if (!html.includes('/_vercel/insights/script.js')) {
           const tracking = `<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};window.va('beforeSend',function(e){e.url=e.url.split(/[?#]/)[0];return e});</script><script defer src="/_vercel/insights/script.js"></script>`;
