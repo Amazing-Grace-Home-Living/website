@@ -22,3 +22,10 @@
 - Accessibility and mobile layout
 - Game functionality and persisted progress
 - Deployment correctness and clear documentation
+
+## Arcade and downloadable tools
+- VIM Defense's shipped entrypoint is `arcade/vim-defense/index.html`; its canonical logic lives in `src/game/vim-defense/engine.js` and `ui.js`. Do not recreate a separate React/Next.js Vim Defender—the static build does not use Next.js.
+- Run `npm run test:vim-defense` after changes to scoring, quiz rewards, checkpoints, controls, or drones. For browser interactions use `npm run test:vim-defense:browser` after building.
+- Game launch cards live at `arcade/index.html`. Point each card to an existing playable route, not a placeholder or a preview.
+- The Chrome extension download source is `public/downloads/NexusToolboxExtension.zip`; the build publishes it at `dist/downloads/NexusToolboxExtension.zip`. Keep archive entry paths portable and its `manifest.json` at the archive root.
+- `npm run check` verifies the generated site's critical internal routes and published extension artifact. Keep this check when changing asset copy rules or site navigation.
