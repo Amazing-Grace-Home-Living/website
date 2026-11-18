@@ -54,6 +54,6 @@ for (let offset = 0; offset + 46 <= zip.length; offset++) {
 }
 assert.ok(names.includes('manifest.json'), 'extension ZIP has no root manifest');
 assert.ok(names.includes('src/agent-tools.js'), 'extension ZIP must contain portable src/agent-tools.js');
-assert.ok(names.every(name => !name.includes('\\\\')), 'extension ZIP has non-portable archive paths');
+assert.ok(names.every(name => !name.includes(String.fromCharCode(92))), 'extension ZIP has non-portable archive paths');
 assert.deepEqual(missing, [], 'missing links/assets in published pages');
 console.log('PASS ' + pages.length + ' published pages, ' + checked + ' local links, and Chrome extension download');
