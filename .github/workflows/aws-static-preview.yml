@@ -1,0 +1,69 @@
+name: AWS static preview (manual)
+
+# No auto-deploy; Vercel continues to own production.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-preview:
+    name: Publish dist to private S3 + CloudFront
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: aws-preview
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_BUCKET: ${{ vars.AWS_S3_BUCKET }}
+      AWS_DISTRIBUTION_ID: ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
+      AWS_ROLE_ARN: ${{ secrets.AWS_PREVIEW_ROLE_ARN }}
+    steps:
+      - name: Validate environment settings
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in AWS_REGION AWS_BUCKET AWS_DISTRIBUTION_ID AWS_ROLE_ARN; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "::error::Missing configuration: $name (aws-preview environment)"
+              exit 1
+            fi
+          done
+
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Validate and build
+        env:
+          FIREBASE_API_KEY: ${{ vars.FIREBASE_API_KEY }}
+          FIREBASE_AUTH_DOMAIN: ${{ vars.FIREBASE_AUTH_DOMAIN }}
+          FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
+          FIREBASE_STORAGE_BUCKET: ${{ vars.FIREBASE_STORAGE_BUCKET }}
+          FIREBASE_MESSAGING_SENDER_ID: ${{ vars.FIREBASE_MESSAGING_SENDER_ID }}
+          FIREBASE_APP_ID: ${{ vars.FIREBASE_APP_ID }}
+        run: |
+          npm run check
+          npm run audit:links
+
+      - name: Get temporary AWS credentials using GitHub OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-session-name: amazing-grace-preview
+          mask-aws-account-id: true
+
+      - name: Upload static site to private bucket
+        shell: bash
+        run: |
+          set -euo pipefail
+          aws s3 sync dist/ "s3://$AWS_BUCKET/" --delete --only-show-errors --no-progress             --cache-control "public, max-age=300"
+          aws cloudfront create-invalidation --distribution-id "$AWS_DISTRIBUTION_ID" --paths '/*'
+          echo "AWS preview upload and invalidation requested. Check the CloudFront URL from the stack outputs."

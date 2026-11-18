@@ -18,7 +18,11 @@ To verify a Docker deployment:
 3. Verify `/healthz` and `/` return HTTP 200.
 4. If the two Google Cloud Developer Connect checks are unnecessary, disable their Cloud Build/Cloud Run repository triggers **in Google Cloud**, not by deleting GitHub Actions workflows. Those external checks cannot be disabled by this repository alone.
 
-The two failing checks referenced in the audit are `cloudrun-agent-us-south1-...` and `cloudrun-nicholai-northamerica-northeast2-...`. Their raw Google Cloud build/revision logs were not available from the GitHub integration, so the actual failure reason still requires verification.
+The two failing checks referenced in the audit are `cloudrun-agent-us-south1-...` and `cloudrun-nicholai-northamerica-northeast2-...`. The current GitHub check output includes the precise buildpack failures: the `cloudrun-agent` trigger has application path `agent` and the `cloudrun-nicholai` trigger has application path `iagg`, but neither folder is present in this repo. Both fail with `invalid app path` at Buildpack Step 0, before Dockerfile build/deployment. Fix the source directory in the Google Cloud Build trigger settings (root for this static website), point the agent to its actual separate repository, or disable the obsolete triggers if Vercel is the only required host. Repository commits alone cannot change these external trigger configurations. See [issue #10](https://github.com/Amazing-Grace-Home-Living/website/issues/10).
+
+## Optional AWS portfolio preview
+
+An independent S3 + CloudFront static preview can be provisioned without modifying the Vercel production deployment. It is opt-in, manual, private-origin, and uses GitHub OIDC rather than stored AWS keys. AWS charges may apply. See [AWS preview setup](aws-deployment.md) and `infrastructure/aws-static-preview.yml`.
 
 ## Optional Firebase Hosting
 The `Firebase Hosting (manual fallback)` workflow runs only when manually dispatched and when the repository secret `Service_Account_JSON` is present. It deploys Hosting only. Do not put the service-account JSON in source control.
