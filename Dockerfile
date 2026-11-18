@@ -1,23 +1,19 @@
-# Use official Node.js image
-FROM node:20-slim
-
-# Create and set working directory
-WORKDIR /usr/src/app
-
-# Copy dependency manifests
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci --only=production
-
-# Copy application source code
+# Cloud Run is an OPTIONAL static-site target; Vercel is production.
+# Never start the local Grace Remote companion in a public container.
+FROM node:22-alpine AS build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
 COPY . .
+RUN npm run build
 
-# Expose Cloud Run default port
+FROM node:22-alpine
+ENV NODE_ENV=production \
+    PORT=8080 \
+    HOST=0.0.0.0
+WORKDIR /app
+COPY --from=build --chown=node:node /app/dist ./dist
+COPY --from=build --chown=node:node /app/scripts/serve.mjs ./scripts/serve.mjs
+USER node
 EXPOSE 8080
-
-# Environment variable for Cloud Run
-ENV PORT=8080
-
-# Start application
-CMD ["npm", "start"]
+CMD ["node", "scripts/serve.mjs", "dist"]

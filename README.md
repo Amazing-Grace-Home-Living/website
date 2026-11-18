@@ -1,29 +1,59 @@
-# Nexus OS
+# Amazing Grace Home Living
 
-Static website for amazinggracehl.org: arcade games, Learn & Play, shared local progress, stories, music, and Tampa room listings.
+The source for **[amazinggracehl.org](https://www.amazinggracehl.org/)**: Tampa Bay room listings, an interactive arcade, Learn & Play lessons, a media library, and community resources. The homepage prioritizes rooms; the arcade and LMS are intentionally separate destinations.
 
-## Develop and verify
+## Quick start
 
-- `npm ci` installs the test tools.
-- `npm run build` generates `dist/`, including property galleries and public provider guides.
-- `npm run dev` or `npm run preview` serves that build at http://127.0.0.1:4173.
-- `npm test` runs game logic and local-companion tests.
-- `npm run test:browser` checks the website, puzzles, media and listings.
-- `npm run test:vim-defense:browser` checks keyboard, mouse, multi-touch and the complete defense campaign.
-- `node tests/release-browser.mjs` checks local-AI reset behavior and mobile navigation.
-- `npm run audit:links` checks local HTML links.
+Requires Node.js **22+** and npm.
 
-Browser tests require installed Chrome or Edge. Individual test scripts support `CHROME_PATH` or `PLAYWRIGHT_CHANNEL`. Build before running browser tests.
+```bash
+npm ci
+npm run build
+npm run dev             # http://127.0.0.1:4173
+```
 
-## Publish
+The build creates `dist/`. It copies only the public site; **do not** expose the separate private Grace Remote companion or local credentials as website routes.
 
-The connected Vercel project is `amazing-grace-home-living`. It builds this repository with `npm run build` and serves only `dist/`. Production domains include https://amazinggracehl.org and https://www.amazinggracehl.org. Keep local credentials, host applications, temporary review copies and test screenshots outside the static output.
+## Quality checks
 
-## Optional local companion
+```bash
+npm run check           # ESLint, Node unit tests, static build, TypeScript
+npm run audit:links     # Internal links in the source
+npx playwright install chromium
+npx playwright test     # Homepage + mobile browser checks
+npm run test:browser    # Additional website smoke checks (requires local browser)
+```
 
-The separate Grace Remote companion is launched with `npm start` or `node bridge.mjs --cwd PATH`. It listens on loopback and requires its connection token. It is not a public backend for the website and is not included in the static output.
+Browser scripts use `CHROME_PATH` or `PLAYWRIGHT_CHANNEL` where supported. Build the site before running the standalone browser test scripts. For more focused coverage, see `npm run test:arcade`, `npm run test:learning`, and the feature READMEs.
 
-[Companion setup notes](docs/grace-remote.md) describe that separate application; references there to a hosted Site or companion downloads are not features deployed by this website build. [Mobile host access](MOBILE-ACCESS.md) covers the optional Windows launcher.
+## Website map and editing
 
-[Defense controls and checkpoints](arcade/vim-defense/README.md) document Vim/Bash Defense. Site progress stays in the browser unless the user explicitly exports and restores a learning passport.
-\n<!-- ESLint v9 upgrade recorded for first release -->
+| Area | Source | Public route |
+| --- | --- | --- |
+| Home and visual theme | `index.html`, `src/home.css`, `src/brand.css` | `/` |
+| Room listings and galleries | `listings/`, `assets/Tampa/`, `assets/Clearwater/` | `/listings/` |
+| Games | `arcade/` | `/arcade/` |
+| Learning modules | `lms/` | `/lms/` |
+| Audio and stories | `audio-library/`, `stories/` | `/audio-library/` |
+| Toolbox and articles | `toolbox/`, `src/blog.html` | `/toolbox/`, `/src/blog.html` |
+
+Edit sources rather than generated `dist/`. Property listings are operational content: verify pricing, availability, amenity descriptions, photos and screening links before publishing changes.
+
+## Deployment
+
+**Production: Vercel** project `amazing-grace-home-living`, with `npm run build` and output `dist/`. GitHub Actions verifies pull requests; Vercel is the production deployer.
+
+**Optional:** Cloud Run uses a Node 22 multi-stage `Dockerfile` that serves only `dist/` on `0.0.0.0:$PORT`. Firebase Hosting is a **manual fallback**, not an automatic second production deploy. Google Cloud Developer Connect checks may continue independently of GitHub workflows.
+
+See [deployment and Cloud Run troubleshooting](docs/deployment.md) and [repository instructions](AGENTS.md) for complete setup, known failure modes and deployment verification.
+
+## Security and privacy
+
+- Never commit credentials, host tokens, service-account JSON or live `.env` values. Use host or provider secrets.
+- Firebase Storage and Firestore rules are source-controlled, but **editing them here does not deploy them**. Follow the privileged deployment instructions in `docs/deployment.md`.
+- `npm start` launches the separate **loopback-only Grace Remote companion**; it is not part of the public site. See [Grace Remote guidance](docs/grace-remote.md) and [mobile local access](MOBILE-ACCESS.md).
+- Report vulnerabilities privately following [SECURITY.md](SECURITY.md).
+
+## Contributing
+
+Use a feature branch, run quality checks, review layouts on mobile and desktop, and include screenshots for visible design changes. Keep the website's black, gold and warm-white visual system; maintain clear keyboard navigation, descriptive text and meaningful photo alternatives.

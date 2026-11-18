@@ -1,24 +1,38 @@
-name: Firebase Deploy
+# Optional fallback only. Vercel deploys production automatically.
+# Do not run this on every push: a missing service-account secret is not CI.
+name: Firebase Hosting (manual fallback)
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: optional-firebase-hosting
+  cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install dependencies
-        run: npm ci
-      - name: Build static site
-        run: npm run build
-      - name: Deploy to Firebase Hosting
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Verify optional deployment credentials
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.Service_Account_JSON }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT_JSON" ]; then
+            echo "::error::Service_Account_JSON is not configured. Vercel remains the primary deployment."
+            exit 1
+          fi
+      - name: Deploy static Hosting only (not Firestore/Storage rules)
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ github.token }}

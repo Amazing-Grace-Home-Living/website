@@ -19,3 +19,10 @@ academy-profile-mobile.png
 # Audit helpers
 audit_and_clean.ps1
 bfg.jar
+
+# Machine-generated editor/build caches must not be versioned.
+.vs/
+.firebase/
+playwright-report/
+test-results/
+audit_report.md

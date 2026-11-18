@@ -1,43 +1,31 @@
-name: Audit Repo
+name: Weekly site quality audit
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '17 10 * * 1'
+
+permissions:
+  contents: read
 
 jobs:
   audit:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install dependencies
-        run: |
-          if [ -f package-lock.json ]; then npm ci; else npm install; fi
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install flake8 pytest
-
-      - name: Run audit script
-        run: |
-          chmod +x ./audit.sh
-          ./audit.sh
-
-      - name: Upload audit report as artifact
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Run source and link audit
+        run: bash ./audit.sh
+      - name: Upload audit report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: audit-report
+          name: site-audit-report
           path: audit_report.md
+          if-no-files-found: ignore
+          retention-days: 14

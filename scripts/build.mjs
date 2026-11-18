@@ -1,7 +1,6 @@
 import dotenv from 'dotenv';
 import { mkdir, cp, rm, readdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve, dirname, basename } from 'node:path';
-import './sync-property-galleries.mjs';
 
 dotenv.config({ path: '.env' });
 
@@ -20,6 +19,9 @@ for (const path of ['index.html', 'src', 'arcade', 'lms', 'stories', 'audio-libr
     // If optional source path doesn't exist, ignore
   }
 }
+
+// Generate galleries only inside dist; building must not rewrite tracked source files.
+await import('./sync-property-galleries.mjs');
 
 for (const path of ['style.css', 'app.js', 'nexus-infinity.jpg', 'sidebar-extension.zip']) {
   try {

@@ -1,0 +1,27 @@
+# Keep container contexts small; only site sources and public assets are built.
+.git
+.github
+.vs
+.firebase
+.vercel
+node_modules
+dist
+test-results
+playwright-report
+artifacts
+**/.env
+**/.env.*
+**/*.log
+**/*.sqlite
+**/*.db
+**/*.vsidx
+**/*.wsuo
+bfg.jar
+tests
+docs
+*.ps1
+*.bat
+backend
+worker
+CustomMcpServer
+chrome-extension

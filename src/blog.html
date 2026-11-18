@@ -3,29 +3,43 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>A Heart Means Recursion: When AI Starts Communicating</title>
-  <link rel="stylesheet" href="/src/styles.css">
-  <link rel="stylesheet" href="/src/brand.css">
+  <meta name="description" content="Engineering notes and thoughtful ideas on AI, security, and digital tools from the Amazing Grace Home Living community.">
+  <meta name="theme-color" content="#080808">
+  <title>Articles & Ideas | Amazing Grace Home Living</title>
+  <link rel="icon" href="/assets/logo.png">
+  <link rel="stylesheet" href="/src/blog.css">
 </head>
 <body>
-  <main id="content" class="home-blog">
-    <section class="articles-grid">
-      <article class="article-card">
-        <div class="article-icon">🧡</div>
-        <h3>A Heart Means Recursion: When AI Starts Communicating</h3>
-        <p>
-        By Nicholai.Online<br/><br/>
-        Imagine showing an AI a simple red heart before asking it to solve a coding problem. Not a detailed diagram. Not a programming tutorial. Just a heart. Now imagine that single image consistently changes how the AI solves the problem, steering it toward a recursive solution instead of an iterative one.
-        </p>
-        <p>
-        According to a groundbreaking 2026 paper from researchers at Google DeepMind and Stanford University, that's exactly what happened. Their study, "A Heart Means Recursion: Exploring Visual Meaning and Communication in Vision-Language Models (VLMs)," reveals something unexpected: modern AI systems may be developing their own forms of visual meaning, some of which resemble human intuition and some of which appear completely foreign.
-        </p>
-        <p>... (content truncated for brevity) ...</p>
-        <p>Read the full article on the blog.</p>
+  <a class="skip-link" href="#content">Skip to articles</a>
+  <header class="notes-header">
+    <a class="notes-logo" href="/" aria-label="Amazing Grace Home Living home">Amazing Grace <span>Home Living</span></a>
+    <nav aria-label="Main navigation">
+      <a href="/listings/">Rooms</a><a href="/arcade/">Arcade</a><a href="/lms/">LMS</a>
+      <a href="/audio-library/">Library</a><a href="/src/blog.html" aria-current="page">Articles</a>
+    </nav>
+  </header>
+  <main class="notes-page" id="content">
+    <div class="notes-intro"><p class="eyebrow">COMMUNITY · IDEAS · ENGINEERING</p>
+      <h1>Ideas worth <em>exploring.</em></h1>
+      <p>Notes on technology, learning and digital tools. Explore a concept, follow the references, and decide what you'd like to investigate next.</p>
+    </div>
+    <section class="articles-grid" aria-label="Articles">
+      <article class="article-card" id="visual-ai">
+        <p class="article-category">AI &amp; VISUAL MEANING</p>
+        <h2>When a symbol changes the question</h2>
+        <p>Images can carry emotional, cultural and technical meaning. When a vision-language model receives a symbol alongside a programming request, its output may be influenced by associations in its training data and the surrounding prompt.</p>
+        <p>Consider a heart icon next to a request for a solution in code. Would the model approach the task differently than it would with a neutral shape? That is an interesting hypothesis, not proof of an inner language or machine consciousness.</p>
+        <h3>What a careful test would look like</h3>
+        <ul>
+          <li>Compare responses with the symbol, a neutral image, and no image.</li>
+          <li>Repeat the experiment across many prompts, model versions and random seeds.</li>
+          <li>Measure output differences before interpreting why they happened.</li>
+        </ul>
+        <p>Results should be considered as behavior under test, rather than evidence that AI experiences meaning as people do. Clear experimental controls help separate a curious anecdote from a reliable finding.</p>
       </article>
-            <article class="article-card">
+      <article class="article-card">
           <div class="article-icon">🔐</div>
-          <h3>Automatic Secret and Token Sync Across Repos and Organizations</h3>
+          <h2>Automatic Secret and Token Sync Across Repos and Organizations</h2>
           <p>Every engineering organization accumulates the same quiet debt: dozens or hundreds of repositories, each holding its own copy of API keys, service tokens, database credentials, and signing secrets, copied by hand and forgotten at different times. When a credential needs to be rotated, an engineer must remember every repo that uses it. When someone leaves the team, the question “which secrets did they know?” has no good answer. Automatic secret sync solves this by making one system the single source of truth and propagating changes everywhere they are consumed, so rotation becomes a one-place operation instead of an archaeology project.</p>
           <p>Why manual secret management breaks down</p>
           <p>Manual copy-paste of secrets fails in predictable ways:</p>
@@ -85,7 +99,10 @@
           <a href="https://www.doppler.com/guides/managing-secrets-at-scale/integrating-secrets-into-cicd-production">Doppler: Managing secrets at scale guide</a>
           </p>
         </article>
-</section>
+    </section>
+    <div class="notes-end"><a href="/lms/">Explore the learning center <span aria-hidden="true">↗</span></a><a href="/">Return home <span aria-hidden="true">↗</span></a></div>
   </main>
+  <footer><span>© <span id="year">2026</span> Amazing Grace Home Living</span><a href="/privacy/">Privacy</a></footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 </body>
 </html>

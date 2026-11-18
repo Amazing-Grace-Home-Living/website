@@ -2,27 +2,32 @@ name: Nexus OS CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   check:
-    name: Verify, Lint, Test & Build
+    name: Lint, type-check, test and build
     runs-on: ubuntu-latest
-
+    timeout-minutes: 20
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: 'npm'
-
-      - name: Install dependencies
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
         run: npm ci
-
-      - name: Run verification checks (lint, type-check, test, build)
+      - name: Verify source and site build
         run: npm run check
+      - name: Check internal site links
+        run: npm run audit:links
