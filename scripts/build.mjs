@@ -54,15 +54,20 @@ try {
 
 console.log('Built static site in dist/');
 
-// Add privacy-conscious page views to every published HTML page.
-async function addAnalytics(directory) {
+// Vercel analytics should not load on optional Cloud Run or Firebase hosts.
+const onVercel = process.env.VERCEL === '1';
+async function configureAnalytics(directory) {
   try {
     for (const entry of await readdir(directory, { withFileTypes: true })) {
       const path = resolve(directory, entry.name);
-      if (entry.isDirectory()) await addAnalytics(path);
+      if (entry.isDirectory()) await configureAnalytics(path);
       else if (entry.name.endsWith('.html')) {
         const html = await readFile(path, 'utf8');
-        if (!html.includes('/_vercel/insights/script.js')) {
+        if (!onVercel) {
+          // Some source pages include the Vercel script explicitly. Omit it on other hosts.
+          const clean = html.replace(/<script\\b[^>]*src=["']\\/_vercel\\/insights\\/script\\.js["'][^>]*><\\/script>/gi, '');
+          if (clean !== html) await writeFile(path, clean);
+        } else if (!html.includes('/_vercel/insights/script.js')) {
           const tracking = `<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};window.va('beforeSend',function(e){e.url=e.url.split(/[?#]/)[0];return e});</script><script defer src="/_vercel/insights/script.js"></script>`;
           await writeFile(path, html.replace(/<\/head>/i, tracking + '</head>'));
         }
@@ -70,4 +75,4 @@ async function addAnalytics(directory) {
     }
   } catch (err) {}
 }
-await addAnalytics(output);
+await configureAnalytics(output);
