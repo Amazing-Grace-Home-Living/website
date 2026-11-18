@@ -54,3 +54,9 @@ html{scroll-padding-top:90px}
 @media(max-width:900px){.hero{grid-template-columns:1fr;gap:35px}.hero-visual{aspect-ratio:16/10;max-height:440px}.hero h1{font-size:clamp(50px,9vw,80px)}}
 @media(max-width:500px){.hero{padding-top:48px;padding-bottom:60px}.hero-visual{aspect-ratio:4/3}.hero-visual-caption{padding:17px;font-size:10px}}
 @media(prefers-reduced-motion:reduce){.hero-visual img{transition:none}.hero-visual:hover img{transform:none}}
+
+/* Single-property editorial hero without duplicate Tampa photo */
+.hero{display:block;text-align:center;max-width:1100px;margin-inline:auto;padding-block:clamp(65px,9vw,125px)}
+.hero h1,.hero .lead{margin-left:auto;margin-right:auto}
+.hero-actions{justify-content:center}
+@media(max-width:500px){.hero{padding-block:58px 72px}}
