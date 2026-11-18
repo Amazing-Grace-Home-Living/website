@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFile, stat } from 'node:fs/promises';
+import { readFile, stat, readdir } from 'node:fs/promises';
 import { resolve, sep, join } from 'node:path';
 import { inflateRawSync } from 'node:zlib';
 
@@ -40,6 +40,18 @@ for (const page of pages) {
     } catch { missing.push(page + ' -> ' + path); }
   }
 }
+
+async function checkArcadePlaceholders(folder) {
+  for (const entry of await readdir(folder, { withFileTypes: true })) {
+    const path = join(folder, entry.name);
+    if (entry.isDirectory()) await checkArcadePlaceholders(path);
+    else if (entry.name.endsWith('.html')) {
+      const html = await readFile(path, 'utf8');
+      assert.doesNotMatch(html, /via\\.placeholder\\.com/, 'placeholder artwork in ' + path);
+    }
+  }
+}
+await checkArcadePlaceholders(join(root, 'arcade'));
 
 const download = join(root, 'downloads/NexusToolboxExtension.zip');
 const zip = await readFile(download);
