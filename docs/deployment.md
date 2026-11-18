@@ -40,3 +40,8 @@ npm run preview
 ```
 
 Do not serve the `bridge.mjs` local companion on a public interface.
+
+## Repository hygiene
+Old `.vs/` editor indexes, Firebase Hosting cache, a bundled `bfg.jar` and the dangling `arcade/website` gitlink were removed from the current tree. A proposed `.gitmodules` entry pointed the `arcade/website` submodule back to this **same repository**, which would create a recursive/self-referential dependency. Do not re-add that entry. If a genuinely separate subproject is needed later, use its real independent repository URL.
+
+Large audio assets remain untouched; confirm redistribution rights and evaluate deduplication/LFS separately before any history rewrite.
