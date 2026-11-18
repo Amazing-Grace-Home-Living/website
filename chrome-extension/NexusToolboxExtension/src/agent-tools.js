@@ -6,7 +6,13 @@
  * @param {object} args - Arguments parsed from model response.
  * @returns {Promise<object>} Result object {success:boolean, payload?, error?}
  */
-export async function runTool(name, args) {
+export async function runTool(name, args = {}) {
+  if (!['DOM_QUERY', 'CLICK_ELEMENT'].includes(name)) {
+    return { success: false, error: 'Unsupported tool' };
+  }
+  if (typeof args?.selector !== 'string' || !args.selector.trim() || args.selector.length > 250) {
+    return { success: false, error: 'Provide a CSS selector of 1–250 characters.' };
+  }
   // Get the active tab where the tool should run
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id) {
