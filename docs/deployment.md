@@ -1,0 +1,42 @@
+# Deployment and troubleshooting
+
+## Production: Vercel
+- Repository: `Amazing-Grace-Home-Living/website`
+- Build: `npm ci && npm run build`; publish `dist/` using `vercel.json`.
+- Domains: `amazinggracehl.org` and `www.amazinggracehl.org`.
+- GitHub Actions checks the source. Vercel handles the production deployment; CI is **not** a Cloud Run deployment.
+- Check a deployment by visiting `/`, `/listings/`, `/arcade/`, and `/lms/` and testing the mobile menu.
+
+## Optional Cloud Run
+The repository had a Dockerfile that used Node 20, installed production-only dependencies (while the site build needs development tools), and started `bridge.mjs`—a private, loopback-only companion. This is unsuitable for a public Cloud Run website.
+
+The revised Dockerfile builds the **static site** using Node 22 and serves only `dist/`. The container listens on `0.0.0.0:$PORT` and exposes `/healthz`. It has no credentials and no access to the local companion.
+
+To verify a Docker deployment:
+1. Inspect the Cloud Build log for image/build errors, then Cloud Run revision logs for startup errors.
+2. Confirm the build uses this repository's latest Dockerfile, port 8080 and a working container startup probe.
+3. Verify `/healthz` and `/` return HTTP 200.
+4. If the two Google Cloud Developer Connect checks are unnecessary, disable their Cloud Build/Cloud Run repository triggers **in Google Cloud**, not by deleting GitHub Actions workflows. Those external checks cannot be disabled by this repository alone.
+
+The two failing checks referenced in the audit are `cloudrun-agent-us-south1-...` and `cloudrun-nicholai-northamerica-northeast2-...`. Their raw Google Cloud build/revision logs were not available from the GitHub integration, so the actual failure reason still requires verification.
+
+## Optional Firebase Hosting
+The `Firebase Hosting (manual fallback)` workflow runs only when manually dispatched and when the repository secret `Service_Account_JSON` is present. It deploys Hosting only. Do not put the service-account JSON in source control.
+
+**Security rules:** The source `storage.rules` previously allowed anyone to read and write every path. The restricted rules must be deployed separately and reviewed against existing clients:
+```bash
+firebase deploy --only storage,firestore:rules --project amazing-grace-hl
+```
+This is a privileged operation. Until it is run, changing the repository files alone does **not** secure the live Firebase bucket. Migrating any legacy Firebase Storage paths may be necessary.
+
+## Local commands
+```bash
+npm ci
+npm run check
+npm run audit:links
+npm run build
+npm run preview
+# Optional: npm run test:browser or npx playwright test
+```
+
+Do not serve the `bridge.mjs` local companion on a public interface.
