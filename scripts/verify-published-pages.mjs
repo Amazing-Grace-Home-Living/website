@@ -41,6 +41,19 @@ for (const page of pages) {
 }
 
 const download = join(root, 'downloads/NexusToolboxExtension.zip');
-assert.ok((await stat(download)).size > 0, 'published extension ZIP is missing or empty');
+const zip = await readFile(download);
+assert.ok(zip.length > 100 && zip.subarray(0, 2).toString() === 'PK', 'extension download is not a ZIP');
+const names = [];
+for (let offset = 0; offset + 46 <= zip.length; offset++) {
+  if (zip.readUInt32LE(offset) !== 0x02014b50) continue;
+  const nameLength = zip.readUInt16LE(offset + 28);
+  const extraLength = zip.readUInt16LE(offset + 30);
+  const commentLength = zip.readUInt16LE(offset + 32);
+  names.push(zip.toString('utf8', offset + 46, offset + 46 + nameLength));
+  offset += 45 + nameLength + extraLength + commentLength;
+}
+assert.ok(names.includes('manifest.json'), 'extension ZIP has no root manifest');
+assert.ok(names.includes('src/agent-tools.js'), 'extension ZIP must contain portable src/agent-tools.js');
+assert.ok(names.every(name => !name.includes('\\\\')), 'extension ZIP has non-portable archive paths');
 assert.deepEqual(missing, [], 'missing links/assets in published pages');
 console.log('PASS ' + pages.length + ' published pages, ' + checked + ' local links, and Chrome extension download');
