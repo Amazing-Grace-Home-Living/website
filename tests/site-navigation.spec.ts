@@ -22,13 +22,29 @@ test('home navigation, rental content and article link work', async ({ page }) =
 test('mobile menu reveals all important site sections', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto('/');
-  await page.getByRole('navigation', { name: 'Mobile navigation' })
-    .getByLabel('Open navigation menu').click();
   const menu = page.getByRole('navigation', { name: 'Mobile navigation' });
+  const toggle = menu.getByLabel('Open navigation menu');
+  await toggle.focus();
+  await page.keyboard.press('Enter');
   await expect(menu.getByRole('link', { name: 'Blog' })).toBeVisible();
   await expect(menu.getByRole('link', { name: 'Arcade' })).toBeVisible();
   await expect(menu.getByRole('link', { name: 'Nexus Toolbox' })).toBeVisible();
 });
+
+for (const route of ['/arcade/', '/lms/', '/audio-library/', '/toolbox/']) {
+  test(`${route} renders on a narrow viewport`, async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    const response = await page.goto(route);
+    expect(response?.status()).toBe(200);
+    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+    if (route === '/lms/') {
+      await expect(page.locator('[data-lesson="foundations"]')).toBeEnabled();
+      await expect(page.locator('[data-lesson="tactics"]')).toBeDisabled();
+    }
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth))
+      .toBeLessThanOrEqual(375);
+  });
+}
 
 test('both Tampa and Clearwater property sections and galleries are available', async ({ page }) => {
   await page.goto('/listings/');
@@ -40,4 +56,13 @@ test('both Tampa and Clearwater property sections and galleries are available', 
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.getByRole('button', { name: /Close photo viewer/ }).click();
   await expect(page.getByRole('dialog')).toBeHidden();
+});
+
+test('Matrix Defense initializes and enforces a locked mission', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/src/game/tower-defense/index.html?stage=boss');
+  await expect(page.locator('#mission-status')).toContainText('Locked');
+  await expect(page.locator('#btn-wave')).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Stage 1: Nexus' })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
