@@ -57,3 +57,12 @@ test('both Tampa and Clearwater property sections and galleries are available', 
   await page.getByRole('button', { name: /Close photo viewer/ }).click();
   await expect(page.getByRole('dialog')).toBeHidden();
 });
+
+test('Matrix Defense initializes and enforces a locked mission', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/src/game/tower-defense/index.html?stage=boss');
+  await expect(page.locator('#mission-status')).toContainText('Locked');
+  await expect(page.locator('#btn-wave')).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Stage 1: Nexus' })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});
