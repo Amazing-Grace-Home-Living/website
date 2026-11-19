@@ -51,7 +51,9 @@ test('both Tampa and Clearwater property sections and galleries are available', 
   await expect(page.getByRole('heading', { name: '926 E Poinsettia Ave' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '118 S San Remo Ave' })).toBeVisible();
   const clearwater = page.locator('#clearwater');
-  await expect(clearwater.locator('[data-city="Clearwater"] .gallery-photo')).toHaveCount(5);
+  const photos = clearwater.locator('[data-city="Clearwater"] .gallery-photo');
+  await expect(photos).toHaveCount(3);
+  await expect(photos.first().locator('img')).toHaveAttribute('src', '/assets/Clearwater/Kitchen.jpg');
   await clearwater.locator('.gallery-photo').first().click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.getByRole('button', { name: /Close photo viewer/ }).click();
