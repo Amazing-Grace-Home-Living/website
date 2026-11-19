@@ -15,7 +15,7 @@ for (const { city, address } of properties) {
     throw new Error(`${city} gallery manifest must contain unique photo filenames`);
   }
   for (const name of names) {
-    if (typeof name !== 'string' || !/^[^/\\\\]+\\.(?:jpe?g|png|webp)$/i.test(name)) {
+    if (typeof name !== 'string' || name.startsWith('.') || name.includes('/') || name.includes(String.fromCharCode(92)) || !['.jpg', '.jpeg', '.png', '.webp'].some(ext => name.toLowerCase().endsWith(ext))) {
       throw new Error(`Invalid ${city} gallery filename: ${name}`);
     }
     if (!(await stat(`assets/${city}/${name}`)).isFile()) {
@@ -31,7 +31,7 @@ for (const { city, address } of properties) {
   const id = city === 'Clearwater' ? ' id="clearwater-gallery"' : '';
   const section = `<section class="gallery-section"${id} data-city="${city}" aria-label="${city} property gallery"><div class="gallery-title"><h3>A look around the property</h3><span>${names.length} photos &#183; Select to enlarge</span></div><p class="photo-note">Property photos may show furnishings. The room is offered unfurnished.</p><div class="gallery">${items}</div></section>`;
   html = html.slice(0, html.indexOf(start) + start.length) + section + html.slice(html.indexOf(end));
-  await writeFile(`dist/listings/${city.toLowerCase()}-gallery.json`, JSON.stringify(names, null, 2) + '\\n');
+  await writeFile(`dist/listings/${city.toLowerCase()}-gallery.json`, JSON.stringify(names, null, 2) + String.fromCharCode(10));
   console.log(`Updated ${city} gallery from curated manifest: ${names.length} photos`);
 }
 await writeFile('dist/listings/index.html', html);
