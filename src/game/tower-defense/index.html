@@ -281,9 +281,10 @@
       #mission-status { color: var(--accent); }
       @media(max-width:650px) { .topbar { flex-wrap:wrap;gap:1rem; } .stage-nav { order:3;width:100%;display:flex;flex-wrap:wrap;gap:.4rem; } }
     </style>
+    <link rel="stylesheet" href="/src/brand.css">
   </head>
   <body>
-    <header class="site-header">
+    <header class="site-header section-header">
 <a class="logo" href="/" aria-label="Amazing Grace Home Living homepage">
 <img src="/assets/logo.png" alt="">
 </a>
@@ -308,12 +309,16 @@
 <a href="/privacy/">Privacy</a>
 </div>
 </details>
-<a href="/#about">About Us</a>
-<a href="/privacy/">Privacy</a>
 </nav>
 </header>
 
     <main class="shell">
+      <div class="stage-nav" role="group" aria-label="Defense stages">
+        <button class="stage-tab active" id="tab-nexus" type="button">Stage 1: Nexus</button>
+        <button class="stage-tab" id="tab-syndicate" type="button">Stage 2: Syndicate</button>
+        <button class="stage-tab" id="tab-boss" type="button">Stage 3: Boss Emergence</button>
+        <button class="stage-tab" id="tab-sovereign" type="button">Act IV: Sovereign Conscience</button>
+      </div>
       <section class="mission-brief" aria-label="Mission briefing">
         <strong>Learn → Practice → Defend</strong>
         <details><summary>Mission rules and controls</summary>

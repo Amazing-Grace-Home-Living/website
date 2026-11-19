@@ -108,5 +108,6 @@ mobile layout, and the absence of uploads.
 After a build, `node tests/learning-browser.mjs` exercises quiz retries, a real
 puzzle win from a nearly completed fixture, the entire defense campaign using
 actual combat simulation, replay XP, deep-link locks, mobile layout, and blocked
-storage. It uses installed Edge by default; set `PLAYWRIGHT_CHANNEL` to another
-installed Chromium browser channel if needed. Screenshots go to `artifacts/`.
+storage. It uses Playwright Chromium by default. Install it with
+`npx playwright install chromium` or set `PLAYWRIGHT_CHANNEL` to an installed
+Chromium browser channel. Screenshots go to `artifacts/`.
