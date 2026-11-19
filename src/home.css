@@ -54,3 +54,7 @@ html{scroll-padding-top:90px}
 @media(max-width:900px){.hero{grid-template-columns:1fr;gap:35px}.hero-visual{aspect-ratio:16/10;max-height:440px}.hero h1{font-size:clamp(50px,9vw,80px)}}
 @media(max-width:500px){.hero{padding-top:48px;padding-bottom:60px}.hero-visual{aspect-ratio:4/3}.hero-visual-caption{padding:17px;font-size:10px}}
 @media(prefers-reduced-motion:reduce){.hero-visual img{transition:none}.hero-visual:hover img{transform:none}}
+
+/* Keep the three verified Clearwater photos balanced at every breakpoint. */
+#clearwater-featured .featured-photos{grid-template-columns:repeat(2,minmax(0,1fr))}
+#clearwater-featured .featured-photos>a:first-child{grid-column:1/-1}
