@@ -33,3 +33,11 @@ test('Clearwater uses kitchen as lead and excludes unverified exterior everywher
   assert.deepEqual(galleryImages, featuredImages);
   assert.deepEqual([...gallery.matchAll(/data-photo="(\d+)"/g)].map(match => Number(match[1])), [0, 1, 2]);
 });
+
+test('build reads curated Clearwater gallery rather than including every asset', () => {
+  const manifest = JSON.parse(readFileSync(new URL('../listings/clearwater-gallery.json', import.meta.url), 'utf8'));
+  assert.deepEqual(manifest, ['Kitchen.jpg', 'Room.jpg', 'bathroom.jpg']);
+  const generator = readFileSync(new URL('../scripts/sync-property-galleries.mjs', import.meta.url), 'utf8');
+  assert.match(generator, /readFile\(`listings\/\$\{city\.toLowerCase\(\)\}-gallery\.json`/);
+  assert.match(generator, /clearwater-gallery/);
+});
