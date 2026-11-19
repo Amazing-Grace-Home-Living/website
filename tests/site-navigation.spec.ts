@@ -60,6 +60,15 @@ test('both Tampa and Clearwater property sections and galleries are available', 
   await expect(page.getByRole('dialog')).toBeHidden();
 });
 
+test('only curated Clearwater photos are published to the static site', async ({ page }) => {
+  const kitchen = await page.request.get('/assets/Clearwater/Kitchen.jpg');
+  expect(kitchen.status()).toBe(200);
+  for (const file of ['COYV1031.JPG', 'RXKW9348.JPG']) {
+    const response = await page.request.get('/assets/Clearwater/' + file);
+    expect(response.status()).toBe(404);
+  }
+});
+
 test('Matrix Defense initializes and enforces a locked mission', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/src/game/tower-defense/index.html?stage=boss');
