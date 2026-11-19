@@ -35,3 +35,8 @@
   }
   .section-header .mobile-links a { display: block; padding: .55rem; }
 }
+
+/* Consistent primary navigation logo on desktop and small screens. */
+.brand-mark-link{display:inline-flex;align-items:center;flex:0 0 auto;max-width:100%;text-decoration:none;line-height:1}
+.brand-mark-link:focus-visible,.site-header .logo:focus-visible{outline:2px solid #d7b575;outline-offset:5px}
+@media(max-width:380px){.brand-mark-link .brand-compact{width:46px;height:46px}}
