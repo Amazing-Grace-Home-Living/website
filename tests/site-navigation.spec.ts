@@ -37,6 +37,10 @@ for (const route of ['/arcade/', '/lms/', '/audio-library/', '/toolbox/']) {
     const response = await page.goto(route);
     expect(response?.status()).toBe(200);
     await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+    if (route === '/lms/') {
+      await expect(page.locator('[data-lesson="foundations"]')).toBeEnabled();
+      await expect(page.locator('[data-lesson="tactics"]')).toBeDisabled();
+    }
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth))
       .toBeLessThanOrEqual(375);
   });

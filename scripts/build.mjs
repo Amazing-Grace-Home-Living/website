@@ -9,7 +9,7 @@ if (dirname(output) !== process.cwd()) throw new Error('Build output must remain
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 
-for (const path of ['index.html', 'src', 'arcade', 'lms', 'stories', 'audio-library', 'assets', 'listings', 'profile', 'toolbox', 'privacy']) {
+for (const path of ['index.html', 'src', 'arcade', 'code-matrix', 'lms', 'stories', 'audio-library', 'assets', 'listings', 'profile', 'toolbox', 'privacy']) {
   await cp(path, `dist/${path}`, {
     recursive: true,
     filter: source => !basename(source).startsWith('.') && basename(source).toLowerCase() !== 'desktop.ini',
