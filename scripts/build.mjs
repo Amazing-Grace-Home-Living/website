@@ -16,6 +16,16 @@ for (const path of ['index.html', 'src', 'arcade', 'code-matrix', 'lms', 'storie
   });
 }
 
+// Exclude unverified exterior photos from the public Clearwater build.
+// Source assets stay in version control for ownership review; only curated
+// gallery images are published. This prevents direct links to suspect images.
+const curatedClearwater = new Set(JSON.parse(await readFile('listings/clearwater-gallery.json', 'utf8')));
+for (const name of await readdir('dist/assets/Clearwater')) {
+  if (/\\.(jpe?g|png|webp)$/i.test(name) && !curatedClearwater.has(name)) {
+    await rm(resolve(output, 'assets', 'Clearwater', name));
+  }
+}
+
 // Keep the canonical profile URL and the original nested route available.
 await cp('dist/profile/nicholai', 'dist/nicholai', { recursive: true });
 await cp('public/downloads/NexusToolboxExtension.zip', 'dist/nexus-toolbox.zip');
