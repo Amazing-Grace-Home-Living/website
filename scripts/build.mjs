@@ -21,7 +21,7 @@ for (const path of ['index.html', 'src', 'arcade', 'code-matrix', 'lms', 'storie
 // gallery images are published. This prevents direct links to suspect images.
 const curatedClearwater = new Set(JSON.parse(await readFile('listings/clearwater-gallery.json', 'utf8')));
 for (const name of await readdir('dist/assets/Clearwater')) {
-  if (/\\.(jpe?g|png|webp)$/i.test(name) && !curatedClearwater.has(name)) {
+  if (['jpg', 'jpeg', 'png', 'webp'].includes(name.toLowerCase().split('.').at(-1)) && !curatedClearwater.has(name)) {
     await rm(resolve(output, 'assets', 'Clearwater', name));
   }
 }
