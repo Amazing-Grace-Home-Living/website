@@ -22,13 +22,25 @@ test('home navigation, rental content and article link work', async ({ page }) =
 test('mobile menu reveals all important site sections', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto('/');
-  await page.getByRole('navigation', { name: 'Mobile navigation' })
-    .getByLabel('Open navigation menu').click();
   const menu = page.getByRole('navigation', { name: 'Mobile navigation' });
+  const toggle = menu.getByLabel('Open navigation menu');
+  await toggle.focus();
+  await page.keyboard.press('Enter');
   await expect(menu.getByRole('link', { name: 'Blog' })).toBeVisible();
   await expect(menu.getByRole('link', { name: 'Arcade' })).toBeVisible();
   await expect(menu.getByRole('link', { name: 'Nexus Toolbox' })).toBeVisible();
 });
+
+for (const route of ['/arcade/', '/lms/', '/audio-library/', '/toolbox/']) {
+  test(`${route} renders on a narrow viewport`, async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    const response = await page.goto(route);
+    expect(response?.status()).toBe(200);
+    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth))
+      .toBeLessThanOrEqual(375);
+  });
+}
 
 test('both Tampa and Clearwater property sections and galleries are available', async ({ page }) => {
   await page.goto('/listings/');

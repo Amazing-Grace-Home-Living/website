@@ -25,3 +25,8 @@ backend
 worker
 CustomMcpServer
 chrome-extension
+bridge.mjs
+credential-setup.mjs
+.aws
+.agents
+.codex

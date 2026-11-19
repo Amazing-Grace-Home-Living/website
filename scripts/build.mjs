@@ -9,16 +9,16 @@ if (dirname(output) !== process.cwd()) throw new Error('Build output must remain
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 
-for (const path of ['index.html', 'src', 'arcade', 'lms', 'stories', 'audio-library', 'assets', 'listings', 'nicholai', 'profile', 'toolbox', 'privacy']) {
-  try {
-    await cp(path, `dist/${path}`, {
-      recursive: true,
-      filter: source => !basename(source).startsWith('.') && basename(source).toLowerCase() !== 'desktop.ini',
-    });
-  } catch (err) {
-    // If optional source path doesn't exist, ignore
-  }
+for (const path of ['index.html', 'src', 'arcade', 'lms', 'stories', 'audio-library', 'assets', 'listings', 'profile', 'toolbox', 'privacy']) {
+  await cp(path, `dist/${path}`, {
+    recursive: true,
+    filter: source => !basename(source).startsWith('.') && basename(source).toLowerCase() !== 'desktop.ini',
+  });
 }
+
+// Keep the canonical profile URL and the original nested route available.
+await cp('dist/profile/nicholai', 'dist/nicholai', { recursive: true });
+await cp('public/downloads/NexusToolboxExtension.zip', 'dist/nexus-toolbox.zip');
 
 // Generate galleries only inside dist; building must not rewrite tracked source files.
 await import('./sync-property-galleries.mjs');

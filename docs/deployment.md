@@ -2,6 +2,7 @@
 
 ## Production: Vercel
 - Repository: `Amazing-Grace-Home-Living/website`
+- Production branch: `main`. Use the repository root as the Vercel project root.
 - Build: `npm ci && npm run build`; publish `dist/` using `vercel.json`.
 - Domains: `amazinggracehl.org` and `www.amazinggracehl.org`.
 - GitHub Actions checks the source. Vercel handles the production deployment; CI is **not** a Cloud Run deployment.
@@ -19,6 +20,8 @@ To verify a Docker deployment:
 4. If the two Google Cloud Developer Connect checks are unnecessary, disable their Cloud Build/Cloud Run repository triggers **in Google Cloud**, not by deleting GitHub Actions workflows. Those external checks cannot be disabled by this repository alone.
 
 The two failing checks referenced in the audit are `cloudrun-agent-us-south1-...` and `cloudrun-nicholai-northamerica-northeast2-...`. The current GitHub check output includes the precise buildpack failures: the `cloudrun-agent` trigger has application path `agent` and the `cloudrun-nicholai` trigger has application path `iagg`, but neither folder is present in this repo. Both fail with `invalid app path` at Buildpack Step 0, before Dockerfile build/deployment. Fix the source directory in the Google Cloud Build trigger settings (root for this static website), point the agent to its actual separate repository, or disable the obsolete triggers if Vercel is the only required host. Repository commits alone cannot change these external trigger configurations. See [issue #10](https://github.com/Amazing-Grace-Home-Living/website/issues/10).
+
+For a retained website trigger, select the Developer Connect link for `Amazing-Grace-Home-Living/website`, match branch `^main$`, and select the root `cloudbuild.yaml`. It builds the root `Dockerfile` with `.` as its context. Set `_DEPLOY_REGION` and `_SERVICE_NAME` to the approved existing Cloud Run region and service, and verify that the regional `cloud-run-source-deploy` Artifact Registry repository and trigger service account are configured to push the image and deploy the revision. Verify the deployed revision and its `/healthz` and `/` responses before updating issue #10.
 
 ## Optional AWS portfolio preview
 
