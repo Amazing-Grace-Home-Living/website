@@ -73,3 +73,7 @@ html{scroll-padding-top:90px}
 .hero-visual-brand .hero-visual-caption{width:100%;text-align:left}
 @media(max-width:900px){.hero-visual-brand{padding:36px 40px 66px}.hero-house{width:65px;height:65px}.hero-house svg{width:42px;height:42px}}
 @media(max-width:500px){.hero-visual-brand{padding:25px 20px 65px;aspect-ratio:auto;min-height:330px}.hero-visual-headline{font-size:31px}.hero-house{width:52px;height:52px}.hero-house svg{width:34px;height:34px}.hero-visual-overline{font-size:9px;letter-spacing:.16em}}
+
+/* Keep the homepage hero balanced after removing the linked promotional tile. */
+.hero{grid-template-columns:minmax(0,1fr)}
+.hero-content{max-width:1000px}
