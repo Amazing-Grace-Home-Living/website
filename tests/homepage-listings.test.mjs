@@ -6,14 +6,14 @@ const homepage = readFileSync(new URL('../index.html', import.meta.url), 'utf8')
 const listings = readFileSync(new URL('../listings/index.html', import.meta.url), 'utf8');
 
 test('hero visual is in its own grid column and never repeats property photographs', () => {
-  const hero = homepage.match(/<section class="hero">([\\s\\S]*?)<\\/section>/)?.[1];
+  const hero = homepage.split('<section class="hero">')[1]?.split('</section>')[0];
   assert.ok(hero, 'homepage hero exists');
-  assert.match(hero, /<\\/div><\\/div><a class="hero-visual hero-visual-brand"/, 'hero content closes before distinct brand visual');
-  assert.match(hero, /Explore Tampa and Clearwater room listings/);
-  assert.doesNotMatch(hero, /<img\\b/, 'hero should not repeat a photo already used in a property listing');
+  assert.ok(hero.includes('</div></div><a class="hero-visual hero-visual-brand"'), 'hero content closes before distinct brand visual');
+  assert.ok(hero.includes('Explore Tampa and Clearwater room listings'));
+  assert.ok(!hero.includes('<img '), 'hero should not repeat a listing photo');
   const allImages = [...homepage.matchAll(/<img src="([^"]+)"/g)].map(match => match[1]);
   assert.equal(allImages.length, new Set(allImages).size, 'homepage must not reuse photo assets');
-  assert.match(homepage, /\\/assets\\/Tampa\\/IMG_5972\\.jpg/, 'featured Tampa image remains');
+  assert.ok(homepage.includes('/assets/Tampa/IMG_5972.jpg'), 'featured Tampa image remains');
 });
 
 test('Clearwater uses kitchen as lead and excludes unverified exterior everywhere', () => {
