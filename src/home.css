@@ -64,3 +64,7 @@ html{scroll-padding-top:90px}
   .site-header .nav-drop summary{line-height:1.2}
 }
 @media(max-width:900px){.hero-visual{width:100%}}
+
+/* Keep the three verified Clearwater photos balanced at every breakpoint. */
+#clearwater-featured .featured-photos{grid-template-columns:repeat(2,minmax(0,1fr))}
+#clearwater-featured .featured-photos>a:first-child{grid-column:1/-1}
