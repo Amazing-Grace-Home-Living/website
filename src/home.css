@@ -75,5 +75,8 @@ html{scroll-padding-top:90px}
 @media(max-width:500px){.hero-visual-brand{padding:25px 20px 65px;aspect-ratio:auto;min-height:330px}.hero-visual-headline{font-size:31px}.hero-house{width:52px;height:52px}.hero-house svg{width:34px;height:34px}.hero-visual-overline{font-size:9px;letter-spacing:.16em}}
 
 /* Keep the homepage hero balanced after removing the linked promotional tile. */
-.hero{grid-template-columns:minmax(0,1fr)}
-.hero-content{max-width:1000px}
+.hero{grid-template-columns:minmax(0,1fr);text-align:center}
+.hero-content{width:100%;max-width:1000px;margin-inline:auto}
+.hero h1{max-width:none}
+.hero .lead{margin-inline:auto}
+.hero-actions{justify-content:center}
