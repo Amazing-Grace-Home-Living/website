@@ -10,7 +10,10 @@ const server = spawn(process.execPath, ['scripts/serve.mjs', process.env.SITE_RO
 let browser;
 try {
   await new Promise((resolve, reject) => { server.stdout.once('data', resolve); server.once('error', reject); server.once('exit', code => reject(Error(`Server exited ${code}`))); });
-  browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || 'msedge', headless: true });
+  const browserOptions = process.env.CHROME_PATH
+    ? { executablePath: process.env.CHROME_PATH }
+    : { channel: process.env.PLAYWRIGHT_CHANNEL || 'msedge' };
+  browser = await chromium.launch({ ...browserOptions, headless: true });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -18,7 +21,19 @@ try {
   const visit = path => page.goto(`http://127.0.0.1:${port}${path}`);
   await visit('/arcade/matrix-of-conscience/');
   await page.waitForSelector('[data-role="navigator"]');
+  await page.setViewportSize({ width: 390, height: 844 });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  assert.equal(await page.locator('#journal-link').isVisible(), false);
+  await page.getByRole('link', { name: 'Choose your role' }).focus();
+  await page.keyboard.press('Enter');
+  assert.equal(await page.locator('#role-title').evaluate(node => node === document.activeElement), true);
+  await page.setViewportSize({ width: 1440, height: 1000 });
   await page.locator('[data-role="navigator"]').focus(); await page.keyboard.press('Enter');
+  assert.equal(await page.locator('#journal-link').isVisible(), true);
+  await page.locator('#journal-link').click();
+  assert.equal(await page.locator('#journal-title').evaluate(node => node === document.activeElement), true);
+  await page.getByRole('link', { name: 'Continue adventure' }).click();
+  assert.equal(await page.locator('#world-title').evaluate(node => node === document.activeElement), true);
   assert.equal(await page.locator('[data-chapter="commons"]').isDisabled(), true);
   assert.equal(await page.locator('[data-quest="root-guardian"]').isDisabled(), true);
   console.log('PASS role selection, chapter and guardian locks');
