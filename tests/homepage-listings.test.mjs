@@ -5,12 +5,16 @@ import test from 'node:test';
 const homepage = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const listings = readFileSync(new URL('../listings/index.html', import.meta.url), 'utf8');
 
-test('hero visual is in its own grid column and never repeats property photographs', () => {
+test('single-column hero has a clear room-listings call to action without duplicate photographs', () => {
   const hero = homepage.split('<section class="hero">')[1]?.split('</section>')[0];
   assert.ok(hero, 'homepage hero exists');
-  assert.ok(hero.includes('</div></div><a class="hero-visual hero-visual-brand"'), 'hero content closes before distinct brand visual');
-  assert.ok(hero.includes('Explore Tampa and Clearwater room listings'));
-  assert.ok(!hero.includes('<img '), 'hero should not repeat a listing photo');
+  assert.match(hero, /class="hero-content"/);
+  assert.match(hero, /Room to live\./);
+  assert.match(hero, /Explore private-room listings around Tampa Bay/);
+  assert.match(hero, /href="\/listings\/"/, 'hero directs visitors to room listings');
+  assert.doesNotMatch(hero, /<img\s|class="hero-visual/, 'no duplicate photos or removed promotional tile in hero');
+  const styles = readFileSync(new URL('../src/home.css', import.meta.url), 'utf8');
+  assert.match(styles, /\.hero\{grid-template-columns:minmax\(0,1fr\);text-align:center\}/, 'hero layout is centered without empty second column');
   const allImages = [...homepage.matchAll(/<img src="([^"]+)"/g)].map(match => match[1]);
   assert.equal(allImages.length, new Set(allImages).size, 'homepage must not reuse photo assets');
   assert.ok(homepage.includes('/assets/Tampa/IMG_5972.jpg'), 'featured Tampa image remains');
