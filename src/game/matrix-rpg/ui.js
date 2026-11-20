@@ -17,7 +17,13 @@ function syncMilestones() {
 }
 function renderCharacter() {
   const summary = adventureSummary(state), role = ROLES.find(r => r.id === state.role);
-  $('role-screen').hidden = !!role; $('adventure').hidden = !role;
+  $('role-screen').hidden = !!role;
+  $('adventure').hidden = !role;
+  $('journal-link').hidden = !role;
+  const playLink = $('play-link');
+  playLink.hidden = false;
+  playLink.href = role ? '#world-title' : '#role-title';
+  playLink.textContent = role ? 'Continue adventure' : 'Choose your role';
   if (!role) {
     $('save-status').textContent = store.persistent ? 'Choose a role to begin. Quest checkpoints save in this browser.' : 'Saving unavailable. You can play in this tab, but leaving or reloading will lose progress.';
     return;
@@ -69,7 +75,7 @@ function renderWorld() {
 
 function showWorld() {
   activeQuest = null; $('quest-panel').hidden = true; $('world-panel').hidden = false;
-  renderCharacter(); renderWorld(); $('world-title').tabIndex = -1; $('world-title').focus();
+  renderCharacter(); renderWorld(); $('world-title').focus();
 }
 function openQuest(id) {
   const quest = QUESTS.find(q => q.id === id);
@@ -247,9 +253,14 @@ $('role-select').addEventListener('change', event => { state = store.save({ ...s
 $('new-adventure').onclick = () => {
   if (!window.confirm('Start this RPG again? Quest checkpoints, relics, and story choices in this RPG will reset. Your earned Learn & Play milestones will stay.')) return;
   state = store.save(newAdventure()); selectedChapter = 'garden'; activeQuest = null;
-  $('quest-panel').hidden = true; $('world-panel').hidden = false; renderCharacter(); renderWorld(); $('role-title').tabIndex = -1; $('role-title').focus();
+  $('quest-panel').hidden = true; $('world-panel').hidden = false; renderCharacter(); renderWorld(); $('role-title').focus();
 };
 $('back-world').onclick = showWorld;
+$('play-link').addEventListener('click', event => {
+  if (!activeQuest) return;
+  event.preventDefault();
+  $('quest-title').focus();
+});
 window.addEventListener('storage', event => {
   if (event.key !== RPG_KEY && event.key !== null) return;
   state = store.read(); selectedChapter = CHAPTERS.find(c => chapterUnlocked(state, c.id) && !chapterComplete(state, c.id))?.id || 'garden'; showWorld();

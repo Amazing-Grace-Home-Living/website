@@ -5,7 +5,9 @@ test('home navigation, rental content and article link work', async ({ page }) =
   expect(home?.status()).toBe(200);
   await expect(page).toHaveTitle(/Amazing Grace Home Living/);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Space to belong.');
-  await expect(page.getByRole('heading', { name: /Explore. Compare./ })).toBeVisible();
+  await expect(page.locator('.hero').getByRole('link', { name: /Explore rooms/ })).toHaveAttribute('href', '/listings/');
+  await expect(page.locator('#clearwater-featured img').first()).toHaveAttribute('src', '/assets/Clearwater/Kitchen.jpg');
+  await expect(page.getByRole('heading', { name: /Explore. Compare./ })).toHaveCount(0);
 
   const mainNavigation = page.getByRole('navigation', { name: 'Main navigation' });
   await mainNavigation.getByText('Resources', { exact: true }).click();
@@ -76,4 +78,31 @@ test('Matrix Defense initializes and enforces a locked mission', async ({ page }
   await expect(page.locator('#btn-wave')).toBeDisabled();
   await expect(page.getByRole('button', { name: 'Stage 1: Nexus' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});
+
+test('Signalkeepers role selection, journal navigation and active quest continuity work', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const response = await page.goto('/arcade/matrix-of-conscience/');
+  expect(response?.status()).toBe(200);
+
+  const start = page.getByRole('link', { name: 'Choose your role' });
+  await expect(start).toBeVisible();
+  await expect(page.locator('#journal-link')).toBeHidden();
+  await start.click();
+  await expect(page.locator('#role-title')).toBeFocused();
+
+  await page.locator('[data-role="navigator"]').click();
+  await expect(page.locator('#adventure')).toBeVisible();
+  await expect(page.locator('#journal-link')).toBeVisible();
+
+  await page.locator('[data-quest="echo-trail"]').click();
+  await expect(page.locator('#quest-panel')).toBeVisible();
+  await page.getByRole('link', { name: 'Continue adventure' }).click();
+  await expect(page.locator('#quest-panel')).toBeVisible();
+  await expect(page.locator('#quest-title')).toBeFocused();
+
+  await page.locator('#journal-link').click();
+  await expect(page.locator('#journal-title')).toBeFocused();
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth))
+    .toBeLessThanOrEqual(390);
 });
