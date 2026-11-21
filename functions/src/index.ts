@@ -1,72 +1,84 @@
-import { initializeApp } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
-import { onRequest, Request } from "firebase-functions/v2/https";
-import { onDocumentCreated, FirestoreEvent } from "firebase-functions/v2/firestore";
-import * as logger from "firebase-functions/logger";
-import { Response } from "express";
+import { initializeApp, getApps } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+import { onRequest } from 'firebase-functions/v2/https';
+import { onDocumentCreated } from 'firebase-functions/v2/firestore';
+import { defineSecret } from 'firebase-functions/params';
+import { createHmac, timingSafeEqual } from 'node:crypto';
+import * as logger from 'firebase-functions/logger';
 
-initializeApp();
+if (!getApps().length) initializeApp();
 const db = getFirestore();
+const lemonSqueezyWebhookSecret = defineSecret('LEMON_SQUEEZY_WEBHOOK_SECRET');
 
 export const apiHealth = onRequest(
-  { cors: true, region: "us-central1" },
-  async (req: Request, res: Response): Promise<void> => {
-    logger.info("API Health check executed");
+  { cors: true, region: 'us-central1' },
+  async (_req, res): Promise<void> => {
     res.status(200).json({
-      status: "online",
-      environment: process.env.FUNCTIONS_EMULATOR === "true" ? "emulator" : "production",
+      status: 'online',
+      environment: process.env.FUNCTIONS_EMULATOR === 'true' ? 'emulator' : 'production',
       timestamp: new Date().toISOString()
     });
   }
 );
 
 export const onUserCreated = onDocumentCreated(
-  { document: "users/{userId}", region: "us-central1" },
-  async (event: FirestoreEvent<any>): Promise<void> => {
-    const snapshot = event.data;
-    if (!snapshot) return;
-
-    logger.info(`New user document created: ${event.params.userId}`);
-
-    await db.collection("profiles").doc(event.params.userId).set(
+  { document: 'users/{userId}', region: 'us-central1' },
+  async event => {
+    if (!event.data) return;
+    await db.collection('profiles').doc(event.params.userId).set(
       { createdAt: new Date() },
       { merge: true }
     );
   }
 );
 
-// Export points API functions
-export { grantPoints, spendPoints } from "./points";
+export { grantPoints, spendPoints } from './points';
 
 /**
- * Lemon Squeezy webhook handler – receives purchase events and stores them in Firestore.
- * Deploy with: `firebase deploy --only functions:lemonSqueezyWebhook`
+ * Verified Lemon Squeezy webhook. The raw body, not re-serialized JSON,
+ * must be signed with the configured webhook signing secret.
+ * Unsigned payloads cannot be used to fabricate payment events.
  */
-import * as functionsV2 from "firebase-functions/v2";
-import { onRequest } from "firebase-functions/v2/https";
-import * as logger from "firebase-functions/logger";
-
 export const lemonSqueezyWebhook = onRequest(
-  { cors: true, region: "us-central1" },
-  async (req, res) => {
-    if (req.method !== "POST") {
-      return res.status(405).send("Method Not Allowed");
+  { region: 'us-central1', secrets: [lemonSqueezyWebhookSecret] },
+  async (req, res): Promise<void> => {
+    if (req.method !== 'POST') {
+      res.status(405).send('Method Not Allowed');
+      return;
     }
+
+    const secret = lemonSqueezyWebhookSecret.value();
+    const signature = req.get('X-Signature') || '';
+    const raw = req.rawBody;
+
+    if (!secret || !Buffer.isBuffer(raw) || !/^[0-9a-f]{64}$/i.test(signature)) {
+      res.status(401).send('Invalid webhook signature');
+      return;
+    }
+    const received = Buffer.from(signature, 'hex');
+    const expected = createHmac('sha256', secret).update(raw).digest();
+    if (received.length !== expected.length || !timingSafeEqual(received, expected)) {
+      res.status(401).send('Invalid webhook signature');
+      return;
+    }
+
     const payload = req.body;
-    if (!payload || typeof payload !== "object") {
-      return res.status(400).send("Invalid payload");
+    if (!payload || typeof payload !== 'object' || !payload.data || typeof payload.data !== 'object') {
+      res.status(400).send('Invalid webhook payload');
+      return;
     }
+
     try {
-      await db.collection("payments").add({
+      await db.collection('payments').add({
         receivedAt: new Date(),
-        payload,
+        eventName: req.get('X-Event-Name') || null,
+        payload
       });
-      logger.info("Stored Lemon Squeezy webhook payload", payload);
-      return res.status(200).send("OK");
-    } catch (e) {
-      logger.error("Error processing Lemon Squeezy webhook", e);
-      return res.status(500).send("Internal Server Error");
+      logger.info('Stored verified Lemon Squeezy webhook');
+      res.status(200).send('OK');
+    } catch (error) {
+      logger.error('Unable to save verified Lemon Squeezy webhook', error);
+      res.status(500).send('Internal Server Error');
     }
   }
 );
-
