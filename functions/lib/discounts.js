@@ -34,7 +34,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.yearlyDiscounts = exports.monthlyLeaderboardDiscounts = void 0;
-const functions = __importStar(require("firebase-functions"));
+const functions = __importStar(require("firebase-functions/v1"));
 const logger_1 = require("firebase-functions/logger");
 const firestore_1 = require("firebase-admin/firestore");
 const app_1 = require("firebase-admin/app");
@@ -53,7 +53,7 @@ exports.monthlyLeaderboardDiscounts = functions.pubsub
     const today = now.toDate();
     const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
     if (today.getDate() !== lastDay)
-        return null; // only run on final day
+        return; // only run on final day
     logger_1.logger.info('Running monthly leaderboard discount calculation');
     const startPrevMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
     const endPrevMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -91,7 +91,7 @@ exports.monthlyLeaderboardDiscounts = functions.pubsub
     });
     await batch.commit();
     logger_1.logger.info('Monthly discounts written', { count: rank - 1 });
-    return null;
+    return;
 });
 /**
  * Yearly discounts – runs on Jan 1st (UTC) for the prior calendar year.
@@ -150,5 +150,5 @@ exports.yearlyDiscounts = functions.pubsub
         applyDiscount(topDonationMonthSnap.docs[0].data().uid, 'highestDonationOfMonth');
     await batch.commit();
     logger_1.logger.info('Yearly discounts written');
-    return null;
+    return;
 });

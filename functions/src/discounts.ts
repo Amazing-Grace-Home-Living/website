@@ -1,4 +1,4 @@
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import { logger } from 'firebase-functions/logger';
 import { getFirestore, Timestamp, FieldValue } from 'firebase-admin/firestore';
 import { initializeApp } from 'firebase-admin/app';

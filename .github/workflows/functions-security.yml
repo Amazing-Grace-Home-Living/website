@@ -1,0 +1,51 @@
+name: Firebase Functions dependency and build checks
+
+on:
+  pull_request:
+    paths:
+      - "functions/**"
+      - "services/scoring/bridge/**"
+      - "services/scoring/functions/**"
+      - ".github/workflows/functions-security.yml"
+  push:
+    branches: [main]
+    paths:
+      - "functions/**"
+      - "services/scoring/bridge/**"
+      - "services/scoring/functions/**"
+      - ".github/workflows/functions-security.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: ${{ matrix.directory }} (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - directory: functions
+            node: "22"
+          - directory: services/scoring/bridge
+            node: "24"
+          - directory: services/scoring/functions
+            node: "22"
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: ${{ matrix.directory }}/package-lock.json
+      - name: Reproducible install
+        run: npm ci --ignore-scripts --no-fund
+      - name: TypeScript compile
+        run: npm run build
+      - name: Production dependency audit
+        run: npm audit --omit=dev --audit-level=low

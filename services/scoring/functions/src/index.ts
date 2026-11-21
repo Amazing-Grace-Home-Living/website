@@ -1,8 +1,9 @@
 import {onCall, HttpsError} from "firebase-functions/v2/https";
-import * as admin from "firebase-admin";
+import {initializeApp} from "firebase-admin/app";
+import {getFirestore, FieldValue} from "firebase-admin/firestore";
 
-admin.initializeApp();
-const db = admin.firestore();
+initializeApp();
+const db = getFirestore();
 
 // 1. Fetch or initialize player progress profile
 export const getProfile = onCall({cors: true}, async (request) => {
@@ -22,7 +23,7 @@ export const getProfile = onCall({cors: true}, async (request) => {
       highestWave: 0,
       unlockedTowers: ["basic_pulse"],
       inventory: ["tactical_core_v1"],
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
     };
     await profileRef.set(initialProfile);
     return {profile: initialProfile};
@@ -62,7 +63,7 @@ export const recordGameResult = onCall({cors: true}, async (request) => {
         highestWave: newHighestWave,
         gamesPlayed: newGamesPlayed,
         lastPlayedGame: gameType,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
       },
       {merge: true}
     );
@@ -117,7 +118,7 @@ export const purchaseItem = onCall({cors: true}, async (request) => {
       points: newPoints,
       unlockedTowers: Array.from(unlockedTowers),
       inventory: Array.from(inventory),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
     });
 
     return {
