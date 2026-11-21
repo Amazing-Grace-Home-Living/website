@@ -1,0 +1,42 @@
+name: Firebase Rules emulator verification
+
+on:
+  pull_request:
+    paths:
+      - "firestore.rules"
+      - "storage.rules"
+      - "tests/firebase-rules/**"
+      - ".github/workflows/firebase-rules.yml"
+  push:
+    branches: [main]
+    paths:
+      - "firestore.rules"
+      - "storage.rules"
+      - "tests/firebase-rules/**"
+      - ".github/workflows/firebase-rules.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    name: Firestore and Storage permissions (demo project)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: tests/firebase-rules/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Install test SDK dependencies
+        run: npm ci --prefix tests/firebase-rules --ignore-scripts --no-fund
+      - name: Install Firebase emulators CLI
+        run: npm install --global firebase-tools@15.36.0 --no-fund
+      - name: Verify rules without production access
+        run: firebase emulators:exec --only firestore,storage --project demo-amazing-grace-audit --config firebase.json "node tests/firebase-rules/verify.mjs"
