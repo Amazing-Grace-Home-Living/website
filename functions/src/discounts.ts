@@ -1,9 +1,9 @@
-import * as functions from 'firebase-functions/v1';
+import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { logger } from 'firebase-functions/logger';
 import { getFirestore, Timestamp, FieldValue } from 'firebase-admin/firestore';
-import { initializeApp } from 'firebase-admin/app';
+import { initializeApp, getApps } from 'firebase-admin/app';
 
-initializeApp();
+if (!getApps().length) initializeApp();
 const db = getFirestore();
 
 /**
@@ -11,10 +11,9 @@ const db = getFirestore();
  * On the last day of the month it writes tiered discounts (70%, 50%, 25%, 10%)
  * for the top 10 scores of the previous month.
  */
-export const monthlyLeaderboardDiscounts = functions.pubsub
-  .schedule('0 0 * * *')
-  .timeZone('UTC')
-  .onRun(async (context) => {
+export const monthlyLeaderboardDiscounts = onSchedule(
+  { schedule: '0 0 * * *', timeZone: 'UTC' },
+  async () => {
     const now = Timestamp.now();
     const today = now.toDate();
     const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
@@ -68,10 +67,9 @@ export const monthlyLeaderboardDiscounts = functions.pubsub
  *   • Highest donation ever
  *   • Highest donation of the previous month
  */
-export const yearlyDiscounts = functions.pubsub
-  .schedule('0 0 1 1 *')
-  .timeZone('UTC')
-  .onRun(async (context) => {
+export const yearlyDiscounts = onSchedule(
+  { schedule: '0 0 1 1 *', timeZone: 'UTC' },
+  async () => {
     const now = Timestamp.now();
     const today = now.toDate();
     const lastYear = today.getFullYear() - 1;

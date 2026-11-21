@@ -31,3 +31,9 @@ jobs:
         run: npm run check
       - name: Check internal site links
         run: npm run audit:links
+      - name: Install Firebase Functions dependencies
+        run: npm ci --prefix functions
+      - name: Compile Firebase Functions
+        run: npm run build --prefix functions
+      - name: Exercise webhook signature and replay defenses
+        run: node --test tests/runtime/firebase-webhook.test.mjs
