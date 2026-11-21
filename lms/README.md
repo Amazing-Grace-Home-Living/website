@@ -111,3 +111,20 @@ actual combat simulation, replay XP, deep-link locks, mobile layout, and blocked
 storage. It uses Playwright Chromium by default. Install it with
 `npx playwright install chromium` or set `PLAYWRIGHT_CHANNEL` to an installed
 Chromium browser channel. Screenshots go to `artifacts/`.
+
+## Microsoft Endpoint Administration track
+
+The optional Microsoft Intune operations pathway is at `/lms/microsoft-intune/`.
+It links to Microsoft's three intermediate modules on reporting and data
+visibility, RBAC and administrator delegation, and tenant health. The pathway
+also includes original practice tasks and a short self-check quiz.
+
+The explicit "I finished" module checklist and best self-check score are saved
+in localStorage under `amazing-grace-lms-intune-ops-v1`. This data is
+independent of the Matrix campaign and its Learning Passport, does not sync
+across devices or to Microsoft Learn, and does not award a certificate. If
+browser storage is blocked, the page continues with in-tab progress.
+
+The module text belongs to Microsoft; keep only brief summaries and direct
+links here. Do not embed Microsoft's lesson text or claim affiliation. See
+`tests/intune-course.test.mjs` and the Intune Playwright navigation test.

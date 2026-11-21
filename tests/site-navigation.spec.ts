@@ -106,3 +106,24 @@ test('Signalkeepers role selection, journal navigation and active quest continui
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth))
     .toBeLessThanOrEqual(390);
 });
+
+
+test('Intune course is discoverable and local progress survives a reload', async ({ page }) => {
+  await page.goto('/lms/');
+  await page.getByRole('link', { name: /Explore the Intune learning path/ }).click();
+  await expect(page).toHaveURL(/\/lms\/microsoft-intune\//);
+  await expect(page.getByRole('heading', { name: 'Make Intune operationally ready.' })).toBeVisible();
+  await expect(page.locator('.module-card')).toHaveCount(3);
+  await expect(page.getByText('0 of 3 modules marked complete')).toBeVisible();
+  await page.locator('input[data-complete="reporting"]').check();
+  await expect(page.getByText('1 of 3 modules marked complete')).toBeVisible();
+  await page.reload();
+  await expect(page.locator('input[data-complete="reporting"]')).toBeChecked();
+  await page.locator('input[name="q1"][value="b"]').check();
+  await page.locator('input[name="q2"][value="b"]').check();
+  await page.locator('input[name="q3"][value="a"]').check();
+  await page.getByRole('button', { name: 'Check my answers' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'Score: 3/3' })).toBeVisible();
+  await page.setViewportSize({ width: 375, height: 812 });
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
+});
