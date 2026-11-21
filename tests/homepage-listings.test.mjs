@@ -10,7 +10,7 @@ test('single-column hero has a clear room-listings call to action without duplic
   assert.ok(hero, 'homepage hero exists');
   assert.match(hero, /class="hero-content"/);
   assert.match(hero, /Room to live\./);
-  assert.match(hero, /Explore private-room listings around Tampa Bay/);
+  assert.match(hero, /Explore our Tampa and Clearwater properties/);
   assert.match(hero, /href="\/listings\/"/, 'hero directs visitors to room listings');
   assert.doesNotMatch(hero, /<img\s|class="hero-visual/, 'no duplicate photos or removed promotional tile in hero');
   const styles = readFileSync(new URL('../src/home.css', import.meta.url), 'utf8');
@@ -44,4 +44,23 @@ test('build reads curated Clearwater gallery rather than including every asset',
   const generator = readFileSync(new URL('../scripts/sync-property-galleries.mjs', import.meta.url), 'utf8');
   assert.match(generator, /readFile\(`listings\/\$\{city\.toLowerCase\(\)\}-gallery\.json`/);
   assert.match(generator, /clearwater-gallery/);
+});
+
+
+test('both homes are presented as booked with no live application CTA', () => {
+  const tampaHome = homepage.match(/<section class="featured" aria-labelledby="featured-title">([\s\S]*?)<\/section>/)?.[1];
+  const clearwaterHome = homepage.match(/<section class="featured" id="clearwater-featured"[^>]*>([\s\S]*?)<\/section>/)?.[1];
+  const tampaListing = listings.match(/<article class="listing" id="tampa">([\s\S]*?)<!-- TAMPA_SECTION_START -->/)?.[1];
+  const clearwaterListing = listings.match(/<article class="listing" id="clearwater">([\s\S]*?)<!-- CLEARWATER_SECTION_START -->/)?.[1];
+  assert.ok(tampaHome && clearwaterHome && tampaListing && clearwaterListing);
+  assert.match(homepage, /Both residences are fully booked/);
+  assert.match(tampaHome, /Fully booked for the next three months/);
+  assert.match(tampaListing, /Booked for the next three months/);
+  assert.match(clearwaterHome, /Currently fully booked/);
+  assert.match(clearwaterListing, /Currently fully booked/);
+  assert.match(clearwaterListing, /Reopening date not announced/);
+  assert.doesNotMatch(listings, /ApplyNow\.aspx|Apply for Tampa/);
+  assert.doesNotMatch(homepage, /View all property photos &amp; apply/);
+  assert.match(listings, /previously advertised rate/);
+  assert.match(homepage, /Status updated November 21, 2026/);
 });

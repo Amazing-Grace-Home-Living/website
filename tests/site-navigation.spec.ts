@@ -106,3 +106,40 @@ test('Signalkeepers role selection, journal navigation and active quest continui
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth))
     .toBeLessThanOrEqual(390);
 });
+
+
+test('Intune course is discoverable and local progress survives a reload', async ({ page }) => {
+  await page.goto('/lms/');
+  await page.getByRole('link', { name: /Explore the Intune learning path/ }).click();
+  await expect(page).toHaveURL(/\/lms\/microsoft-intune\//);
+  await expect(page.getByRole('heading', { name: 'Make Intune operationally ready.' })).toBeVisible();
+  await expect(page.locator('.module-card')).toHaveCount(3);
+  await expect(page.getByText('0 of 3 modules marked complete')).toBeVisible();
+  await page.locator('input[data-complete="reporting"]').check();
+  await expect(page.getByText('1 of 3 modules marked complete')).toBeVisible();
+  await page.reload();
+  await expect(page.locator('input[data-complete="reporting"]')).toBeChecked();
+  await page.locator('input[name="q1"][value="b"]').check();
+  await page.locator('input[name="q2"][value="b"]').check();
+  await page.locator('input[name="q3"][value="a"]').check();
+  await page.getByRole('button', { name: 'Check my answers' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'Score: 3/3' })).toBeVisible();
+  await page.setViewportSize({ width: 375, height: 812 });
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
+});
+
+
+test('both room listings show booked status and do not invite unavailable applications', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/');
+  await expect(page.locator('.hero .booking-status')).toContainText('Both residences are fully booked.');
+  await expect(page.locator('#clearwater-featured .booking-status')).toContainText('Currently fully booked.');
+  await page.getByRole('link', { name: /Explore rooms & booking status/ }).click();
+  await expect(page).toHaveURL(/\/listings\//);
+  await expect(page.locator('#tampa .booking-status')).toContainText('Booked for the next three months.');
+  await expect(page.locator('#clearwater .booking-status')).toContainText('Currently fully booked.');
+  await expect(page.getByRole('link', { name: /Apply for Tampa/ })).toHaveCount(0);
+  await expect(page.locator('a[href*="ApplyNow.aspx"]')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth))
+    .toBeLessThanOrEqual(375);
+});

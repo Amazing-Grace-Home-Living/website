@@ -80,3 +80,11 @@ html{scroll-padding-top:90px}
 .hero h1{max-width:none}
 .hero .lead{margin-inline:auto}
 .hero-actions{justify-content:center}
+
+
+/* Booking status: keep unavailable rooms conspicuous without implying an open application. */
+.booking-status{border-left:3px solid var(--gold);background:#17140e;padding:14px 18px;margin:17px 0;color:var(--fg)!important;font-size:14px;line-height:1.6}
+.booking-status strong{color:var(--gold);font-weight:700}
+.booking-updated{display:block;color:var(--muted);font-size:12px;margin-top:6px}
+.booking-status--hero{max-width:690px;margin:0 auto 20px;text-align:left}
+@media(max-width:500px){.booking-status{padding:12px 14px}}
