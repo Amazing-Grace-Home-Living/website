@@ -127,3 +127,19 @@ test('Intune course is discoverable and local progress survives a reload', async
   await page.setViewportSize({ width: 375, height: 812 });
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
 });
+
+
+test('both room listings show booked status and do not invite unavailable applications', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/');
+  await expect(page.locator('.hero .booking-status')).toContainText('Both residences are fully booked.');
+  await expect(page.locator('#clearwater-featured .booking-status')).toContainText('Currently fully booked.');
+  await page.getByRole('link', { name: /Explore rooms & booking status/ }).click();
+  await expect(page).toHaveURL(/\/listings\//);
+  await expect(page.locator('#tampa .booking-status')).toContainText('Booked for the next three months.');
+  await expect(page.locator('#clearwater .booking-status')).toContainText('Currently fully booked.');
+  await expect(page.getByRole('link', { name: /Apply for Tampa/ })).toHaveCount(0);
+  await expect(page.locator('a[href*="ApplyNow.aspx"]')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth))
+    .toBeLessThanOrEqual(375);
+});
