@@ -36,4 +36,4 @@ jobs:
       - name: Compile Firebase Functions
         run: npm run build --prefix functions
       - name: Exercise webhook signature and replay defenses
-        run: node --test tests/firebase-webhook-runtime.test.mjs
+        run: node --test tests/runtime/firebase-webhook.test.mjs
