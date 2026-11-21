@@ -30,7 +30,7 @@ export function validLemonSqueezyEvent(
   if (!data || typeof data !== 'object' || !meta || typeof meta !== 'object') return false;
   const { type, id } = data as Record<string, unknown>;
   const { event_name } = meta as Record<string, unknown>;
-  return typeof type === 'string' && /^[a-z_]{1,64}$/.test(type)
+  return typeof type === 'string' && /^[a-z0-9_-]{1,64}$/.test(type)
     && typeof id === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(id)
     && typeof event_name === 'string' && /^[a-z0-9_]{1,80}$/.test(event_name)
     && typeof eventNameHeader === 'string' && event_name === eventNameHeader;
