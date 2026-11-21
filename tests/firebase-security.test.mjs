@@ -26,11 +26,15 @@ test('points endpoints verify Firebase ID tokens and restrict grants to administ
   assert.doesNotMatch(points, /const \{ uid, amount \} = req\.body as/);
 });
 
-test('payment webhook rejects invalid signatures before recording anything', () => {
+test('payment webhook verifies signed content and deduplicates identical deliveries', () => {
+  const validator = read('functions/src/webhook-security.ts');
   assert.match(functions, /defineSecret\('LEMON_SQUEEZY_WEBHOOK_SECRET'\)/);
-  assert.match(functions, /createHmac\('sha256', secret\)\.update\(raw\)/);
-  assert.match(functions, /timingSafeEqual\(received, expected\)/);
-  assert.ok(functions.indexOf('timingSafeEqual(received, expected)') < functions.indexOf("db.collection('payments').add("));
+  assert.match(functions, /validLemonSqueezySignature\(raw,/);
+  assert.match(functions, /validLemonSqueezyEvent\(payload,/);
+  assert.match(validator, /timingSafeEqual\(actual, expected\)/);
+  assert.match(functions, /db\.runTransaction\(async tx =>/);
+  assert.match(functions, /tx\.create\(paymentRef,/);
+  assert.match(functions, /paymentRef = db\.collection\('payments'\)\.doc\(webhookFingerprint\(raw\)\)/);
 });
 
 test('generated auth runtime has a correctly scoped Firebase Auth instance and no tracked duplicate key', () => {
