@@ -1,28 +1,81 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users can read/write their own profile
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function owner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Authentication is not authorization to grant credits, points or roles.
+    // These fields are reserved for trusted Admin SDK / verified billing handlers.
+    function editableProfileKeys() {
+      return [
+        'displayName', 'photoURL', 'bio', 'preferences', 'updatedAt'
+      ];
+    }
+
+    function profileFieldsValid(data) {
+      return (!data.keys().hasAny(['displayName']) ||
+                (data.displayName is string && data.displayName.size() <= 120))
+        && (!data.keys().hasAny(['photoURL']) ||
+                (data.photoURL is string && data.photoURL.size() <= 2048))
+        && (!data.keys().hasAny(['bio']) ||
+                (data.bio is string && data.bio.size() <= 1000))
+        && (!data.keys().hasAny(['preferences']) ||
+                (data.preferences is map && data.preferences.keys().size() <= 20))
+        && (!data.keys().hasAny(['updatedAt']) ||
+                data.updatedAt is timestamp);
+    }
+
     match /users/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow get: if owner(uid);
+      allow list: if false;
+      allow create: if owner(uid)
+                    && request.resource.data.keys().hasOnly([
+                      'displayName', 'photoURL', 'bio', 'preferences', 'updatedAt'
+                    ])
+                    && profileFieldsValid(request.resource.data);
+      allow update: if owner(uid)
+                    && request.resource.data.diff(resource.data)
+                         .affectedKeys().hasOnly(editableProfileKeys())
+                    && profileFieldsValid(request.resource.data);
+      allow delete: if false;
     }
-    // Donations are readable by any authenticated user, creation only by the donor
-    match /donations/{docId} {
-      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
-      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
-    }
-    // Point transaction logs – only the owner can read/write their own logs
-    match /pointTransactions/{docId} {
-      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
-      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
-    }
-    // Profiles collection mirrors users (optional)
+
     match /profiles/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow get: if owner(uid);
+      allow list: if false;
+      allow create: if owner(uid)
+                    && request.resource.data.keys().hasOnly([
+                      'displayName', 'photoURL', 'bio', 'preferences', 'updatedAt'
+                    ])
+                    && profileFieldsValid(request.resource.data);
+      allow update: if owner(uid)
+                    && request.resource.data.diff(resource.data)
+                         .affectedKeys().hasOnly(editableProfileKeys())
+                    && profileFieldsValid(request.resource.data);
+      allow delete: if false;
     }
-    // Default deny
+
+    // Donation evidence and points ledger entries must originate server-side.
+    // A client-created donation could otherwise trigger an unearned reward.
+    match /donations/{docId} {
+      allow get: if signedIn() && resource.data.uid == request.auth.uid;
+      allow list: if false;
+      allow create, update, delete: if false;
+    }
+
+    match /pointTransactions/{docId} {
+      allow get: if signedIn() && resource.data.uid == request.auth.uid;
+      allow list: if false;
+      allow create, update, delete: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
   }
 }
-

@@ -1,0 +1,14 @@
+{
+  "name": "amazing-grace-firebase-rules-audit",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Rules-only tests against the local Firebase emulator; never production data.",
+  "scripts": {
+    "verify": "node verify.mjs"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^6.0.0",
+    "firebase": "^13.4.0"
+  }
+}
