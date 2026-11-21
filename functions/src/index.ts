@@ -3,7 +3,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { onRequest } from 'firebase-functions/v2/https';
 import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import { defineSecret } from 'firebase-functions/params';
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { validLemonSqueezySignature, webhookFingerprint, validLemonSqueezyEvent } from './webhook-security';
 import * as logger from 'firebase-functions/logger';
 
 if (!getApps().length) initializeApp();
@@ -47,34 +47,34 @@ export const lemonSqueezyWebhook = onRequest(
       return;
     }
 
-    const secret = lemonSqueezyWebhookSecret.value();
-    const signature = req.get('X-Signature') || '';
     const raw = req.rawBody;
-
-    if (!secret || !Buffer.isBuffer(raw) || !/^[0-9a-f]{64}$/i.test(signature)) {
-      res.status(401).send('Invalid webhook signature');
-      return;
-    }
-    const received = Buffer.from(signature, 'hex');
-    const expected = createHmac('sha256', secret).update(raw).digest();
-    if (received.length !== expected.length || !timingSafeEqual(received, expected)) {
+    if (!validLemonSqueezySignature(raw, req.get('X-Signature'), lemonSqueezyWebhookSecret.value())) {
       res.status(401).send('Invalid webhook signature');
       return;
     }
 
     const payload = req.body;
-    if (!payload || typeof payload !== 'object' || !payload.data || typeof payload.data !== 'object') {
-      res.status(400).send('Invalid webhook payload');
+    if (!validLemonSqueezyEvent(payload, req.get('X-Event-Name'))) {
+      res.status(400).send('Invalid webhook event');
       return;
     }
 
     try {
-      await db.collection('payments').add({
-        receivedAt: new Date(),
-        eventName: req.get('X-Event-Name') || null,
-        payload
+      // Lemon Squeezy retries failed deliveries. Content-addressed IDs prevent
+      // duplicate records from identical signed payloads, even concurrently.
+      // Business actions also require their own provider-resource idempotency.
+      const paymentRef = db.collection('payments').doc(webhookFingerprint(raw));
+      await db.runTransaction(async tx => {
+        const existing = await tx.get(paymentRef);
+        if (existing.exists) return;
+        tx.create(paymentRef, {
+          receivedAt: new Date(),
+          eventName: payload.meta.event_name,
+          resourceType: payload.data.type,
+          resourceId: payload.data.id,
+          payload
+        });
       });
-      logger.info('Stored verified Lemon Squeezy webhook');
       res.status(200).send('OK');
     } catch (error) {
       logger.error('Unable to save verified Lemon Squeezy webhook', error);
