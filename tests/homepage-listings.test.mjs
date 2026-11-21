@@ -10,7 +10,7 @@ test('single-column hero has a clear room-listings call to action without duplic
   assert.ok(hero, 'homepage hero exists');
   assert.match(hero, /class="hero-content"/);
   assert.match(hero, /Room to live\./);
-  assert.match(hero, /Explore private-room listings around Tampa Bay/);
+  assert.match(hero, /Explore our Tampa and Clearwater properties/);
   assert.match(hero, /href="\/listings\/"/, 'hero directs visitors to room listings');
   assert.doesNotMatch(hero, /<img\s|class="hero-visual/, 'no duplicate photos or removed promotional tile in hero');
   const styles = readFileSync(new URL('../src/home.css', import.meta.url), 'utf8');
