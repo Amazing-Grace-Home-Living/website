@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101a24">
+<meta name="description" content="Study Microsoft Intune reporting, role-based access control and tenant health through official Microsoft Learn modules, local progress tracking and practice checks.">
+<title>Microsoft Endpoint Administration | Amazing Grace LMS</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/src/game/learning/learning.css">
+<link rel="stylesheet" href="/src/brand.css">
+<link rel="stylesheet" href="/lms/microsoft-intune/style.css">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to course content</a>
+<header class="site-header section-header">
+<a class="logo" href="/" aria-label="Amazing Grace Home Living homepage"><svg class="brand-horizontal" viewBox="15 910 1235 300" aria-hidden="true"><image href="/assets/brand-sheet.png" width="1280" height="1280"/></svg><svg class="brand-compact" viewBox="805 310 450 440" aria-hidden="true"><image href="/assets/brand-sheet.png" width="1280" height="1280"/></svg></a>
+<nav class="main-nav" aria-label="Primary navigation"><a href="/">Home</a><a href="/listings/">Rooms</a><a href="/arcade/">Arcade</a><a href="/lms/" aria-current="page">LMS</a><a href="/audio-library/">Library</a></nav>
+</header>
+<main id="content">
+<section class="endpoint-hero" aria-labelledby="course-title">
+<p class="eyebrow">LMS / MICROSOFT ENDPOINT ADMINISTRATION</p>
+<h1 id="course-title">Make Intune operationally ready.</h1>
+<p class="lead">A guided pathway for endpoint administrators: reporting, least-privilege access, and healthy tenant operations. Study the original Microsoft Learn lessons, then use our practice activities to reinforce the concepts.</p>
+<div class="course-actions"><a class="button primary" href="#modules">Explore the three modules</a><a class="button" href="/lms/">Back to LMS</a></div>
+<p class="source-note">Intermediate · Microsoft Intune · Prerequisites: working Intune knowledge and familiarity with Microsoft Entra ID roles and groups.</p>
+</section>
+<section id="intune-path" aria-labelledby="path-title">
+<div class="section-heading"><div><p class="eyebrow">CURATED MICROSOFT LEARN PATH</p><h2 id="path-title">Support operational excellence and readiness</h2></div></div>
+<p>The lessons below are hosted and maintained by Microsoft. Mark a module complete here only after studying it; your checklist is independent of Microsoft Learn's own learning record.</p>
+<p><a href="https://learn.microsoft.com/en-us/training/paths/support-operational-excellence-intune/" target="_blank" rel="noopener noreferrer">View the full official Microsoft Learn path (opens new tab) ↗</a></p>
+<div class="course-progress" aria-label="Local course progress">
+<strong>My course checklist</strong>
+<progress id="course-progress" value="0" max="3">0 of 3</progress>
+<output id="progress-status" aria-live="polite" for="course-progress">0 of 3 modules marked complete</output>
+<small id="storage-status">Checklist saves in this browser only; no sign-in required.</small>
+</div>
+<div id="modules" class="module-grid">
+<article class="module-card" data-module="reporting">
+<p class="eyebrow">MODULE 01</p><h3>Reporting and data visibility</h3>
+<p>Use built-in Intune reporting, dashboards and controlled exports to identify device and service trends.</p>
+<p><a class="button" href="https://learn.microsoft.com/en-us/training/modules/implement-reporting-data-visibility/" target="_blank" rel="noopener noreferrer">Study Microsoft Learn module ↗</a></p>
+<label class="completion-label"><input type="checkbox" data-complete="reporting"> I finished studying this module</label>
+</article>
+<article class="module-card" data-module="rbac">
+<p class="eyebrow">MODULE 02</p><h3>Role-based access and delegation</h3>
+<p>Practice assigning administrative permissions by role, scope tag and group while following least privilege.</p>
+<p><a class="button" href="https://learn.microsoft.com/en-us/training/modules/apply-rbac-admin-delegation/" target="_blank" rel="noopener noreferrer">Study Microsoft Learn module ↗</a></p>
+<label class="completion-label"><input type="checkbox" data-complete="rbac"> I finished studying this module</label>
+</article>
+<article class="module-card" data-module="tenant-health">
+<p class="eyebrow">MODULE 03</p><h3>Tenant health and readiness</h3>
+<p>Monitor service communications, audit changes and establish an operational baseline before incidents occur.</p>
+<p><a class="button" href="https://learn.microsoft.com/en-us/training/modules/maintain-tenant-health/" target="_blank" rel="noopener noreferrer">Study Microsoft Learn module ↗</a></p>
+<label class="completion-label"><input type="checkbox" data-complete="tenant-health"> I finished studying this module</label>
+</article>
+</div>
+</section>
+<section class="practice-panel" id="practice" aria-labelledby="practice-title">
+<p class="eyebrow">PRACTICAL ENDPOINT ENGINEERING</p><h2 id="practice-title">Apply the concepts safely</h2>
+<p>Suggested lab in an authorized test tenant. Use test devices and test accounts; do not change production roles or compliance settings without approval.</p>
+<ol>
+<li><strong>Reporting:</strong> Compare a device compliance report with a device inventory view. Document what each one reveals and who should have access.</li>
+<li><strong>Delegation:</strong> Draft an RBAC matrix for a help-desk role and a regional administrator. Explain the scope tags and permissions each role needs.</li>
+<li><strong>Tenant health:</strong> Write a simple readiness checklist covering service health, alerts, audit logs, and an incident escalation path.</li>
+</ol>
+<p><a href="/arcade/powershell-defense/">Practice PowerShell concepts in our non-executing learning game →</a></p>
+</section>
+<section class="practice-panel" id="knowledge-check" aria-labelledby="quiz-title">
+<p class="eyebrow">OPTIONAL SELF-CHECK</p><h2 id="quiz-title">Three quick review questions</h2>
+<p>This is our original practice quiz, not a Microsoft exam or verified credential. You can retry without penalty.</p>
+<form id="intune-quiz">
+<fieldset><legend>1. How should an operations team share recurring Intune reporting data?</legend>
+<label><input type="radio" name="q1" value="a" required> Copy sensitive exports into a public spreadsheet.</label>
+<label><input type="radio" name="q1" value="b"> Use an authorized export workflow and restrict access to the audience.</label>
+<label><input type="radio" name="q1" value="c"> Share one administrator account with every stakeholder.</label>
+</fieldset>
+<fieldset><legend>2. What is the safer default for delegating Intune administration?</legend>
+<label><input type="radio" name="q2" value="a" required> Give every operator full tenant-wide admin rights.</label>
+<label><input type="radio" name="q2" value="b"> Use least-privilege roles with appropriate scopes and groups.</label>
+<label><input type="radio" name="q2" value="c"> Disable audit logs to simplify administration.</label>
+</fieldset>
+<fieldset><legend>3. What belongs in a tenant readiness routine?</legend>
+<label><input type="radio" name="q3" value="a" required> Check service health, alerts and audit logs against a documented baseline.</label>
+<label><input type="radio" name="q3" value="b"> Wait for users to report a major outage before checking anything.</label>
+<label><input type="radio" name="q3" value="c"> Remove monitoring to reduce alert volume.</label>
+</fieldset>
+<button class="primary" type="submit">Check my answers</button>
+<p id="quiz-feedback" role="status" aria-live="polite"></p>
+</form>
+</section>
+<section class="note"><h2>Progress and recognition</h2><p>The checklist and best self-check score stay on this device. They are not synchronized to an account or Microsoft Learn, cannot verify that you completed Microsoft's content, and are not a certification. Use your Microsoft Learn account to track official achievements there.</p><p>Independent learning resource from Amazing Grace Home Living; not sponsored by or affiliated with Microsoft.</p></section>
+</main>
+<footer><a href="/lms/">← All LMS courses</a><span>Amazing Grace · Learn at your pace.</span></footer>
+<script type="module" src="/lms/microsoft-intune/progress.mjs"></script>
+</body>
+</html>
