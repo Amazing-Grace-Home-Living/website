@@ -32,21 +32,26 @@ window.authHelper = {
 
   // ---------- Points API ----------
   addPoints: async (amount) => {
-    const uid = firebase.auth().currentUser?.uid;
-    if (!uid) throw new Error('User not signed in');
+    const user = firebase.auth().currentUser;
+    if (!user) throw new Error('User not signed in');
+    const uid = user.uid;
+    const idToken = await user.getIdToken();
+    // Only a verified administrator may grant points.
     const resp = await fetch('https://us-central1-amazing-grace-hl.cloudfunctions.net/grantPoints', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
       body: JSON.stringify({ uid, amount })
     });
     return resp.json();
   },
   spendPoints: async (amount, description = '') => {
-    const uid = firebase.auth().currentUser?.uid;
-    if (!uid) throw new Error('User not signed in');
+    const user = firebase.auth().currentUser;
+    if (!user) throw new Error('User not signed in');
+    const uid = user.uid;
+    const idToken = await user.getIdToken();
     const resp = await fetch('https://us-central1-amazing-grace-hl.cloudfunctions.net/spendPoints', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
       body: JSON.stringify({ uid, amount, description })
     });
     return resp.json();
