@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101a24">
+<meta name="description" content="Play six fictional Microsoft Intune incident scenarios covering reporting, RBAC, secure exports and tenant health. Free, browser-only practice.">
+<title>Intune Ops: Incident Command | Amazing Grace LMS</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/src/game/learning/learning.css">
+<link rel="stylesheet" href="/src/brand.css">
+<link rel="stylesheet" href="/lms/microsoft-intune/mission/style.css">
+</head>
+<body>
+<a class="skip-link" href="#mission">Skip to scenario</a>
+<header class="site-header section-header">
+<a class="logo" href="/" aria-label="Amazing Grace Home Living homepage"><svg class="brand-horizontal" viewBox="15 910 1235 300" aria-hidden="true"><image href="/assets/brand-sheet.png" width="1280" height="1280"></svg><svg class="brand-compact" viewBox="805 310 450 440" aria-hidden="true"><image href="/assets/brand-sheet.png" width="1280" height="1280"></svg></a>
+<nav class="main-nav" aria-label="Primary navigation"><a href="/">Home</a><a href="/arcade/" aria-current="page">Arcade</a><a href="/lms/">LMS</a><a href="/lms/microsoft-intune/">Intune course</a></nav>
+</header>
+<main>
+<section class="ops-hero" aria-labelledby="mission-heading">
+<p class="eyebrow">PROFESSIONAL PRACTICE / ENDPOINT OPERATIONS</p>
+<h1 id="mission-heading">Intune Ops:<br><em>Incident Command.</em></h1>
+<p class="lead">Lead a fictional endpoint operations team through six decisions. Read incident evidence, choose a response, and learn why one action is stronger. No live tenant or login required.</p>
+<p class="ops-note"><strong>Training simulation:</strong> All users, devices, and incidents are invented. Choices do not connect to Microsoft Intune, Microsoft Graph, Firebase, or production systems. This is not a Microsoft assessment.</p>
+<div class="ops-actions"><a class="button" href="/lms/microsoft-intune/">Back to Intune learning path</a><a class="button" href="https://learn.microsoft.com/en-us/training/paths/support-operational-excellence-intune/" target="_blank" rel="noopener noreferrer">Official Microsoft Learn path ↗</a></div>
+</section>
+<section class="ops-dashboard" aria-label="Local training progress">
+<div><span>CASE</span><strong id="case-count">1 / 6</strong></div>
+<div><span>THIS RUN</span><strong id="run-score">0 / 600</strong></div>
+<div><span>BEST ON THIS DEVICE</span><strong id="best-score">0 / 600</strong></div>
+<progress id="mission-progress" value="0" max="6">0 of 6 cases</progress>
+<p id="storage-message" class="storage-message" role="status">Progress saves only in this browser. No account is required.</p>
+</section>
+<section id="mission" class="ops-case" aria-labelledby="case-title">
+<p id="case-category" class="eyebrow">CASE 01</p>
+<h2 id="case-title" tabindex="-1">Loading mission…</h2>
+<p id="case-brief"></p>
+<h3>Evidence on the board</h3>
+<ul id="case-evidence"></ul>
+<fieldset id="case-choices">
+<legend id="case-prompt">Choose the next response</legend>
+<div id="choice-list" class="decision-grid"></div>
+</fieldset>
+<div id="case-feedback" class="ops-feedback" role="status" aria-live="polite" hidden>
+<p id="choice-points" class="points"></p>
+<p id="choice-explanation"></p>
+<p><a id="learn-more" href="https://learn.microsoft.com/en-us/training/paths/support-operational-excellence-intune/" target="_blank" rel="noopener noreferrer">Study this topic at Microsoft Learn ↗</a></p>
+</div>
+<button id="next-case" type="button" class="primary" hidden>Continue to next case →</button>
+</section>
+<section id="mission-finished" class="ops-finished" aria-labelledby="finish-title" hidden>
+<p class="eyebrow">DEBRIEF / COMPLETED</p><h2 id="finish-title" tabindex="-1">Mission complete</h2>
+<p id="finish-summary"></p>
+<ol id="finish-review"></ol>
+<p>These points reflect only your choices in this practice game. They are not Intune, Microsoft Learn, or certification credentials.</p>
+<a class="button" href="/lms/microsoft-intune/#modules">Review the Intune modules →</a>
+</section>
+<div class="ops-actions bottom-actions"><button id="restart-mission" type="button">Start a new run</button><a href="/arcade/">All arcade games</a></div>
+</main>
+<footer><a href="/lms/microsoft-intune/">Microsoft Endpoint Administration course</a><span>Independent educational simulation · Amazing Grace</span></footer>
+<script type="module" src="/lms/microsoft-intune/mission/game.mjs"></script>
+</body>
+</html>
