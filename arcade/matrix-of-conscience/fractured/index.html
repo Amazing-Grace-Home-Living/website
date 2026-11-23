@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b1420">
+  <meta name="description" content="Play The Fractured Matrix: investigate Harmony Square, restore the Wisdom Archive, and challenge the Council of Unwritten Names across three story chapters.">
+  <title>The Fractured Matrix · Three Chapters of Conscience</title>
+  <link rel="icon" href="/assets/logo.png">
+  <link rel="stylesheet" href="/src/game/matrix-rpg/rpg.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="/arcade/">✦ AMAZING GRACE<small>THE LEARNING ARCADE</small></a>
+  <nav aria-label="Main"><a href="/arcade/matrix-of-conscience/">The Signalkeepers</a></nav>
+</header>
+<main>
+  <section class="intro">
+    <div><p class="eyebrow" id="chapter-status">THE FRACTURED MATRIX · A THREE-CHAPTER JOURNEY</p>
+      <h1>The Fractured Matrix</h1>
+      <p>Across Harmony Square, the Wisdom Archive, and the Council of Unwritten Names, follow evidence, repair harm, and resist convenient lies. Your decisions return later in the story.</p>
+    </div>
+  </section>
+  <div class="workspace">
+    <section class="quest-panel" aria-labelledby="scene-title">
+      <h2 id="scene-title" tabindex="-1">Hall of Beginnings</h2>
+      <p id="scene-copy">The Keeper offers you a Conscience Compass. Choose how you'll serve Harmony Square.</p>
+      <p id="chapter-progress" class="small-note" role="status">Select a calling to begin.</p>
+      <div id="scene-actions" class="quest-list"></div>
+      <p id="quest-feedback" role="status"></p>
+      <noscript><p>Enable JavaScript to play this chapter.</p></noscript>
+    </section>
+    <aside class="character-panel" aria-labelledby="journal-title">
+      <h2 id="journal-title">Quest Journal</h2>
+      <p id="save-status" class="small-note" role="status">Progress saves in this browser.</p>
+      <p id="calling"></p>
+      <p class="small-note">This story has its own local save, separate from The Signalkeepers and your LMS progress.</p>
+      <button id="restart-story" class="quiet" type="button">Restart this story</button>
+      <ol id="journal"></ol>
+    </aside>
+  </div>
+</main>
+<footer><a href="/arcade/matrix-of-conscience/">← Return to The Signalkeepers</a></footer>
+<script type="module" src="/src/game/matrix-rpg/fractured.js"></script>
+</body>
+</html>
