@@ -12,15 +12,16 @@ function memoryStorage() {
   return { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
 }
 
-test('Nexus requires both a quiz pass and either puzzle completion', () => {
+test('Nexus tower defense is level one and needs no quiz or puzzle', () => {
   const initial = emptyProgress();
-  assert.equal(levelUnlocked(initial, 'tower-nexus'), false);
-  const quiz = passed(initial, 'foundations');
-  assert.equal(levelUnlocked(quiz, 'tower-nexus'), false);
-  assert.equal(levelUnlocked(completeLevel(quiz, 'match-1'), 'tower-nexus'), true);
-  assert.equal(levelUnlocked(completeLevel(quiz, 'matrix-session'), 'tower-nexus'), true);
-  assert.equal(levelUnlocked(completeLevel(quiz, 'bible-quiz'), 'tower-nexus'), false);
-  assert.throws(() => completeLevel(initial, 'tower-nexus'), /locked/);
+  assert.equal(levelUnlocked(initial, 'tower-nexus'), true);
+  assert.equal(levelUnlocked(initial, 'tower-syndicate'), false);
+  const completed = completeLevel(initial, 'tower-nexus');
+  assert.deepEqual(completed.completedLevels, ['tower-nexus']);
+  assert.equal(progressSummary(completed).xp, 100);
+  assert.equal(lessonUnlocked(completed, 'tactics'), true);
+  assert.equal(levelUnlocked(completed, 'tower-syndicate'), false);
+  assert.equal(levelUnlocked(completeLevel(initial, 'match-1'), 'tower-nexus'), true);
   assert.equal(initial.completedLevels.length, 0);
 });
 
@@ -43,14 +44,13 @@ test('full campaign follows lesson and defense prerequisites, with idempotent XP
   let state = emptyProgress();
   assert.equal(lessonUnlocked(state, 'tactics'), false);
   assert.throws(() => recordQuiz(state, 'adaptation', answers('adaptation')));
-  state = completeLevel(passed(state, 'foundations'), 'match-1');
   state = completeLevel(state, 'tower-nexus');
   assert.equal(lessonUnlocked(state, 'tactics'), true);
   assert.equal(levelUnlocked(state, 'tower-syndicate'), false);
   state = completeLevel(passed(state, 'tactics'), 'tower-syndicate');
   state = completeLevel(passed(state, 'adaptation'), 'tower-boss');
   const summary = progressSummary(state);
-  assert.equal(summary.xp, 650);
+  assert.equal(summary.xp, 550);
   assert.equal(summary.missions, 3);
   assert.ok(summary.badges.includes('Campaign champion'));
   state = completeLevel(state, 'tower-boss');

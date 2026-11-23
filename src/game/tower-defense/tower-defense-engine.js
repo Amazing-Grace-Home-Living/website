@@ -279,6 +279,13 @@ export class TowerDefenseGame {
     });
 
     document.getElementById('btn-restart').addEventListener('click', () => this.resetMission());
+    document.getElementById('btn-starter-tower').addEventListener('click', () => {
+      if (this.stage !== 'nexus' || this.status !== 'ready' || this.towers.length) return;
+      this.selectedTowerKey = 'pulse';
+      this.setupUI();
+      // A useful placement beside the first bend, outside the enemy route.
+      this.placeTower(3, 4);
+    });
     window.addEventListener('storage', () => {
       if (!levelUnlocked(campaign.read(), MISSIONS[this.stage].id) || this.status === 'locked') this.resetMission();
       this.updateHUD();
@@ -336,6 +343,7 @@ export class TowerDefenseGame {
       descEl.textContent = 'High-density titan combat with cosmic aura attacks. Focus fire!';
     }
 
+    document.getElementById('starter-guide').hidden = stageKey !== 'nexus';
     this.updateHUD();
   }
 
@@ -823,6 +831,7 @@ export class TowerDefenseGame {
     document.getElementById('btn-wave').disabled = this.status !== 'ready' || this.waveActive;
     document.getElementById('btn-auto-wave').disabled = this.status !== 'ready';
     document.getElementById('btn-place').disabled = this.status !== 'ready';
+    document.getElementById('btn-starter-tower').disabled = this.stage !== 'nexus' || this.status !== 'ready' || this.towers.length > 0;
     document.getElementById('btn-auto-wave').textContent = `Auto-Wave: ${this.autoWave ? 'ON' : 'OFF'}`;
     for (const mission of Object.values(MISSIONS)) {
       const tab = document.getElementById(`tab-${mission.stage}`);

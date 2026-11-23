@@ -3,7 +3,14 @@ import { normalizeProgress, lessonUnlocked, levelUnlocked } from './progression.
 
 export function nextLearningStep(raw) {
   const state = normalizeProgress(raw);
-  const lesson = LESSONS.find(item => lessonUnlocked(state, item.id) && !(state.quizzes[item.id]?.best >= PASS_COUNT));
+  // The campaign opens with active defense. Foundations and bonus puzzles are optional.
+  const opening = LEVELS.find(item => item.id === 'tower-nexus');
+  if (!state.completedLevels.includes(opening.id)) return {
+    kind: 'mission', id: opening.id, title: 'Level 1 · Nexus Defense',
+    reason: 'Start immediately: place a turret, defend the Core, and survive three waves. No quiz or puzzle prerequisite.',
+    action: 'Play Level 1 →', href: '/src/game/tower-defense/index.html?stage=nexus',
+  };
+  const lesson = LESSONS.find(item => !['foundations', 'sovereignty'].includes(item.id) && lessonUnlocked(state, item.id) && !(state.quizzes[item.id]?.best >= PASS_COUNT));
   if (lesson) return { kind: 'lesson', id: lesson.id, title: lesson.title, reason: 'Read the lesson and pass at least 3 of its 4 questions. Hints and retries are welcome.', action: 'Continue learning →' };
   const mission = LEVELS.find(item => item.stage && !state.completedLevels.includes(item.id) && levelUnlocked(state, item.id));
   if (mission) return { kind: 'mission', id: mission.id, title: mission.title, reason: `Your prerequisites are complete. Defend the core through ${mission.waves} waves.`, action: 'Begin mission →', href: `/src/game/tower-defense/index.html?stage=${mission.stage}` };

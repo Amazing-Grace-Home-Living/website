@@ -6,14 +6,16 @@ Open `/arcade/` for the game catalog and `/lms/` for lessons and unlocks. Run
 
 ## Progression
 
-1. Pass Foundations with at least 3 of 4 correct, and complete Code Matrix
-   level 1 or restore the RPG’s Echo Gardens region at
-   `/arcade/matrix-of-conscience/`. Previously earned Matrix Academy and legacy
-   Matrix session milestones remain valid.
-2. Clear the three-wave Nexus mission to open Tactics.
-3. Pass Tactics to open the four-wave Syndicate mission.
+1. Start with the three-wave **Nexus tower defense** mission. It is unlocked
+   immediately, with no quiz or puzzle prerequisite. Use the starter turret
+   button for a guided first placement.
+2. Clear Nexus to open the Tactics lesson.
+3. Pass Tactics (3 of 4 correct) to open the four-wave Syndicate mission.
 4. Clear Syndicate to open Adaptation, then pass its quiz to open the five-wave
    Boss mission. Its final wave includes a high-health boss.
+5. Foundations, Code Matrix, and the RPG's Echo Gardens at
+   `/arcade/matrix-of-conscience/` are optional lessons, bonus credits, and
+   story milestones; earned legacy rewards remain valid.
 
 All quizzes have untimed reading, feedback, unlimited retries, and a retained best
 score. Completed levels and quizzes award completion XP only once. Replay does not

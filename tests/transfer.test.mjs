@@ -149,8 +149,8 @@ test('external deletion clears campaign and Academy memory without reviving old 
 });
 
 test('next-step guidance follows learning prerequisites and never links a locked mission', () => {
-  let state = emptyProgress(); assert.equal(nextLearningStep(state).id, 'foundations');
-  state = pass(state, 'foundations'); assert.equal(nextLearningStep(state).kind, 'practice');
+  let state = emptyProgress(); assert.equal(nextLearningStep(state).id, 'tower-nexus');
+  state = pass(state, 'foundations'); assert.equal(nextLearningStep(state).id, 'tower-nexus');
   state = completeLevel(state, 'match-1'); assert.equal(nextLearningStep(state).id, 'tower-nexus');
   state = completeLevel(state, 'tower-nexus'); assert.equal(nextLearningStep(state).id, 'tactics');
   state = pass(state, 'tactics'); assert.equal(nextLearningStep(state).id, 'tower-syndicate');
