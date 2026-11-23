@@ -266,6 +266,7 @@ export function VimDefender() {
 
       {gameState === 'playing' && (
           <canvas 
+            data-testid="game-canvas"
             ref={canvasRef} 
             width={900} 
             height={500} 

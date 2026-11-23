@@ -1,0 +1,24 @@
+{
+  "name": "arcade",
+  "private": true,
+  "scripts": {
+    "traffic:ananalyze": "python scripts/traffic_analysis.py",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "vitest run && playwright test"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^1.0.0",
+    "next": "13.x",
+    "react": "18.x",
+    "react-dom": "18.x",
+    "tailwindcss": "^3.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.45.0",
+    "@testing-library/react": "^14.0.0",
+    "happy-dom": "^21.0.4",
+    "vitest": "^1.0.0"
+  }
+}
