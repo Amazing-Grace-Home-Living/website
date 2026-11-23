@@ -1,4 +1,4 @@
-import { advance, archive, archiveDecisions, clues, echoes, initialState, restore, roles, verdicts, visions } from './fractured-state.js';
+import { advance, approaches, archive, archiveDecisions, chapter, clues, consequences, council, councilDecisions, echoes, initialState, restore, roles, verdicts, visions } from './fractured-state.js';
 
 const key = 'matrix-of-conscience.fractured.chapter-one.v1';
 const $ = id => document.getElementById(id);
@@ -49,10 +49,21 @@ function note(text) {
   $('journal').append(item);
 }
 
+function chapterProgress() {
+  if (!state.role) return 'Select a calling to begin. All four can finish the story.';
+  if (state.councilStarted) return `The Council of Unwritten Names · Evidence ${Math.min(state.councilStep, council.length)} of ${council.length}`;
+  if (state.archiveStarted) return `Wisdom Archive · Recovered records ${Math.min(state.archiveStep, archive.length)} of ${archive.length}`;
+  if (!state.verdict) return `Harmony Square · Witness accounts ${state.clues.length} of ${Object.keys(clues).length}`;
+  if (state.memory < visions.length) return `Broken Memory · Fragments ${state.memory} of ${visions.length}`;
+  return `Echo of Doubt · Claims ${state.echo} of ${echoes.length}`;
+}
+
 function render() {
   $('scene-actions').replaceChildren();
   $('journal').replaceChildren();
   $('calling').textContent = state.role ? `${state.role} · ${roles[state.role]}` : '';
+  $('chapter-status').textContent = chapter(state) ? `CHAPTER ${chapter(state)} OF 3` : 'THE FRACTURED MATRIX · A THREE-CHAPTER JOURNEY';
+  $('chapter-progress').textContent = chapterProgress();
   if (state.role) note('The Keeper gave you a Conscience Compass and sent you to Harmony Square.');
   for (const id of state.clues) note(clues[id][1]);
   if (state.verdict) note(`You cleared the apprentice. Your decision: ${verdicts[state.verdict][0]}.`);
@@ -62,6 +73,20 @@ function render() {
     note('Main quest: Find the Five Fractures, learn who erased the past, and restore the Conscience Network.');
     note('Next destination: Wisdom Archive. A new beacon has lit beyond the city.');
     note('Reflection: When has telling the truth helped someone? How could you speak it with care? See Ephesians 4:15.');
+  }
+
+  if (state.councilStarted) {
+    for (const record of archive.slice(0, state.archiveStep)) note(record.finding);
+    note(archiveDecisions[state.archiveDecision][1]);
+    if (state.approach) note(`Your ${state.role} approach: ${approaches[state.role][state.approach][1]}`);
+    for (const record of council.slice(0, state.councilStep)) note(record.finding);
+    if (state.councilDecision) {
+      for (const outcome of consequences(state)) note(outcome);
+      note('Next mystery: Why did the second beacon signal before the order to forget was issued?');
+      note('Reflection: How can you act on reliable evidence without pretending to know more than you do?');
+    }
+    renderCouncil();
+    return;
   }
 
   if (state.archiveStarted) {
@@ -116,7 +141,70 @@ function renderArchive() {
   } else {
     scene('The Order to Forget', 'The repaired index points to a second beacon. In the margin, an unsigned note reads: “If they remember the objections, they will ask who signed the order.”');
     note('Reflection: What do you owe others when the truth is hard to hear?');
+    choose('Continue to Chapter 3 · The Council of Unwritten Names', 'enterCouncil');
   }
 }
+
+function passage(text) {
+  const p = document.createElement('p');
+  p.textContent = text;
+  $('scene-actions').append(p);
+}
+
+function renderCouncil() {
+  if (!state.approach) {
+    scene('Chapter 3 · The Council of Unwritten Names',
+      'The original votes are restored, but the people behind the vanished names cannot speak for themselves. The apprentice and the councilors’ descendants have asked for a hearing. The Voice of Certainty wants someone blamed before the evidence is read.');
+    passage(`Your first decision still matters: ${verdicts[state.verdict][1]}`);
+    passage(`The Archive decision also follows you: ${archiveDecisions[state.archiveDecision][1]}`);
+    passage(`Choose how your ${state.role} calling will help. Either approach can complete the hearing.`);
+    for (const [id, [label]] of Object.entries(approaches[state.role])) choose(label, 'councilApproach', id);
+    return;
+  }
+  if (state.councilStep < council.length) {
+    const record = council[state.councilStep];
+    scene(record.title, `Evidence hearing · Record ${state.councilStep + 1} of ${council.length}. Read the source before deciding what it establishes.`);
+    passage(record.source);
+    passage(record.question);
+    const hint = document.createElement('details');
+    const summary = document.createElement('summary');
+    summary.textContent = 'Need a clue? Review the evidence';
+    hint.append(summary);
+    const hintText = document.createElement('p');
+    hintText.textContent = record.hint;
+    hint.append(hintText);
+    $('scene-actions').append(hint);
+    record.options.forEach((option, index) => choose(option, 'councilAnswer', index,
+      'The source does not support that conclusion. Check the clue or review the record.', record.finding));
+  } else if (!state.councilDecision) {
+    scene('The Second Beacon', 'The testimony is complete. You know the edits happened, but not who ordered them. The crowd expects a simple villain; the witnesses ask for accuracy and care. Choose how to release the record.');
+    for (const [id, [label]] of Object.entries(councilDecisions)) choose(label, 'councilDecision', id);
+  } else {
+    scene('The Memory That Refused to Disappear',
+      'The hearing ends without inventing a culprit. The second beacon flashes twice. An unsigned transmission answers: “The ones who objected built a door the Council forgot.” The search for the remaining Fractures continues.');
+    for (const text of consequences(state)) passage(text);
+    passage('Chapter 3 complete · Your decisions and their consequences remain in the Quest Journal on this device.');
+    passage('Next mystery: Discover the hidden door and learn why the second beacon answered the Archive.');
+    const link = document.createElement('a');
+    link.href = '/arcade/matrix-of-conscience/';
+    link.textContent = 'Return to the Signalkeepers campaign →';
+    link.className = 'button';
+    $('scene-actions').append(link);
+  }
+}
+
+$('restart-story').addEventListener('click', () => {
+  if (!confirm('Restart only The Fractured Matrix story? Your other Matrix of Conscience campaign progress will stay saved.')) return;
+  state = initialState;
+  try {
+    localStorage.removeItem(key);
+    $('save-status').textContent = 'Story restarted. Progress will save in this browser.';
+  } catch {
+    storageUnavailable();
+  }
+  $('quest-feedback').textContent = '';
+  render();
+  $('scene-title').focus();
+});
 
 render();
