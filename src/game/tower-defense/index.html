@@ -280,6 +280,11 @@
       .directive-grid [aria-pressed="true"] { border-color:var(--accent); background:rgba(126,255,216,.2); opacity:1; }
       #mission-status { color: var(--accent); }
       @media(max-width:650px) { .topbar { flex-wrap:wrap;gap:1rem; } .stage-nav { order:3;width:100%;display:flex;flex-wrap:wrap;gap:.4rem; } }
+      .starter-guide { margin: .85rem 0; padding: 1rem; border: 1px solid var(--border); border-radius: 12px; background: rgba(126,255,216,.045); }
+      .starter-guide h2 { margin: 0 0 .4rem; font-size: 1.1rem; }
+      .starter-guide ol { padding-left: 1.35rem; line-height: 1.6; }
+      .starter-guide p { margin-bottom: 0; color: var(--muted); }
+      .starter-guide[hidden] { display: none !important; }
     </style>
     <link rel="stylesheet" href="/src/brand.css">
   </head>
@@ -320,9 +325,19 @@
         <button class="stage-tab" id="tab-sovereign" type="button">Act IV: Sovereign Conscience</button>
       </div>
       <section class="mission-brief" aria-label="Mission briefing">
-        <strong>Learn → Practice → Defend</strong>
+        <strong>Level 1 starts here · no quiz required</strong>
+        <div class="starter-guide" id="starter-guide">
+          <h2>Your first defense: hold the Nexus</h2>
+          <ol>
+            <li>Choose a Pulse Turret (60 credits), or use the starter button below.</li>
+            <li>Place it beside the route, never on the glowing enemy path.</li>
+            <li>Select <strong>Start Next Wave</strong>. Build more defenses as you earn credits.</li>
+          </ol>
+          <button class="btn primary" id="btn-starter-tower" type="button">Place my first turret · 60 credits</button>
+          <p>Survive three waves to unlock Stage 2. Restart and retry freely; completed rewards are awarded once.</p>
+        </div>
         <details><summary>Mission rules and controls</summary>
-        <p>Unlock Nexus by passing Foundations (3 of 4) and completing Code Matrix level 1, or by using an already-earned legacy Matrix or RPG practice milestone. Clear Nexus to unlock the tactics lesson, then continue through Syndicate and Boss. Act IV and waves 10–12 follow the Boss mission.</p>
+        <p>Nexus is the first playable mission and is unlocked for everyone. Foundations and Code Matrix are optional. After Nexus, pass tactics to enter Syndicate; after Syndicate, pass adaptation to enter Boss. Act IV and waves 10–12 follow Boss.</p>
         <p>Choose a tower, then tap a cell off the path to place it. Tap an existing tower to upgrade it. Keyboard: select a tower with Tab and Enter, Tab to the board, use arrows to choose a cell, then Enter to place or upgrade. Start waves when ready; you can build between or during waves.</p>
         <p>Restarting or changing stages resets the mission budget and core. Vault upgrades apply to the next mission attempt. A mission ends when its final wave clears or the core reaches zero.</p>
         </details>
