@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { advance, clues, echoes, initialState, restore, roles, verdicts, visions } from '../src/game/matrix-rpg/fractured-state.js';
+import { advance, archive, clues, echoes, initialState, restore, roles, verdicts, visions } from '../src/game/matrix-rpg/fractured-state.js';
 
 test('every calling can gather evidence, choose a verdict, and finish the chapter', () => {
   for (const role of Object.keys(roles)) {
@@ -25,4 +25,27 @@ test('restoring a checkpoint discards invalid roles, duplicate clues, and premat
   assert.deepEqual(restore({ role: 'unknown', verdict: 'mercy', memory: 3, echo: 3 }), initialState);
   assert.deepEqual(restore({ role: 'Scholar', clues: ['ledger', 'ledger', 'unknown'], verdict: 'mercy', memory: 3, echo: 3 }),
     { ...initialState, role: 'Scholar', clues: ['ledger'] });
+});
+
+test('Wisdom Archive unlocks after Chapter 1 and restores mid-chapter progress', () => {
+  assert.equal(advance(initialState, 'enterArchive'), initialState);
+  const originalSave = {
+    role: 'Scholar', clues: Object.keys(clues), verdict: 'mercy',
+    memory: visions.length, echo: echoes.length,
+  };
+  let state = restore(originalSave);
+  assert.equal(state.archiveStarted, false);
+  state = advance(state, 'enterArchive');
+  assert.equal(advance(state, 'archiveAnswer', 0), state);
+  assert.equal(advance(state, 'archiveDecision', 'publish'), state);
+  state = advance(state, 'archiveAnswer', archive[0].answer);
+  assert.deepEqual(restore(state), state);
+  for (const record of archive.slice(1)) state = advance(state, 'archiveAnswer', record.answer);
+  for (const decision of ['publish', 'review']) {
+    const finished = advance(state, 'archiveDecision', decision);
+    assert.equal(finished.archiveDecision, decision);
+    assert.equal(finished.verdict, originalSave.verdict);
+    assert.deepEqual(restore(finished), finished);
+  }
+  assert.equal(restore({ archiveStarted: true, archiveStep: archive.length, archiveDecision: 'publish' }).archiveStarted, false);
 });

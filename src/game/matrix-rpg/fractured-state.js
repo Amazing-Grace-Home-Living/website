@@ -29,7 +29,47 @@ export const verdicts = {
   restoration: ['Invite both to a mediated meeting', 'The apprentice and merchant agree to correct the record together. The apprentice asks you to stand beside her when they speak.'],
 };
 
-export const initialState = { role: '', clues: [], verdict: '', memory: 0, echo: 0 };
+export const archive = [
+  {
+    title: 'Rebuild the founding record',
+    source: 'Construction log: The beacons went dark at dusk. The founding council ordered the first memory edit the following morning.',
+    question: 'Which sequence belongs in the restored record?',
+    options: ['The council ordered the edit before the blackout.', 'The blackout came before the order to edit memories.', 'Both events happened at the same time.'],
+    answer: 1,
+    finding: 'The blackout preceded the first documented edit.',
+  },
+  {
+    title: 'Trace the claim to its source',
+    source: 'A city poster calls the edit “unanimous.” The signed council minutes record three votes in favor and two objections.',
+    question: 'Which source directly records how the council voted?',
+    options: ['The city poster', 'The signed council minutes', 'The Curator’s recollection'],
+    answer: 1,
+    finding: 'The council was divided about editing memories.',
+  },
+  {
+    title: 'Spot the altered memory',
+    source: 'The keeper’s notebook says the missing names belonged to the people who objected. A later index describes them as blank spaces left by an apprentice.',
+    question: 'What does the later index erase from the story?',
+    options: ['The names of the people who objected', 'The location of the council chamber', 'The date of the blackout'],
+    answer: 0,
+    finding: 'The index erased the identity of the people who objected.',
+  },
+  {
+    title: 'The Curator of Convenience',
+    source: 'The Curator offers to keep only the popular account. A recovered specification describes a routine that removes disputed records after a vote.',
+    question: 'What can the Archive responsibly conclude?',
+    options: ['The routine proves who ordered every deletion.', 'The routine is irrelevant because the popular account is reassuring.', 'The system could have been designed to forget, but the record leaves who used it open.'],
+    answer: 2,
+    finding: 'Forgetting may be a designed feature of the Matrix. Who activated it remains unresolved.',
+  },
+];
+
+export const archiveDecisions = {
+  publish: ['Publish the sources and disagreements together', 'Researchers can inspect the original evidence. The council’s descendants ask for time to respond.'],
+  review: ['Invite affected families to review the sources before publication', 'Families agree to annotate the record. The public release takes longer.'],
+};
+
+export const initialState = { role: '', clues: [], verdict: '', memory: 0, echo: 0, archiveStarted: false, archiveStep: 0, archiveDecision: '' };
 
 export function advance(state, action, value) {
   switch (action) {
@@ -47,6 +87,14 @@ export function advance(state, action, value) {
     case 'echo':
       return state.memory === visions.length && state.echo < echoes.length && echoes[state.echo][1] === value
         ? { ...state, echo: state.echo + 1 } : state;
+    case 'enterArchive':
+      return state.echo === echoes.length && !state.archiveStarted ? { ...state, archiveStarted: true } : state;
+    case 'archiveAnswer':
+      return state.archiveStarted && state.archiveStep < archive.length && archive[state.archiveStep].answer === value
+        ? { ...state, archiveStep: state.archiveStep + 1 } : state;
+    case 'archiveDecision':
+      return state.archiveStep === archive.length && !state.archiveDecision && Object.hasOwn(archiveDecisions, value)
+        ? { ...state, archiveDecision: value } : state;
     default:
       return state;
   }
@@ -62,5 +110,9 @@ export function restore(saved) {
   for (const [index, [, answer]] of echoes.entries()) {
     if (index < saved?.echo && Number.isInteger(saved.echo)) state = advance(state, 'echo', answer);
   }
-  return state;
+  if (saved?.archiveStarted === true) state = advance(state, 'enterArchive');
+  for (const [index, record] of archive.entries()) {
+    if (Number.isInteger(saved?.archiveStep) && index < saved.archiveStep) state = advance(state, 'archiveAnswer', record.answer);
+  }
+  return advance(state, 'archiveDecision', saved?.archiveDecision);
 }

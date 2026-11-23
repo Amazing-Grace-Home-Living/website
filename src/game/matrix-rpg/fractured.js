@@ -1,4 +1,4 @@
-import { advance, clues, echoes, initialState, restore, roles, verdicts, visions } from './fractured-state.js';
+import { advance, archive, archiveDecisions, clues, echoes, initialState, restore, roles, verdicts, visions } from './fractured-state.js';
 
 const key = 'matrix-of-conscience.fractured.chapter-one.v1';
 const $ = id => document.getElementById(id);
@@ -64,6 +64,13 @@ function render() {
     note('Reflection: When has telling the truth helped someone? How could you speak it with care? See Ephesians 4:15.');
   }
 
+  if (state.archiveStarted) {
+    for (const record of archive.slice(0, state.archiveStep)) note(record.finding);
+    if (state.archiveDecision) note(archiveDecisions[state.archiveDecision][1]);
+    renderArchive();
+    return;
+  }
+
   if (!state.role) {
     for (const [role, description] of Object.entries(roles)) choose(`${role} · ${description}`, 'role', role);
   } else if (state.clues.length < Object.keys(clues).length) {
@@ -87,6 +94,28 @@ function render() {
     }
   } else {
     scene('The Five Fractures', 'The shard steadies, then the sky breaks open. This time everyone sees it. Five beacons ignite beyond the city. Did the Matrix break, or was it designed to fail?');
+    choose('Enter Wisdom Archive · Chapter 2', 'enterArchive');
+  }
+}
+
+function renderArchive() {
+  if (state.archiveStep < archive.length) {
+    const record = archive[state.archiveStep];
+    scene(record.title, state.archiveStep === 0
+      ? 'The books are still on their shelves. People are forgetting the ideas inside them. Start with the oldest surviving record.'
+      : 'Compare the surviving sources before restoring this entry.');
+    for (const text of [record.source, record.question]) {
+      const paragraph = document.createElement('p');
+      paragraph.textContent = text;
+      $('scene-actions').append(paragraph);
+    }
+    record.options.forEach((option, index) => choose(option, 'archiveAnswer', index, 'Read the surviving source again and check what it directly supports.'));
+  } else if (!state.archiveDecision) {
+    scene('Restore the Archive', 'The Curator can no longer erase the evidence. How will you return it to the city?');
+    for (const [id, [label]] of Object.entries(archiveDecisions)) choose(label, 'archiveDecision', id);
+  } else {
+    scene('The Order to Forget', 'The repaired index points to a second beacon. In the margin, an unsigned note reads: “If they remember the objections, they will ask who signed the order.”');
+    note('Reflection: What do you owe others when the truth is hard to hear?');
   }
 }
 
