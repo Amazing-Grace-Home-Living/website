@@ -55,9 +55,9 @@ function render() {
   $('lessons').replaceChildren(...LESSONS.map((lesson, i) => {
     const open = lessonUnlocked(state, lesson.id), passed = state.quizzes[lesson.id]?.best >= PASS_COUNT;
     const card = document.createElement('article'); card.className = passed ? 'completed' : '';
-    card.innerHTML = `<p class="eyebrow">LESSON 0${i + 1} · ${lesson.minutes} MIN</p><h3>${lesson.title}</h3><p>${lesson.summary}</p><p class="state">${passed ? '✓ Passed' : open ? 'Ready to learn' : 'Locked'}</p><p>${open ? `Best: ${state.quizzes[lesson.id]?.best || 0} / 4 · Attempts: ${state.quizzes[lesson.id]?.attempts || 0}` : `Complete ${LEVELS.find(l => l.id === lesson.requires[0]).title} first.`}</p>`;
+    card.innerHTML = `<p class="eyebrow">${lesson.id === 'foundations' ? 'OPTIONAL TUTORIAL' : `LESSON 0${i + 1}`} · ${lesson.minutes} MIN</p><h3>${lesson.title}</h3><p>${lesson.summary}</p><p class="state">${passed ? '✓ Passed' : open ? 'Ready to learn' : 'Locked'}</p><p>${open ? `Best: ${state.quizzes[lesson.id]?.best || 0} / 4 · Attempts: ${state.quizzes[lesson.id]?.attempts || 0}` : `Complete ${LEVELS.find(l => l.id === lesson.requires[0]).title} first.`}</p>`;
     const button = document.createElement('button'); button.type = 'button'; button.disabled = !open; button.dataset.lesson = lesson.id;
-    button.textContent = passed ? 'Review lesson →' : 'Read and take quiz →';
+    button.textContent = passed ? 'Review lesson →' : lesson.id === 'foundations' ? 'Optional lesson & quiz →' : 'Read and take quiz →';
     button.onclick = () => showLesson(lesson.id); card.append(button); return card;
   }));
   $('match-status').textContent = state.completedLevels.includes('match-1') ? '✓ Nexus practice milestone complete · level bonuses remain available once each' : 'Ready to play · earn 50 Signal Bonus credits per level';
