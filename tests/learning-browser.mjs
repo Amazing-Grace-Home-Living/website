@@ -22,6 +22,15 @@ try {
   await page.locator('a.primary[href="/lms/"]').first().click();
   await page.waitForSelector('[data-lesson="foundations"]');
   assert.equal(await page.locator('[data-lesson="tactics"]').isDisabled(), true);
+  assert.match(await page.locator('#next-step-title').textContent(), /Nexus Defense/);
+  assert.match(await page.locator('#mission-cards').first().textContent(), /Unlocked/);
+  await visit('/src/game/tower-defense/index.html?stage=nexus');
+  await page.waitForFunction(() => document.getElementById('mission-status').textContent.includes('Mission ready'));
+  await page.locator('#btn-starter-tower').click();
+  assert.match(await page.locator('#mission-status').textContent(), /placed at column 4, row 5/);
+  assert.equal(await page.locator('#credits').textContent(), '100');
+  assert.equal(await page.locator('#btn-starter-tower').isDisabled(), true);
+  assert.equal(await page.locator('#btn-wave').isDisabled(), false);
   await visit('/src/game/tower-defense/index.html?stage=boss');
   await page.waitForFunction(() => document.getElementById('mission-status').textContent.includes('Locked'));
   assert.equal(await page.locator('#btn-wave').isDisabled(), true);
@@ -38,7 +47,7 @@ try {
   assert.equal(await page.locator('#xp').textContent(), '0');
   await quiz('foundations');
   assert.equal(await page.locator('#xp').textContent(), '50');
-  assert.match(await page.locator('#mission-cards').first().textContent(), /Complete Code Matrix/);
+  assert.match(await page.locator('#mission-cards').first().textContent(), /Unlocked/);
   // Fixture a nearly completed puzzle, then earn the milestone through normal inputs.
   await visit('/arcade/code-matrix/');
   await page.waitForSelector('.tile');
@@ -149,7 +158,7 @@ try {
   await blockedPage.goto(`${origin}/lms/`);
   await blockedPage.waitForFunction(() => document.getElementById('save-note').textContent.includes('Saving is unavailable'));
   await blockedPage.goto(`${origin}/src/game/tower-defense/index.html`);
-  await blockedPage.waitForFunction(() => document.getElementById('mission-status').textContent.includes('Locked'));
+  await blockedPage.waitForFunction(() => document.getElementById('mission-status').textContent.includes('Mission ready'));
   await blocked.close();
-  console.log('PASS full quiz → puzzle → three defense missions → badges flow, replay XP, locked deep links, mobile layout, blocked storage; no page errors');
+  console.log('PASS tower defense first → optional quiz/puzzle → later defense missions, gated deep links, mobile layout and blocked storage');
 } finally { await browser?.close(); server.kill(); }
