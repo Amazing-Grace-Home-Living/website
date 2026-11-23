@@ -8,10 +8,18 @@ function storageUnavailable() {
   $('save-status').textContent = 'Browser storage is unavailable. Progress lasts until you leave or reload this page.';
 }
 
+let rawSave;
 try {
-  state = restore(JSON.parse(localStorage.getItem(key)));
+  rawSave = localStorage.getItem(key);
 } catch {
   storageUnavailable();
+}
+if (rawSave) {
+  try {
+    state = restore(JSON.parse(rawSave));
+  } catch {
+    $('save-status').textContent = 'An unreadable story save was found. Starting fresh; the other Matrix campaign is unchanged.';
+  }
 }
 
 function choose(label, action, value, retry = '', success = '') {
@@ -51,6 +59,7 @@ function note(text) {
 
 function chapterProgress() {
   if (!state.role) return 'Select a calling to begin. All four can finish the story.';
+  if (state.councilDecision) return 'Chapter 3 complete · The Second Beacon awaits';
   if (state.councilStarted) return `The Council of Unwritten Names · Evidence ${Math.min(state.councilStep, council.length)} of ${council.length}`;
   if (state.archiveStarted) return `Wisdom Archive · Recovered records ${Math.min(state.archiveStep, archive.length)} of ${archive.length}`;
   if (!state.verdict) return `Harmony Square · Witness accounts ${state.clues.length} of ${Object.keys(clues).length}`;
