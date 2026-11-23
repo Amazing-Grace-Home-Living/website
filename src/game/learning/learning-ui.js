@@ -60,7 +60,7 @@ function render() {
     button.textContent = passed ? 'Review lesson →' : lesson.id === 'foundations' ? 'Optional lesson & quiz →' : 'Read and take quiz →';
     button.onclick = () => showLesson(lesson.id); card.append(button); return card;
   }));
-  $('match-status').textContent = state.completedLevels.includes('match-1') ? '✓ Nexus practice milestone complete · level bonuses remain available once each' : 'Ready to play · earn 50 Signal Bonus credits per level';
+  $('match-status').textContent = state.completedLevels.includes('match-1') ? '✓ Code Matrix bonus earned · more level bonuses remain available' : 'Ready to play · earn 50 Signal Bonus credits per level';
   $('mission-cards').replaceChildren(...LEVELS.filter(l => l.stage).map((level, i) => {
     const missing = missingRequirements(state, level.id), done = state.completedLevels.includes(level.id);
     const card = document.createElement('article'); card.className = done ? 'completed' : '';
