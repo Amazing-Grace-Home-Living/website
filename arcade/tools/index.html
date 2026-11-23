@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101a24">
+  <meta name="description" content="Local AI setup, shared arcade progress, and host-side tools for Amazing Grace games.">
+  <title>Tools &amp; AI · Amazing Grace</title>
+  <link rel="stylesheet" href="/src/game/learning/learning.css"><link rel="stylesheet" href="/src/brand.css">
+  <style>
+    .tools-hero{padding:4rem 0 2rem;max-width:760px}
+    .tools-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+    .tools-card{padding:1.5rem;background:var(--panel);border:1px solid var(--line);border-radius:14px}
+    .tools-card h2{margin-top:0}.tools-card p{font-size:.9rem}.tools-card .button{margin-top:.5rem}
+    .tools-note{margin:2rem 0;padding:1.25rem;border:1px solid #608f86;border-radius:14px;background:#172b32}
+    @media(max-width:650px){.tools-hero{padding:2rem 0 1rem}.tools-grid{grid-template-columns:1fr}}
+  </style>
+<link rel="stylesheet" href="/src/theme/dark.css" media="(prefers-color-scheme: dark)" onload="this.media='all'">
+<style>.BannerDescription{font-size:clamp(2.5rem,5.5vw,4.5rem);line-height:1.1;color:var(--ink);}</style></head>
+<body>
+  <header>
+    <a class="brand-mark-link" href="/" aria-label="Amazing Grace Home Living homepage"><svg class="brand-horizontal" viewBox="15 910 1235 300" aria-hidden="true"><image href="/assets/brand-sheet.png" width="1280" height="1280"/></svg><svg class="brand-compact" viewBox="805 310 450 440" aria-hidden="true"><image href="/assets/brand-sheet.png" width="1280" height="1280"/></svg></a>
+    <nav aria-label="Main"><a href="/arcade/">Arcade</a><a href="/lms/">Learn &amp; Play</a></nav>
+  </header>
+  <main>
+    <section class="tools-hero">
+      <p class="eyebrow">OPTIONAL SUPPORT / LOCAL-FIRST</p>
+      <h1>Tools that help you keep going.</h1>
+      <p>Connect a local LM Studio model, review shared game progress, or open host-side setup guidance. The LMS never asks for provider credentials.</p>
+        <article class="tools-card">
+      <p class="eyebrow">CHROME EXTENSION</p>
+      <h2>Nexus Toolbox Extension (Chrome)</h2>
+      <p>Install the Nexus Toolbox Chrome extension to integrate AI tools directly into your browser.</p>
+      <a class="button primary" href="/downloads/NexusToolboxExtension.zip" download>Download Extension →</a>
+    </article>
+    </section>
+    <section class="tools-grid" aria-label="Tools">
+      <article class="tools-card">
+        <p class="eyebrow">LM STUDIO / LOCAL AI</p><h2>AI setup wizard</h2>
+        <p>Discover models from an OpenAI-compatible LM Studio server, choose a chat model, and run a short connection check.</p>
+        <a class="button primary" href="/lms/#ai-setup">Open LM Studio setup →</a>
+      </article>
+      <article class="tools-card">
+        <p class="eyebrow">SHARED ARCADE PROGRESS</p><h2>Player profile</h2>
+        <p>Review local XP, ranks, badges, game milestones, and the Cyber Planet transfer mission.</p>
+        <a class="button" href="/arcade/academy/">Open player profile →</a>
+      </article>
+      <article class="tools-card">
+        <p class="eyebrow">HOST COMPANION</p><h2>Grace Remote toolbox</h2>
+        <p>Use the local companion console for host-side setup and provider guidance. It is intentionally loopback-only.</p>
+        <a class="button" href="http://127.0.0.1:8787/toolbox/" target="_blank" rel="noopener">Open local toolbox →</a>
+      </article>
+      <article class="tools-card">
+        <p class="eyebrow">LEARNING PASSPORT</p><h2>Progress backup</h2>
+        <p>Preview and restore browser-local learning records from the LMS without uploading them to a server.</p>
+        <a class="button" href="/lms/#progress-tools">Manage learning passport →</a>
+      </article>
+        <article class="tools-card">
+      <p class="eyebrow">CHROME EXTENSION</p>
+      <h2>Nexus Toolbox Extension (Chrome)</h2>
+      <p>Install the Nexus Toolbox Chrome extension to integrate AI tools directly into your browser.</p>
+      <a class="button primary" href="/downloads/NexusToolboxExtension.zip" download>Download Extension →</a>
+    </article>
+    </section>
+    <section class="tools-note">
+      <h2>Privacy boundary</h2>
+      <p>LM Studio requests go directly from this browser to the endpoint you choose. Provider credentials belong in the host vault or LM Studio’s own configuration, not in this site, chat, or exported progress files.</p>
+        <article class="tools-card">
+      <p class="eyebrow">CHROME EXTENSION</p>
+      <h2>Nexus Toolbox Extension (Chrome)</h2>
+      <p>Install the Nexus Toolbox Chrome extension to integrate AI tools directly into your browser.</p>
+      <a class="button primary" href="/downloads/NexusToolboxExtension.zip" download>Download Extension →</a>
+    </article>
+    </section>
+  </main>
+  <footer><a href="/arcade/">← All arcade games</a><span>Amazing Grace · Local-first tools</span></footer>
+<figure><img src='https://via.placeholder.com/300x200?text=index' alt='Screenshot of index game' loading='lazy'></figure></body>
+</html>
+

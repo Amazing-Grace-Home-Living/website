@@ -1,0 +1,63 @@
+const $=s=>document.querySelector(s);
+let token='';
+let busy=false;
+let history=[];
+let terminalTimer;
+let codexTask=null;
+let cursor=0;
+let lastActivity=Date.now();
+let secrets = {};
+async function loadSecrets(){
+  const items = await new Promise(res=>chrome.storage.local.get(['geminiKey','openaiKey','firebaseToken','githubToken'], res));
+  secrets = {geminiKey: items.geminiKey||'', openaiKey: items.openaiKey||'', firebaseToken: items.firebaseToken||'', githubToken: items.githubToken||''};
+  // Populate UI fields if present
+  if($('#gemini-key')) $('#gemini-key').value = secrets.geminiKey;
+  if($('#openai-key')) $('#openai-key').value = secrets.openaiKey;
+  if($('#firebase-token')) $('#firebase-token').value = secrets.firebaseToken;
+  if($('#github-token')) $('#github-token').value = secrets.githubToken;
+}
+loadSecrets();
+// Save secrets from UI
+$('#save-secrets').onclick = async()=>{
+  const geminiKey = $('#gemini-key').value.trim();
+  const openaiKey = $('#openai-key').value.trim();
+  const firebaseToken = $('#firebase-token').value.trim();
+  const githubToken = $('#github-token').value.trim();
+  await new Promise(res=>chrome.storage.local.set({geminiKey,openaiKey,firebaseToken,githubToken}, res));
+  secrets = {geminiKey,openaiKey,firebaseToken,githubToken};
+  status('Secrets saved locally.');
+};
+$('#extension-id').textContent=chrome.runtime.id;
+async function api(path,body){
+  if(!token)throw Error('Enter the companion token and connect.');
+  const headers = {
+    Authorization: 'Bearer '+token,
+    'X-Grace-Extension-Id': chrome.runtime.id,
+    ...(body?{'Content-Type':'application/json'}:{}),
+    // Inject stored secrets as custom headers if present
+    ...(secrets.geminiKey?{'X-Gemini-Key':secrets.geminiKey}:{}),
+    ...(secrets.openaiKey?{'X-OpenAI-Key':secrets.openaiKey}:{}),
+    ...(secrets.firebaseToken?{'X-Firebase-Token':secrets.firebaseToken}:{}),
+    ...(secrets.githubToken?{'X-GitHub-Token':secrets.githubToken}:{})
+  };
+  const r=await fetch('http://127.0.0.1:8787'+path,{method:body?'POST':'GET',headers, ...(body?{body:JSON.stringify(body)}:{})});
+  let data;
+  try{data=await r.json();}catch{throw Error('Connection rejected. Enable this extension ID on the host, or check the companion is running.');}
+  if(!r.ok)throw Error(data.error||'Request rejected.');
+  return data;
+}
+function status(text){$('#status').textContent=text;}
+function addMessage(label,text){const p=document.createElement('div');p.className='message';p.textContent=label+'\n'+text;$('#messages').append(p);return p;}
+function lock(){chrome.storage.session.remove('bridgeToken');token='';history=[];busy=false;codexTask=null;$('#send').disabled=false;$('#provider').disabled=false;$('#token').value='';$('#messages').textContent='';$('#output').textContent='';clearTimeout(terminalTimer);status('Locked. Reconnect using your saved companion token.');}
+$('#connect').onclick=async()=>{token=$('#token').value.trim()||(await chrome.storage.session.get('bridgeToken')).bridgeToken||'';try{const r=await api('/api/terminal');$('#token').value='';await chrome.storage.session.set({bridgeToken:token});status('Companion connected. PowerShell '+(r.enabled&&r.available?'enabled':'unavailable or disabled')+'.');}catch(e){token='';status(e.message);}};
+$('#lock').onclick=lock;
+$('#chat-tab').onclick=()=>{$('#chat').hidden=false;$('#terminal').hidden=true;};$('#terminal-tab').onclick=()=>{$('#chat').hidden=true;$('#terminal').hidden=false;};
+$('#models').onclick=async()=>{if(busy)return;try{if($('#provider').value==='codex'){status('Codex uses the account signed in on your host.');return;}const data=await api('/api/'+$('#provider').value+'/models');$('#model').replaceChildren(...data.models.map(m=>{const o=document.createElement('option');o.value=o.textContent=m.id;return o;}));status(data.models.length?'Models loaded.':'No models found. Load a chat model on your host first.');}catch(e){status(e.message);}};
+$('#provider').onchange=()=>{if(busy)return;history=[];$('#model').replaceChildren();$('#messages').textContent='';};
+async function pollCodex(reply){if(!codexTask||!token)return;try{const data=await api('/api/events?after='+cursor);for(const e of data.events){cursor=e.seq;const m=e.message,p=m.params||{};if(p.threadId!==codexTask.threadId)continue;if(m.method==='item/agentMessage/delta')reply.textContent+=(p.delta||'');if(m.method==='turn/completed'){busy=false;codexTask=null;$('#send').disabled=false;$('#provider').disabled=false;status(p.turn?.error?.message||'Codex turn finished. Review results in full console.');return;}}if(data.approvals?.length)status('Codex needs approval. Open Full console to review the exact request.');setTimeout(()=>pollCodex(reply),1000);}catch(e){busy=false;$('#send').disabled=false;$('#provider').disabled=false;status(e.message);}}
+$('#chat-form').onsubmit=async e=>{e.preventDefault();if(busy)return;const prompt=$('#prompt').value.trim();if(!prompt)return;if(/(?:github_pat_|ghp_|sk-proj-|Bearer\s)/i.test(prompt)){status('Do not send credentials in chat.');return;}const provider=$('#provider').value;if(provider!=='codex'&&!$('#model').value){status('Refresh models and select a model first.');return;}busy=true;$('#send').disabled=true;$('#provider').disabled=true;addMessage('YOU',prompt);const reply=addMessage(provider.toUpperCase(),'');$('#prompt').value='';try{if(provider==='codex'){await api('/api/connect',{});codexTask=await api('/api/task',{text:prompt});pollCodex(reply);return;}history.push({role:'user',content:prompt});const r=await api('/api/'+provider+'/chat',{model:$('#model').value,messages:history.slice(-20)});reply.textContent=r.text;history.push({role:'assistant',content:r.text});}catch(e){reply.textContent=e.message;}busy=false;$('#send').disabled=false;$('#provider').disabled=false;};
+$('#stop-ai').onclick=async()=>{try{if(codexTask)await api('/api/interrupt',codexTask);else await api('/api/'+$('#provider').value+'/stop',{});}catch(e){status(e.message);}};
+async function pollTerminal(){try{const r=await api('/api/terminal');if(r.job){$('#output').textContent=r.job.output+(!r.job.running?'\n[Finished · exit '+r.job.exitCode+']':'');if(r.job.running)terminalTimer=setTimeout(pollTerminal,1000);}}catch(e){status(e.message);}}
+$('#terminal-form').onsubmit=async e=>{e.preventDefault();try{await api('/api/terminal/run',{command:$('#command').value});await pollTerminal();}catch(e){status(e.message);}};
+$('#stop-command').onclick=()=>api('/api/terminal/stop',{}).catch(e=>status(e.message));
+for(const ev of ['pointerdown','keydown'])addEventListener(ev,()=>lastActivity=Date.now());setInterval(()=>{if(token&&Date.now()-lastActivity>600000)lock();},15000);addEventListener('pagehide',lock);
