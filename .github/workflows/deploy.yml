@@ -60,4 +60,3 @@ jobs:
           else
             echo "Nothing changed, skipping push."
           fi
-
