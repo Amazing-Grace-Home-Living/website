@@ -9,6 +9,14 @@ const functions = read('functions/src/index.ts');
 const template = read('public/auth.template.js');
 const build = read('scripts/build.mjs');
 
+test('the arcade Firebase config cannot select legacy Firestore rules', () => {
+  const root = JSON.parse(read('firebase.json'));
+  const arcade = JSON.parse(read('arcade/firebase.json'));
+  assert.equal(root.firestore.rules, 'firestore.rules');
+  assert.equal(arcade.firestore, undefined);
+  assert.equal(arcade.functions.source, 'functions');
+});
+
 test('Firestore rules reserve financial fields and block forged donations', () => {
   assert.match(rules, /match \/users\/\{uid\}/);
   assert.match(rules, /affectedKeys\(\)\.hasOnly\(editableProfileKeys\(\)\)/);

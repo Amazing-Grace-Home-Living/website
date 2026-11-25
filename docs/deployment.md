@@ -36,6 +36,8 @@ firebase deploy --only storage,firestore:rules --project amazing-grace-hl
 ```
 This is a privileged operation. Until it is run, changing the repository files alone does **not** secure the live Firebase bucket. Migrating any legacy Firebase Storage paths may be necessary.
 
+The root `firebase.json` is the only configured deployment source for Firestore rules. `arcade/firebase.json` configures the legacy arcade functions only; `arcade/firestore.rules` is historical and must not be deployed. Its broader user-document permissions would allow clients to change fields reserved for trusted services. Run any reviewed rules deployment from the repository root and verify the project and active rules first. This configuration change does not alter or verify the live Firebase rules.
+
 ## Local commands
 ```bash
 npm ci
