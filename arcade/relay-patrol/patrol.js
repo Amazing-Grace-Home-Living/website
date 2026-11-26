@@ -137,3 +137,5 @@ for (const button of document.querySelectorAll('[data-control]')) {
   button.addEventListener('lostpointercapture', event => pointers.delete(event.pointerId));
 }
 draw();
+
+start.disabled = false;
