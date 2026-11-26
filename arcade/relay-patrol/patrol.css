@@ -1,0 +1,5 @@
+.patrol { max-width: 33rem; margin: 1rem auto; padding: 0 1rem 2rem; }
+.patrol h1 { font-size: clamp(2rem, 8vw, 3rem); margin: 0.5rem 0; }
+.patrol canvas { display: block; width: 100%; height: auto; border: 1px solid #6a654f; border-radius: 0.5rem; background: #101826; }
+.patrol-controls { display: flex; gap: 0.5rem; margin-top: 0.65rem; }
+.patrol-controls button { flex: 1; min-height: 44px; touch-action: none; user-select: none; }

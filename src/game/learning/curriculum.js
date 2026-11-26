@@ -76,13 +76,9 @@ export const LEVELS = [
   { id: 'rpg-garden', title: 'RPG · Restore the Echo Gardens', xp: 75, requires: [] },
   { id: 'rpg-commons', title: 'RPG · Restore the Lantern Commons', xp: 100, requires: [{ level: 'rpg-garden' }] },
   { id: 'rpg-archive', title: 'RPG · Restore the Living Archive', xp: 150, requires: [{ level: 'rpg-commons' }] },
-  { id: 'tower-nexus', stage: 'nexus', title: 'Nexus Defense', waves: 3, xp: 100, requires: [
-    { quiz: 'foundations' }, { anyLevel: ['match-1', 'matrix-session', 'matrix-academy', 'rpg-garden'], label: 'Complete Code Matrix level 1, or use an already earned legacy Matrix or RPG practice milestone' },
-  ] },
-  { id: 'tower-syndicate', stage: 'syndicate', title: 'Syndicate Siege', waves: 4, xp: 150, requires: [{ level: 'tower-nexus' }, { quiz: 'tactics' }] },
-  { id: 'tower-boss', stage: 'boss', title: 'Boss Emergence', waves: 5, xp: 200, requires: [{ level: 'tower-syndicate' }, { quiz: 'adaptation' }] },
-  { id: 'tower-sovereign', stage: 'sovereign', title: 'Act IV · The Sovereign Conscience', waves: 3, firstWave: 10, xp: 250, requires: [{ level: 'tower-boss' }, { quiz: 'sovereignty' }] },
+  { id: 'tower-nexus', stage: 'nexus', title: 'Nexus Defense', waves: 3, xp: 100, requires: [] },
+  { id: 'tower-syndicate', stage: 'syndicate', title: 'Syndicate Siege', waves: 4, xp: 150, requires: [] },
+  { id: 'tower-boss', stage: 'boss', title: 'Boss Emergence', waves: 5, xp: 200, requires: [] },
+  { id: 'tower-sovereign', stage: 'sovereign', title: 'Act IV · The Sovereign Conscience', waves: 3, firstWave: 10, xp: 250, requires: [] },
 ];
-// Act IV follows Wave 9 directly; the sovereignty lesson remains optional reflection.
-LEVELS.find(level => level.id === 'tower-sovereign').requires = [{ level: 'tower-boss' }];
 export const PASS_COUNT = 3;

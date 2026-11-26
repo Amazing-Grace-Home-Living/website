@@ -19,10 +19,14 @@ function game(stage = 'nexus') {
   return g;
 }
 
-test('locked missions reject wave starts, placement, and stage switching', () => {
-  const g = game(); g.status = 'locked'; g.startWave(); g.placeTower(1, 1);
-  assert.equal(g.waveActive, false); assert.equal(g.towers.length, 0);
-  g.switchStage('boss'); assert.equal(g.stage, 'nexus'); assert.match(g.message, /Locked/);
+test('stage switching needs no lesson or earlier stage completion', () => {
+  const g = game();
+  g.renderStage = () => {};
+  g.switchStage('boss');
+  assert.equal(g.stage, 'boss');
+  assert.equal(g.status, 'ready');
+  g.switchStage('unknown');
+  assert.equal(g.stage, 'boss');
 });
 
 test('restart clears pending spawns, effects, timers, budget, health, and score', () => {

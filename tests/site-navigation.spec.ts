@@ -71,11 +71,15 @@ test('only curated Clearwater photos are published to the static site', async ({
   }
 });
 
-test('Matrix Defense initializes and enforces a locked mission', async ({ page }) => {
+test('Matrix Defense opens Act IV directly on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/src/game/tower-defense/index.html?stage=boss');
-  await expect(page.locator('#mission-status')).toContainText('Locked');
+  await page.goto('/src/game/tower-defense/index.html?stage=sovereign');
+  await expect(page.locator('#mission-status')).toContainText('Mission ready');
+  await expect(page.locator('#stage-title')).toContainText('Act IV');
+  await page.getByRole('button', { name: /Diplomacy/ }).click();
+  await page.locator('#btn-wave').click();
   await expect(page.locator('#btn-wave')).toBeDisabled();
+  await expect(page.locator('#wave')).toHaveText('10 / 12');
   await expect(page.getByRole('button', { name: 'Stage 1: Nexus' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });

@@ -148,11 +148,11 @@ test('external deletion clears campaign and Academy memory without reviving old 
   campaign.complete('bible-quiz'); assert.equal(campaign.read().completedLevels.includes('match-1'), false);
 });
 
-test('next-step guidance follows learning prerequisites and never links a locked mission', () => {
-  let state = emptyProgress(); assert.equal(nextLearningStep(state).id, 'foundations');
-  state = pass(state, 'foundations'); assert.equal(nextLearningStep(state).kind, 'practice');
-  state = completeLevel(state, 'match-1'); assert.equal(nextLearningStep(state).id, 'tower-nexus');
-  state = completeLevel(state, 'tower-nexus'); assert.equal(nextLearningStep(state).id, 'tactics');
-  state = pass(state, 'tactics'); assert.equal(nextLearningStep(state).id, 'tower-syndicate');
-  state = completeLevel(state, 'tower-syndicate'); assert.equal(nextLearningStep(state).id, 'adaptation');
+test('next-step guidance starts with defense and offers lessons after combat', () => {
+  let state = emptyProgress();
+  for (const stage of ['tower-nexus', 'tower-syndicate', 'tower-boss', 'tower-sovereign']) {
+    assert.equal(nextLearningStep(state).id, stage);
+    state = completeLevel(state, stage);
+  }
+  assert.equal(nextLearningStep(state).id, 'foundations');
 });

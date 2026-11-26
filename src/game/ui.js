@@ -36,6 +36,7 @@ function render() {
   $('level-title').replaceChildren(document.createTextNode(`Level ${state.level} `));
   const span = document.createElement('span'); span.textContent = 'of 5'; $('level-title').append(span);
   $('progress').max = LEVELS[state.level - 1].target; $('progress').value = state.score;
+  $('choose-level').value = String(state.level); $('choose-level').disabled = locked;
   $('hint').disabled = locked || state.status !== 'playing'; $('restart').disabled = locked;
   $('next').hidden = state.status !== 'won'; $('next').disabled = locked;
   $('badges').replaceChildren(...badgeNames.map((name, i) => {
@@ -46,10 +47,10 @@ function render() {
   }));
 }
 function statusMessage() {
-  if (state.status === 'complete') announce('All five Code Matrix levels complete. Your bonus credits are ready for Matrix Defense.');
+  if (state.status === 'complete') announce('Level 5 complete. Choose any level to play again.');
   else if (state.status === 'won') announce('Build complete! Level secured. Continue to the next Code Matrix level.');
   else if (state.status === 'lost') announce('Out of moves. Restart this level and try a fresh board.');
-  else announce('Match two neighboring code symbols to build your score.');
+  else announce('Swap two neighboring symbols to make a line of three or more.');
 }
 function ensureMoves() {
   if (state.status === 'playing' && !findLegalMoves(state.grid).length) {
@@ -88,9 +89,9 @@ async function move(from, to) {
       const previousBonus = readBonus();
       const bonusWasEarned = previousBonus.awards.includes(bonusId);
       const bonus = awardBonus(bonusId, 50);
-      if (state.status === 'complete') award('Seven Stars champion'); statusMessage();
+      if (LEVELS.every((_, i) => campaign.read().completedLevels.includes(`match-${i + 1}`))) award('Seven Stars champion');
       const rewardNote = bonusWasEarned ? 'This level’s bonus was already earned.' : bonus.awards.includes(bonusId) ? '+50 Signal Bonus credits.' : 'Signal Bonus could not be saved in this browser.';
-      announce(`${state.status === 'complete' ? 'All five Code Matrix levels complete!' : 'Code Matrix level complete.'} ${rewardNote} Bonus balance: ${bonus.credits} credits. Spend them on Matrix Defense towers and drones.`);
+      announce(`Code Matrix level complete. ${rewardNote} Bonus balance: ${bonus.credits} credits. Spend them on Matrix Defense towers and drones.`);
     } else if (state.moves === 0) { state.status = 'lost'; statusMessage(); }
     ensureMoves(); persist();
   } finally { if (generation === stateGeneration) { locked = false; render(); } }
@@ -129,11 +130,28 @@ $('board').addEventListener('pointerup', event => {
   pointer = null;
 });
 $('hint').addEventListener('click', () => { ensureMoves(); const first = findLegalMoves(state.grid)[0]; hint = first ? [first.from, first.to] : []; selected = null; render(); persist(); announce('The outlined neighbors will make a match.'); });
+function startLevel(level, total, openSelection = state.openSelection) {
+  state = newGame(level, total, state.badges);
+  if (openSelection) state.openSelection = true;
+  selected = null; hint = []; pointer = null;
+  render(); persist(); statusMessage();
+}
+function confirmAbandon(message) {
+  return state.status !== 'playing' || state.moves === LEVELS[state.level - 1].moves || window.confirm(message);
+}
 $('restart').addEventListener('click', () => {
-  if (state.moves < LEVELS[state.level - 1].moves && state.status === 'playing' && !window.confirm('Restart this level? Your current level score will reset.')) return;
-  state = newGame(state.level, state.total - state.score, state.badges); selected = null; hint = []; render(); persist(); statusMessage();
+  if (confirmAbandon('Restart this level? Your current level score will reset.')) startLevel(state.level, state.total - state.score);
 });
-$('next').addEventListener('click', () => { if (state.status !== 'won') return; state = newGame(state.level + 1, state.total, state.badges); selected = null; hint = []; render(); persist(); statusMessage(); });
+$('choose-level').addEventListener('change', event => {
+  const level = Number(event.target.value);
+  if (!Number.isInteger(level) || !LEVELS[level - 1] || level === state.level) return;
+  if (confirmAbandon('Switch levels? Your current board and level score will reset.')) {
+    startLevel(level, state.status === 'playing' ? state.total - state.score : state.total, true);
+  } else event.target.value = String(state.level);
+});
+$('next').addEventListener('click', () => {
+  if (state.status === 'won') startLevel(state.level + 1, state.total);
+});
 statusMessage(); ensureMoves(); render(); persist();
 window.addEventListener('storage', event => {
   if (event.key !== SAVE_KEY && event.key !== null) return;

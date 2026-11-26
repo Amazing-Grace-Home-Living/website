@@ -12,15 +12,12 @@ function memoryStorage() {
   return { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
 }
 
-test('Nexus requires both a quiz pass and either puzzle completion', () => {
+test('all four defense stages are playable before any lessons or puzzles', () => {
   const initial = emptyProgress();
-  assert.equal(levelUnlocked(initial, 'tower-nexus'), false);
-  const quiz = passed(initial, 'foundations');
-  assert.equal(levelUnlocked(quiz, 'tower-nexus'), false);
-  assert.equal(levelUnlocked(completeLevel(quiz, 'match-1'), 'tower-nexus'), true);
-  assert.equal(levelUnlocked(completeLevel(quiz, 'matrix-session'), 'tower-nexus'), true);
-  assert.equal(levelUnlocked(completeLevel(quiz, 'bible-quiz'), 'tower-nexus'), false);
-  assert.throws(() => completeLevel(initial, 'tower-nexus'), /locked/);
+  for (const stage of ['tower-nexus', 'tower-syndicate', 'tower-boss', 'tower-sovereign']) {
+    assert.equal(levelUnlocked(initial, stage), true);
+    assert.deepEqual(completeLevel(initial, stage).completedLevels, [stage]);
+  }
   assert.equal(initial.completedLevels.length, 0);
 });
 
@@ -39,14 +36,14 @@ test('quiz grading requires a full submission and three correct; failure is retr
   three[1] = wrong[1]; assert.equal(gradeQuiz('foundations', three).passed, false);
 });
 
-test('full campaign follows lesson and defense prerequisites, with idempotent XP', () => {
+test('optional lesson requirements and replay rewards remain consistent, with idempotent XP', () => {
   let state = emptyProgress();
   assert.equal(lessonUnlocked(state, 'tactics'), false);
   assert.throws(() => recordQuiz(state, 'adaptation', answers('adaptation')));
   state = completeLevel(passed(state, 'foundations'), 'match-1');
   state = completeLevel(state, 'tower-nexus');
   assert.equal(lessonUnlocked(state, 'tactics'), true);
-  assert.equal(levelUnlocked(state, 'tower-syndicate'), false);
+  assert.equal(levelUnlocked(state, 'tower-syndicate'), true);
   state = completeLevel(passed(state, 'tactics'), 'tower-syndicate');
   state = completeLevel(passed(state, 'adaptation'), 'tower-boss');
   const summary = progressSummary(state);
@@ -58,10 +55,10 @@ test('full campaign follows lesson and defense prerequisites, with idempotent XP
   assert.equal(progressSummary(state).xp, summary.xp);
 });
 
-test('invalid, future, duplicate, or impossible progress cannot unlock stages', () => {
+test('normalization drops unknown and duplicate records but preserves out-of-order defense wins', () => {
   assert.deepEqual(normalizeProgress({ version: 9 }), emptyProgress());
   const raw = { version: 1, quizzes: { adaptation: { best: 4, attempts: 1 } }, completedLevels: ['tower-boss', 'unknown', 'match-1', 'match-1'] };
-  assert.deepEqual(normalizeProgress(raw).completedLevels, ['match-1']);
+  assert.deepEqual(normalizeProgress(raw).completedLevels, ['match-1', 'tower-boss']);
   assert.deepEqual(normalizeProgress(raw).quizzes, {});
   assert.equal(levelUnlocked(emptyProgress(), 'unknown'), false);
 });
