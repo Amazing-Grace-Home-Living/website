@@ -1,6 +1,7 @@
 import React, { memo, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import MatrixOfConscience from './components/MatrixOfConscience';
+import GamesList from './games/GamesList';
 import { useFamilyStats } from './hooks/useFamilyStats';
 import styles from './arcade-main.module.css';
 import { mountScarletLattice, type ScarletLatticeController } from './fx/scarletLattice';
@@ -117,6 +118,11 @@ function ArcadeApp() {
           </section>
         </div>
 
+        {/* Game selection */}
+        <section className={styles.gameSection}>
+          <GamesList />
+        </section>
+
         <nav className={styles.nav} aria-label="Arcade navigation">
           <a href={homeHref} className={styles.backLink} aria-label="Back to Sanctuary home">
             Back to Sanctuary
@@ -125,16 +131,7 @@ function ArcadeApp() {
       </section>
     </main>
   );
-}
+export default ArcadeApp;
 
-const container = document.getElementById('root');
 
-if (!container) {
-  throw new Error('Root container #root was not found.');
-}
-
-createRoot(container).render(
-  <React.StrictMode>
-    <ArcadeApp />
-  </React.StrictMode>
-);
+// Next.js handles rendering of the app
