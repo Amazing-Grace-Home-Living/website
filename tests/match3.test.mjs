@@ -11,14 +11,13 @@ const [catalog, codeMatrix, legacyRoute, learningUi, gameUi, campaign] = await P
   readFile(new URL('../lms/index.html', import.meta.url), 'utf8'),
 ]);
 
-test('Code Matrix has a playable campaign route; arcade retains one Matrix campaign and links the Intune game', () => {
+test('the arcade links directly to playable modes and Intune', () => {
   assert.match(codeMatrix, /<title>Code Matrix.*Matrix of Conscience<\/title>/);
   assert.match(codeMatrix, /id="board"/);
   assert.match(codeMatrix, /src="\/src\/game\/ui.js"/);
-  assert.match(catalog, /href="\/lms\/">Enter the Matrix campaign/);
-  assert.equal((catalog.match(/<article class="campaign-card"/g) || []).length, 1);
-  assert.match(catalog, /href="\/lms\/microsoft-intune\/mission\/"/);
-  assert.doesNotMatch(catalog, /href="\/arcade\/(powershell-defense|vim-defense|bible-study|seven-stars|matrix-of-conscience)\//);
+  for (const route of ['/src/game/tower-defense/index.html', '/arcade/code-matrix/', '/arcade/relay-patrol/', '/lms/microsoft-intune/mission/']) {
+    assert.ok(catalog.includes(`href="${route}"`), route);
+  }
   assert.match(campaign, /href="\/code-matrix\/">Play Code Matrix/);
   assert.match(legacyRoute, /joined Code Matrix/);
   assert.match(legacyRoute, /href="\/code-matrix\/">Play Code Matrix/);

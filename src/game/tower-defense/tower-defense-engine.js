@@ -1,7 +1,6 @@
 import { DIRECTIVES, SOVEREIGN_ROUTES, WAVE_LESSONS, buildCost, damageType, applyDamage, beamTargets } from './sovereign.js';
 import { campaign } from '../learning/campaign-store.js';
 import { LEVELS } from '../learning/curriculum.js';
-import { levelUnlocked, missingRequirements } from '../learning/progression.js';
 import { claimBonus } from '../learning/bonus-store.js';
 const MISSIONS = Object.fromEntries(LEVELS.filter(level => level.stage).map(level => [level.stage, level]));
 
@@ -71,7 +70,6 @@ export class TowerDefenseGame {
     const requested = new URLSearchParams(window.location.search).get('stage');
     this.stage = Object.hasOwn(MISSIONS, requested) ? requested : 'nexus';
     this.configurePaths();
-    this.status = 'locked';
     this.autoTimer = null;
     this.keyboardCell = { col: 0, row: 0 };
 
@@ -188,12 +186,10 @@ export class TowerDefenseGame {
     this.enemies = [];
     this.projectiles = [];
     this.floatingTexts = [];
-    this.status = levelUnlocked(campaign.read(), MISSIONS[this.stage].id) ? 'ready' : 'locked';
+    this.status = 'ready';
     this.applyVaultBonuses();
     this.setupUI();
-    this.announce(this.status === 'locked'
-      ? `Locked: ${missingRequirements(campaign.read(), MISSIONS[this.stage].id).join(' • ')}. Visit Learn & Play to continue.`
-      : `Mission ready. ${this.bonusCredits ? `Signal bonus +${this.bonusCredits} credits. ` : ''}${this.stage === 'sovereign' ? 'Choose a directive before building. ' : ''}Clear ${MISSIONS[this.stage].waves} waves with core health left. Place towers off the path, then start a wave.`);
+    this.announce(`Mission ready. ${this.bonusCredits ? `Signal bonus +${this.bonusCredits} credits. ` : ''}${this.stage === 'sovereign' ? 'Choose a directive before building. ' : ''}Clear ${MISSIONS[this.stage].waves} waves with core health left. Place towers off the path, then start a wave.`);
   }
 
   setupUI() {
@@ -278,11 +274,14 @@ export class TowerDefenseGame {
       if (this.autoWave && !this.waveActive) this.startWave();
     });
 
-    document.getElementById('btn-restart').addEventListener('click', () => this.resetMission());
-    window.addEventListener('storage', () => {
-      if (!levelUnlocked(campaign.read(), MISSIONS[this.stage].id) || this.status === 'locked') this.resetMission();
-      this.updateHUD();
+    document.getElementById('btn-starter-tower').addEventListener('click', () => {
+      if (this.stage !== 'nexus' || this.status !== 'ready' || this.towers.length) return;
+      this.selectedTowerKey = 'pulse';
+      this.placeTower(3, 4);
+      this.setupUI();
     });
+    document.getElementById('btn-restart').addEventListener('click', () => this.resetMission());
+    window.addEventListener('storage', () => this.updateHUD());
 
     // Stage Tabs
     document.getElementById('tab-nexus').addEventListener('click', () => this.switchStage('nexus'));
@@ -307,8 +306,6 @@ export class TowerDefenseGame {
 
   switchStage(stageKey) {
     if (!Object.hasOwn(MISSIONS, stageKey)) return;
-    const missing = missingRequirements(campaign.read(), MISSIONS[stageKey].id);
-    if (missing.length) { this.announce(`Locked: ${missing.join(' • ')}`); return; }
     this.stage = stageKey;
     this.configurePaths();
     this.resetMission();
@@ -340,7 +337,7 @@ export class TowerDefenseGame {
   }
 
   placeTower(col, row) {
-    if (this.status !== 'ready' || !levelUnlocked(campaign.read(), MISSIONS[this.stage].id)) return;
+    if (this.status !== 'ready') return;
     if (!Number.isInteger(col) || !Number.isInteger(row) || col < 0 || col >= COLS || row < 0 || row >= ROWS) return;
 
     if (this.stage === 'sovereign' && !this.directive) { this.announce('Choose a foundational directive before building.'); return; }
@@ -400,7 +397,7 @@ export class TowerDefenseGame {
   }
 
   startWave() {
-    if (this.waveActive || this.status !== 'ready' || !levelUnlocked(campaign.read(), MISSIONS[this.stage].id)) return;
+    if (this.waveActive || this.status !== 'ready') return;
     if (this.stage === 'sovereign' && !this.directive) { this.announce('Choose a directive before Wave 10.'); return; }
     clearTimeout(this.autoTimer);
     this.autoTimer = null;
@@ -494,7 +491,7 @@ export class TowerDefenseGame {
         campaign.complete(MISSIONS[this.stage].id);
         const intermission = typeof document === 'undefined' ? null : document.getElementById('mission-intermission');
         if (intermission) intermission.hidden = false;
-        const nextStep = this.stage === 'sovereign' ? DIRECTIVES[this.directive].ending + ' Reflect: ' + DIRECTIVES[this.directive].reflection : 'Your next lesson is ready in Learn & Play.';
+        const nextStep = this.stage === 'sovereign' ? DIRECTIVES[this.directive].ending + ' Reflect: ' + DIRECTIVES[this.directive].reflection : 'Choose another stage, replay this one, or try an optional lesson.';
         this.announce(`Mission secured! ${MISSIONS[this.stage].waves} waves cleared. ${nextStep} Completion XP is awarded once.${campaign.persistent ? '' : ' Saving unavailable: this result will not persist after leaving this page.'}`);
         this.updateHUD();
         return;
@@ -824,11 +821,9 @@ export class TowerDefenseGame {
     document.getElementById('btn-auto-wave').disabled = this.status !== 'ready';
     document.getElementById('btn-place').disabled = this.status !== 'ready';
     document.getElementById('btn-auto-wave').textContent = `Auto-Wave: ${this.autoWave ? 'ON' : 'OFF'}`;
-    for (const mission of Object.values(MISSIONS)) {
-      const tab = document.getElementById(`tab-${mission.stage}`);
-      tab.disabled = !levelUnlocked(campaign.read(), mission.id);
-      tab.title = missingRequirements(campaign.read(), mission.id).join(' • ');
-    }
+    const starter = document.getElementById('btn-starter-tower');
+    starter.hidden = this.stage !== 'nexus';
+    starter.disabled = this.status !== 'ready' || this.towers.length > 0;
     document.getElementById('sovereign-brief').hidden = this.stage !== 'sovereign';
     document.querySelectorAll('[data-directive]').forEach(button => {
       button.disabled = this.status !== 'ready' || !!this.directive;
@@ -837,7 +832,7 @@ export class TowerDefenseGame {
     document.getElementById('sovereign-readout').textContent = this.stage === 'sovereign'
       ? (this.directive ? DIRECTIVES[this.directive].title + ' · ' : 'Choose a directive · ') + WAVE_LESSONS[this.wave - 1] + (campaign.read().sovereignShieldUsed ? ' Campaign EMP spent.' : ' Campaign EMP available to Martyrdom.') : '';
     document.getElementById('campaign-save-status').textContent = campaign.persistent
-      ? 'Campaign progress saves in this browser.' : 'Saving unavailable. Enable browser storage to keep unlocks across games.';
+      ? 'Campaign progress saves in this browser.' : 'Saving unavailable. Enable browser storage to keep progress across games.';
   }
 
   updateVaultModal() {

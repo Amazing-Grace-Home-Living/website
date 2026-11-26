@@ -1,6 +1,6 @@
 import { CAMPAIGN_KEY, normalizeProgress, emptyProgress, completeLevel, progressSummary } from './progression.js';
 import { LESSONS } from './curriculum.js';
-import { SAVE_KEY as MATCH_KEY, validSave } from '../progress.js';
+import { SAVE_KEY as MATCH_KEY, validSave, earnedMatchLevels } from '../progress.js';
 import { RPG_KEY, normalizeAdventure, chapterComplete } from '../matrix-rpg/engine.js';
 import { CHAPTERS } from '../matrix-rpg/content.js';
 import { SAVE_KEY as DEFENSE_KEY, normalizeDefenseRecord } from '../vim-defense/engine.js';
@@ -23,6 +23,7 @@ function requireVersion(raw, version, label) { if (!object(raw) || raw.version !
 function matchRecord(raw) {
   if (!validSave(raw)) throw Error('Invalid Match Maker checkpoint.');
   return { version: 1, level: raw.level, total: raw.total, badges: [...new Set(raw.badges)], score: raw.score, moves: raw.moves, status: raw.status,
+    ...(raw.openSelection ? { openSelection: true } : {}),
     grid: raw.grid.map(row => row.map(g => ({ type: g.type, kind: g.type, special: g.special, createdBy: g.createdBy === 'shape' ? 'shape' : null }))) };
 }
 function defenseRecord(raw) {
@@ -140,7 +141,7 @@ function reconcile(records, storage) {
   const story = get(RPG_KEY);
   if (story) for (const chapter of CHAPTERS) if (chapterComplete(story, chapter.id)) state = completeLevel(state, chapter.milestone);
   const match = get(MATCH_KEY);
-  if (match) for (let level = 1; level <= (['won', 'complete'].includes(match.status) ? match.level : match.level - 1); level++) state = completeLevel(state, `match-${level}`);
+  if (match) for (const level of earnedMatchLevels(match)) state = completeLevel(state, `match-${level}`);
   const matrix = get(MATRIX_KEY);
   if (matrix?.player.currentCampaignLevel >= 1) state = completeLevel(state, 'matrix-academy');
   if (matrix?.player.currentCampaignLevel === 4) state = completeLevel(state, 'matrix-earth');

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Relay Patrol · Arcade Shooter</title>
+  <link rel="stylesheet" href="/src/game/learning/learning.css">
+  <link rel="stylesheet" href="./patrol.css">
+</head>
+<body>
+  <main class="patrol">
+    <a href="/arcade/">← Arcade</a>
+    <h1>Relay Patrol</h1>
+    <p id="controls">Move with Left and Right. Hold Space to fire. On touch screens, use the buttons below the board.</p>
+    <p id="score">Score 0 · Shields 3 · Wave 1</p>
+    <canvas width="480" height="400" aria-label="Relay Patrol game board" aria-describedby="controls" tabindex="0"></canvas>
+    <div class="patrol-controls" aria-label="Ship controls">
+      <button type="button" data-control="left">Left</button>
+      <button type="button" data-control="fire">Fire</button>
+      <button type="button" data-control="right">Right</button>
+    </div>
+    <p id="status" role="status">Protect the relay through three waves.</p>
+    <button id="start" class="primary" type="button">Start patrol</button>
+  </main>
+  <script type="module" src="./patrol.js"></script>
+</body>
+</html>

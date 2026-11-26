@@ -39,12 +39,12 @@ not a measurement of intelligence, personality, or clinical ability.
 
 Restored regions award one-time Learn & Play milestones:
 
-- `rpg-garden`: 75 campaign XP; an alternative Nexus practice prerequisite.
+- `rpg-garden`: 75 campaign XP.
 - `rpg-commons`: 100 campaign XP; requires the garden milestone.
 - `rpg-archive`: 150 campaign XP; requires the Commons milestone and earns the
   Signalkeeper badge.
 
-Nexus still requires the Foundations quiz. RPG quest XP and campaign XP are labeled
+All four defense stages are available independently of RPG and quiz progress. RPG quest XP and campaign XP are labeled
 separately. Repeating quests or reloading the ending does not award extra XP.
 Starting a new RPG resets the adventure only; previously earned campaign
 milestones remain earned.

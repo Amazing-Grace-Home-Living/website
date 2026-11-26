@@ -1,5 +1,5 @@
 import { CAMPAIGN_KEY, emptyProgress, normalizeProgress, recordQuiz, completeLevel } from './progression.js';
-import { loadGame } from '../progress.js';
+import { earnedMatchLevels, loadGame } from '../progress.js';
 
 export function createCampaignStore(storage) {
   let memory = emptyProgress();
@@ -31,9 +31,10 @@ export function createCampaignStore(storage) {
     restoreLegacyMatch() {
       const match = loadGame(storage);
       if (!match) return;
-      const last = match.status === 'complete' || match.status === 'won' ? match.level : match.level - 1;
+      const levels = earnedMatchLevels(match);
+      if (!levels.length) return;
       let state = read();
-      for (let level = 1; level <= last; level++) state = completeLevel(state, `match-${level}`);
+      for (const level of levels) state = completeLevel(state, `match-${level}`);
       write(state);
     },
   };

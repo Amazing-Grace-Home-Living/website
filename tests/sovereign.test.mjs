@@ -23,8 +23,8 @@ function game() {
     setupUI(){}, updateHUD(){}, saveVault(){}, announce(message){this.message=message;} });
   g.configurePaths(); return g;
 }
-test('Act IV preserves existing completion and follows the completed Act III mission', () => {
-  assert.equal(levelUnlocked(emptyProgress(),'tower-sovereign'),false);
+test('Act IV is immediately playable and preserves existing completion', () => {
+  assert.equal(levelUnlocked(emptyProgress(),'tower-sovereign'),true);
   let direct = emptyProgress();
   direct = completeLevel(direct, 'match-1');
   direct = recordQuiz(direct, 'foundations', LESSONS.find(l => l.id === 'foundations').questions.map(q => q.answer)).state;

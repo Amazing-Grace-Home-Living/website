@@ -117,12 +117,12 @@ test('storage resumes valid checkpoints, recovers corrupt saves, and handles quo
   quota.save(through(2)); assert.equal(quota.read().completed.length, 2);
 });
 
-test('RPG campaign milestones require earlier regions and provide an alternative Nexus practice prerequisite', () => {
+test('RPG milestone order remains separate from defense', () => {
   let campaign = emptyProgress();
   assert.throws(() => completeLevel(campaign, 'rpg-archive'), /locked/);
   assert.deepEqual(normalizeProgress({ version: 1, quizzes: {}, completedLevels: ['rpg-archive'] }).completedLevels, []);
   campaign = completeLevel(campaign, 'rpg-garden');
-  assert.equal(levelUnlocked(campaign, 'tower-nexus'), false);
+  assert.equal(levelUnlocked(campaign, 'tower-nexus'), true);
   campaign = recordQuiz(campaign, 'foundations', LESSONS[0].questions.map(q => q.answer)).state;
   assert.equal(levelUnlocked(campaign, 'tower-nexus'), true);
   for (const chapter of CHAPTERS.slice(1)) campaign = completeLevel(campaign, chapter.milestone);

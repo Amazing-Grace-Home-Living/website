@@ -9,7 +9,7 @@ const localRequests = route => new URL(route.request().url()).origin === origin 
 let browser;
 try {
   await new Promise((resolve, reject) => { server.stdout.once('data', resolve); server.once('error', reject); server.once('exit', code => reject(Error(`Server exited ${code}`))); });
-  browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL, headless: true });
+  browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL, headless: true, executablePath: process.env.CHROME_PATH });
   const page = await browser.newPage({ viewport: { width: 1366, height: 1000 }, reducedMotion: 'reduce' });
   await page.route('**/*', localRequests);
   await page.addInitScript(() => { let seed = 123456; Math.random = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296); });
@@ -19,12 +19,49 @@ try {
   const visit = path => page.goto(`${origin}${path}`);
   await visit('/arcade/');
   console.log('Arcade:', await page.title(), await page.locator('h1').textContent());
-  await page.locator('a.primary[href="/lms/"]').first().click();
-  await page.waitForSelector('[data-lesson="foundations"]');
-  assert.equal(await page.locator('[data-lesson="tactics"]').isDisabled(), true);
-  await visit('/src/game/tower-defense/index.html?stage=boss');
-  await page.waitForFunction(() => document.getElementById('mission-status').textContent.includes('Locked'));
+  await page.getByRole('link', { name: 'Play tower defense' }).click();
+  await page.waitForFunction(() => document.getElementById('mission-status').textContent.includes('Mission ready'));
+  for (const stage of ['nexus', 'syndicate', 'boss', 'sovereign']) {
+    assert.equal(await page.locator(`#tab-${stage}`).isEnabled(), true);
+  }
+  await page.locator('#btn-starter-tower').click();
+  assert.equal(await page.locator('#credits').textContent(), '100');
+  await page.locator('#btn-wave').click();
   assert.equal(await page.locator('#btn-wave').isDisabled(), true);
+  await visit('/src/game/tower-defense/index.html?stage=boss');
+  await page.waitForFunction(() => document.getElementById('mission-status').textContent.includes('Mission ready'));
+  assert.equal(await page.locator('#tab-boss').evaluate(tab => tab.classList.contains('active')), true);
+
+  const fresh = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
+  await fresh.route('**/*', localRequests);
+  fresh.on('pageerror', error => errors.push(error.message));
+  await fresh.goto(`${origin}/arcade/`);
+  await fresh.getByRole('link', { name: 'Play match-3' }).click();
+  await fresh.waitForSelector('#board .tile');
+  await fresh.locator('#choose-level').selectOption('5');
+  assert.match(await fresh.locator('#level-title').textContent(), /Level 5 of 5/);
+  assert.equal(await fresh.locator('#board .tile').count(), 49);
+  await fresh.locator('#hint').click();
+  const hinted = fresh.locator('.hinted');
+  const [from, to] = await Promise.all([hinted.nth(0).boundingBox(), hinted.nth(1).boundingBox()]);
+  await fresh.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+  await fresh.mouse.down();
+  await fresh.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 5 });
+  await fresh.mouse.up();
+  await fresh.waitForFunction(() => Number(document.getElementById('score').textContent.replaceAll(',', '')) > 0);
+  await fresh.reload();
+  await fresh.waitForSelector("#board .tile");
+  assert.match(await fresh.locator('#level-title').textContent(), /Level 5 of 5/);
+  assert.equal(await fresh.evaluate(() => localStorage.getItem('amazing-grace-learning-v1')), null);
+  await fresh.goto(`${origin}/arcade/`);
+  await fresh.getByRole('link', { name: 'Play Relay Patrol' }).click();
+  await fresh.getByRole('button', { name: 'Start patrol' }).click();
+  await fresh.keyboard.down('Space');
+  await fresh.waitForFunction(() => document.getElementById('score').textContent.includes('Score 100'));
+  await fresh.keyboard.up('Space');
+  assert.equal(await fresh.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  await fresh.close();
+  console.log('PASS direct match-3, Level 5 selection, drag-to-match, save reload, and shooter hit');
 
   async function quiz(id, fail = false) {
     await visit('/lms/'); await page.locator(`[data-lesson="${id}"]`).click();
@@ -38,7 +75,6 @@ try {
   assert.equal(await page.locator('#xp').textContent(), '0');
   await quiz('foundations');
   assert.equal(await page.locator('#xp').textContent(), '50');
-  assert.match(await page.locator('#mission-cards').first().textContent(), /Complete Code Matrix/);
   // Fixture a nearly completed puzzle, then earn the milestone through normal inputs.
   await visit('/arcade/code-matrix/');
   await page.waitForSelector('.tile');
@@ -149,7 +185,7 @@ try {
   await blockedPage.goto(`${origin}/lms/`);
   await blockedPage.waitForFunction(() => document.getElementById('save-note').textContent.includes('Saving is unavailable'));
   await blockedPage.goto(`${origin}/src/game/tower-defense/index.html`);
-  await blockedPage.waitForFunction(() => document.getElementById('mission-status').textContent.includes('Locked'));
+  await blockedPage.waitForFunction(() => document.getElementById('mission-status').textContent.includes('Mission ready'));
   await blocked.close();
-  console.log('PASS full quiz → puzzle → three defense missions → badges flow, replay XP, locked deep links, mobile layout, blocked storage; no page errors');
+  console.log('PASS full quiz → puzzle → three defense missions → badges flow, replay XP, direct stage links, mobile layout, blocked storage; no page errors');
 } finally { await browser?.close(); server.kill(); }

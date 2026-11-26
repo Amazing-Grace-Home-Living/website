@@ -8,10 +8,15 @@ export function newGame(level = 1, total = 0, badges = []) {
   return { version: 1, grid: createPlayableGrid(), level, total, badges, score: 0,
     moves: LEVELS[level - 1].moves, status: 'playing' };
 }
+export function earnedMatchLevels(state) {
+  const won = ['won', 'complete'].includes(state.status);
+  if (state.openSelection) return won ? [state.level] : [];
+  return Array.from({ length: won ? state.level : state.level - 1 }, (_, i) => i + 1);
+}
 export function validSave(s) {
   const kinds = ['heart', 'star', 'cross', 'flame', 'drop'];
   const specials = [null, 'lineH', 'lineV', 'bomb', 'supernova'];
-  return s?.version === 1 && Number.isInteger(s.level) && s.level >= 1 && s.level <= LEVELS.length &&
+  return s?.version === 1 && (s.openSelection === undefined || s.openSelection === true) && Number.isInteger(s.level) && s.level >= 1 && s.level <= LEVELS.length &&
     Number.isSafeInteger(s.score) && s.score >= 0 && Number.isSafeInteger(s.total) && s.total >= s.score &&
     Number.isInteger(s.moves) && s.moves >= 0 && s.moves <= LEVELS[s.level - 1].moves &&
     ['playing', 'won', 'lost', 'complete'].includes(s.status) &&
