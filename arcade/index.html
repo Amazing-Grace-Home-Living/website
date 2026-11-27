@@ -24,15 +24,20 @@
     <section class="hero">
       <div>
         <h1>Arcade</h1>
-        <p>Choose a game and play.</p>
+        <p>Choose a game and play—all stages unlocked with no quiz gates.</p>
         <a class="button primary" href="/src/game/tower-defense/index.html">Play tower defense →</a>
       </div>
     </section>
     <section class="cards campaign-card-grid" aria-label="Arcade games">
-      <article>
+      <article class="campaign-card">
         <h2>Matrix of Conscience · Tower Defense</h2>
         <p>Place towers to protect the Core. All four stages are open.</p>
-        <a class="button primary" href="/src/game/tower-defense/index.html">Start Nexus Defense →</a>
+        <div class="campaign-modes" aria-label="Tower Defense stages">
+          <a class="button primary" href="/src/game/tower-defense/?stage=nexus">Stage 1: Nexus Defense →</a>
+          <a class="button" href="/src/game/tower-defense/?stage=syndicate">Stage 2: Syndicate Siege →</a>
+          <a class="button" href="/src/game/tower-defense/?stage=boss">Stage 3: Boss Emergence →</a>
+          <a class="button" href="/src/game/tower-defense/?stage=sovereign">Act IV: Sovereign Conscience →</a>
+        </div>
       </article>
       <article>
         <h2>Code Matrix · Match-3</h2>
@@ -45,6 +50,11 @@
         <a class="button primary" href="/arcade/relay-patrol/">Play Relay Patrol →</a>
       </article>
       <article>
+        <h2>Signal Operations · VIM &amp; PowerShell Defense</h2>
+        <p>Space-style VIM Defense with H/J/K/L movement and drones, plus PowerShell Defense command-line turrets.</p>
+        <a class="button primary" href="/arcade/signal-operations/">Open Signal Operations →</a>
+      </article>
+      <article>
         <h2>Signalkeepers · Story Puzzles</h2>
         <p>Explore three regions through memory, route, and story challenges.</p>
         <a class="button" href="/arcade/matrix-of-conscience/">Explore Signalkeepers →</a>
@@ -53,6 +63,11 @@
         <h2>Lessons and Quizzes</h2>
         <p>Review the campaign lessons and try optional knowledge challenges.</p>
         <a class="button" href="/lms/#learning">Browse lessons →</a>
+      </article>
+      <article>
+        <h2>Learn &amp; Play Campaign</h2>
+        <p>Optional story RPG missions, Bible study, and tech lessons if you want to earn bonus badges and XP.</p>
+        <a class="button" href="/lms/">Enter the Matrix campaign &rarr;</a>
       </article>
     </section>
     <section class="cards" aria-label="Professional learning games">
@@ -69,6 +84,6 @@
     <span>Amazing Grace · Room to play.</span>
   </footer>
   <script type="module" src="/src/game/academy/profile-widget.js"></script>
-<figure><img src='https://via.placeholder.com/300x200?text=index' alt='Screenshot of index game' loading='lazy'></figure></body>
+</body>
 </html>
 

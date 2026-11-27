@@ -306,6 +306,11 @@ export class TowerDefenseGame {
 
   switchStage(stageKey) {
     if (!Object.hasOwn(MISSIONS, stageKey)) return;
+    if (this.status === 'locked') {
+      const missing = missingRequirements(campaign.read(), MISSIONS[stageKey].id);
+      this.announce(`Locked: ${missing.length ? missing.join(' • ') : 'Complete previous mission'}`);
+      return;
+    }
     this.stage = stageKey;
     this.configurePaths();
     this.resetMission();
