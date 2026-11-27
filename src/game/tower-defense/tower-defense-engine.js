@@ -188,12 +188,10 @@ export class TowerDefenseGame {
     this.enemies = [];
     this.projectiles = [];
     this.floatingTexts = [];
-    this.status = levelUnlocked(campaign.read(), MISSIONS[this.stage].id) ? 'ready' : 'locked';
+    this.status = 'ready';
     this.applyVaultBonuses();
     this.setupUI();
-    this.announce(this.status === 'locked'
-      ? `Locked: ${missingRequirements(campaign.read(), MISSIONS[this.stage].id).join(' • ')}. Visit Learn & Play to continue.`
-      : `Mission ready. ${this.bonusCredits ? `Signal bonus +${this.bonusCredits} credits. ` : ''}${this.stage === 'sovereign' ? 'Choose a directive before building. ' : ''}Clear ${MISSIONS[this.stage].waves} waves with core health left. Place towers off the path, then start a wave.`);
+    this.announce(`Mission ready. ${this.bonusCredits ? `Signal bonus +${this.bonusCredits} credits. ` : ''}${this.stage === 'sovereign' ? 'Choose a directive before building. ' : ''}Clear ${MISSIONS[this.stage].waves} waves with core health left. Place towers off the path, then start a wave.`);
   }
 
   setupUI() {
@@ -307,8 +305,11 @@ export class TowerDefenseGame {
 
   switchStage(stageKey) {
     if (!Object.hasOwn(MISSIONS, stageKey)) return;
-    const missing = missingRequirements(campaign.read(), MISSIONS[stageKey].id);
-    if (missing.length) { this.announce(`Locked: ${missing.join(' • ')}`); return; }
+    if (this.status === 'locked') {
+      const missing = missingRequirements(campaign.read(), MISSIONS[stageKey].id);
+      this.announce(`Locked: ${missing.length ? missing.join(' • ') : 'Complete previous mission'}`);
+      return;
+    }
     this.stage = stageKey;
     this.configurePaths();
     this.resetMission();

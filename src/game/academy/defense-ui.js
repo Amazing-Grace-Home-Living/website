@@ -109,10 +109,12 @@ $('boss-form').onsubmit = event => {
 };
 $('boss-next').onclick = () => { if (game.bossAnswers.size >= 3) closeQuestion('boss-dialog'); else drawBoss(); };
 $('boss-close').onclick = () => closeQuestion('boss-dialog');
-$('btn-quiz-override').onclick = () => {
-  if (game.enemies.some(enemy => enemy.shielded)) openBoss();
-  else openLesson(PS_LESSONS.find(lesson => !academy.read().lessons.includes(lesson.id))?.id || PS_LESSONS[0].id);
-};
+if ($('btn-quiz-override')) {
+  $('btn-quiz-override').onclick = () => {
+    if (game.enemies.some(enemy => enemy.shielded)) openBoss();
+    else openLesson(PS_LESSONS.find(lesson => !academy.read().lessons.includes(lesson.id))?.id || PS_LESSONS[0].id);
+  };
+}
 $('btn-restart').onclick = () => {
   manualPaused = false; lessonPanel.hidden = true; bossPanel.hidden = true; game.reset(); pause(false);
   game.log('New defense attempt. Earned learning and badges remain.'); refresh();
