@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import VimDefender from './vim-defender/VimDefender';
+import { VimDefender } from './vim-defender/VimDefender';
 import Match3 from './match3/Match3';
 
 export default function GamesList() {
