@@ -26,3 +26,7 @@ bfg.jar
 playwright-report/
 test-results/
 audit_report.md
+**/.next/
+**/next-env.d.ts
+**/*.tsbuildinfo
+docs/*.pdf

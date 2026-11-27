@@ -1,16 +1,5 @@
-import React, { memo, useEffect, useRef } from 'react';
-import { createRoot } from 'react-dom/client';
-import MatrixOfConscience from './components/MatrixOfConscience';
-import { useFamilyStats } from './hooks/useFamilyStats';
-import styles from './arcade-main.module.css';
-import { mountScarletLattice, type ScarletLatticeController } from './fx/scarletLattice';
-
-type FamilyStats = {
-  karma: number;
-  wisdom: number;
-  integrity: number;
-  community: number;
-};
+import React, { memo } from 'react';
+import GamesList from './games/GamesList';
 
 type StatChipProps = {
   label: string;
@@ -19,106 +8,62 @@ type StatChipProps = {
 
 const StatChip = memo(function StatChip({ label, value }: StatChipProps) {
   return (
-    <div className={styles.statChip} aria-label={`${label}: ${value}`}>
-      <div className={styles.statLabel}>{label}</div>
-      <div className={styles.statValue}>{value}</div>
+    <div
+      style={{
+        padding: '0.75rem 1rem',
+        borderRadius: '0.5rem',
+        background: '#111827',
+        border: '1px solid #1f2937',
+      }}
+      aria-label={`${label}: ${value}`}
+    >
+      <div style={{ fontSize: '0.75rem', color: '#9ca3af', textTransform: 'uppercase' }}>{label}</div>
+      <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#f9fafb' }}>{value}</div>
     </div>
   );
 });
 
-function LoadingSkeleton() {
-  return (
-    <div className={styles.skeletonPanel} aria-hidden="true">
-      {Array.from({ length: 4 }).map((_, index) => (
-        <div key={`skeleton-stat-${index}`} className={styles.skeletonChip} />
-      ))}
-      <div className={styles.skeletonChainCard} />
-    </div>
-  );
-}
-
 function ArcadeApp() {
-  const { stats, chainLevel, activeUser, syncStatus, syncError, isLoading } = useFamilyStats();
-  const scarletCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const scarletControllerRef = useRef<ScarletLatticeController | null>(null);
-
   const statEntries: Array<{ label: string; value: number }> = [
-    { label: 'Karma', value: stats.karma },
-    { label: 'Wisdom', value: stats.wisdom },
-    { label: 'Integrity', value: stats.integrity },
-    { label: 'Community', value: stats.community },
+    { label: 'Karma', value: 0 },
+    { label: 'Wisdom', value: 0 },
+    { label: 'Integrity', value: 0 },
+    { label: 'Community', value: 0 },
   ];
 
-  useEffect(() => {
-    const canvas = scarletCanvasRef.current;
-    if (!canvas) return;
-
-    const controller = mountScarletLattice(canvas);
-    if (!controller) return;
-
-    scarletControllerRef.current = controller;
-
-    return () => {
-      controller.destroy();
-      if (scarletControllerRef.current === controller) {
-        scarletControllerRef.current = null;
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    scarletControllerRef.current?.updateStats({ integrity: stats.integrity, community: stats.community });
-  }, [stats.community, stats.integrity]);
-
-  const homeHref = import.meta.env.BASE_URL || '/';
-
   return (
-    <main className={styles.main}>
-      <canvas id="scarlet-lattice" ref={scarletCanvasRef} className={styles.scarletLattice} aria-hidden="true" />
-      <section className={styles.section} aria-labelledby="nexus-arcade-title">
-        <header className={styles.header}>
+    <main style={{ minHeight: '100vh', background: '#030712', color: '#f9fafb', padding: '2rem' }}>
+      <section style={{ maxWidth: '1024px', margin: '0 auto' }} aria-labelledby="nexus-arcade-title">
+        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <div>
-            <h1 id="nexus-arcade-title" className={styles.title}>
+            <h1 id="nexus-arcade-title" style={{ fontSize: '2rem', fontWeight: 800, margin: 0 }}>
               NEXUS ARCADE
             </h1>
-            <p className={styles.subtitle}>Family Synergy System</p>
-          </div>
-
-          <div className={styles.syncPanel}>
-            <div className={styles.syncLabel}>SYNC STATUS</div>
-            <div className={styles.syncValue} aria-live="polite" aria-atomic="true">
-              {syncStatus}
-            </div>
-            <div className={styles.contributor}>Active contributor: {activeUser}</div>
+            <p style={{ color: '#9ca3af', margin: '0.25rem 0 0' }}>Family Synergy System</p>
           </div>
         </header>
 
-        <div className={styles.contentGrid}>
-          <section className={styles.statsPanel} aria-label="Family synergy metrics">
-            {isLoading ? (
-              <LoadingSkeleton />
-            ) : (
-              <>
-                {statEntries.map((entry) => (
-                  <StatChip key={entry.label} label={entry.label} value={entry.value} />
-                ))}
+        <section
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+            gap: '1rem',
+            marginBottom: '2rem',
+          }}
+          aria-label="Family synergy metrics"
+        >
+          {statEntries.map((entry) => (
+            <StatChip key={entry.label} label={entry.label} value={entry.value} />
+          ))}
+        </section>
 
-                <div className={styles.chainCard} aria-label={`Chain level: ${chainLevel}`}>
-                  <div className={styles.chainLabel}>CHAIN LEVEL</div>
-                  <div className={styles.chainValue}>{chainLevel}</div>
-                  {syncError ? <p className={styles.errorText}>{syncError}</p> : null}
-                </div>
-              </>
-            )}
-          </section>
+        {/* Game selection */}
+        <section style={{ marginBottom: '2rem' }}>
+          <GamesList />
+        </section>
 
-          <section className={styles.matrixPanel} aria-label="Matrix of Conscience visualization">
-            <MatrixOfConscience stats={stats as FamilyStats} chainLevel={chainLevel} activeUser={activeUser} />
-          </section>
-        </div>
-
-        <nav className={styles.nav} aria-label="Arcade navigation">
-          <a href={homeHref} className={styles.backLink} aria-label="Back to Sanctuary home">
+        <nav aria-label="Arcade navigation">
+          <a href="/" style={{ color: '#60a5fa', textDecoration: 'none' }} aria-label="Back to Sanctuary home">
             Back to Sanctuary
           </a>
         </nav>
@@ -127,14 +72,4 @@ function ArcadeApp() {
   );
 }
 
-const container = document.getElementById('root');
-
-if (!container) {
-  throw new Error('Root container #root was not found.');
-}
-
-createRoot(container).render(
-  <React.StrictMode>
-    <ArcadeApp />
-  </React.StrictMode>
-);
+export default ArcadeApp;
